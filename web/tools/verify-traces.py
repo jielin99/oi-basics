@@ -33,8 +33,8 @@ def check(tid, t):
     if not t.get("steps"):
         return ["steps 为空"]
     for i, s in enumerate(t["steps"]):
-        if not (1 <= s["line"] <= nlines):
-            errs.append("step %d: line=%d 超出 1..%d" % (i + 1, s["line"], nlines))
+        if not (0 <= s["line"] <= nlines):   # 0 = 本步不高亮任何行
+            errs.append("step %d: line=%d 超出 0..%d" % (i + 1, s["line"], nlines))
     if t["kind"] == "normal" and norm(t["steps"][-1].get("out", "")) != norm(t["expectOutput"]):
         errs.append("最后一步 out=%r 与 expectOutput=%r 不一致" % (t["steps"][-1].get("out"), t["expectOutput"]))
     if "%SRC%" not in t["harness"]:

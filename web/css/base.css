@@ -78,3 +78,5 @@ button.primary:hover:not(:disabled) { background: #1d4ed8; }
 .arr2 td.i { font-size: .7rem; color: var(--muted); text-align: center; }
 .arr2 td.v { border: 2px solid var(--line); border-radius: 8px; padding: 2px 10px; min-width: 2.4em; text-align: center; background: #fff; font-family: ui-monospace, Consolas, monospace; }
 .arr2 td.v.hl { background: var(--hl); border-color: #f59e0b; }
+
+.stp-main { align-items: start; }

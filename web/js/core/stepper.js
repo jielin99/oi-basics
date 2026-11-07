@@ -106,13 +106,16 @@
     for (name in (cur.arrays || {})) {
       var data = cur.arrays[name], hl = (cur.hl && cur.hl[name]), base = bases[name] || 0;
       if (Array.isArray(data[0])) {
-        // 二维：hl 是 [[行,列], ...]（下标按 base 计）；表头显示列下标，行首显示行下标
-        var pairs = (hl || []).map(function (p) { return p[0] + "," + p[1]; });
+        // 二维：hl 元素为 [行,列]（高亮单格）或 [行]（高亮整行），下标按 base 计；
+        // trace.cols[name] 给出列标题（用于"记录表"），否则显示列下标
+        var cols = (t.cols || {})[name];
+        var pairs = [], rowsOn = [];
+        (hl || []).forEach(function (p) { if (p.length === 1) rowsOn.push(p[0]); else pairs.push(p[0] + "," + p[1]); });
         ah += '<div class="arr2"><span class="name">' + esc(name) + '</span><table><tr><td></td>' +
-          data[0].map(function (_, c) { return '<td class="i">' + (c + base) + '</td>'; }).join("") + '</tr>' +
+          data[0].map(function (_, c) { return '<td class="i">' + esc(cols ? cols[c] : c + base) + '</td>'; }).join("") + '</tr>' +
           data.map(function (row, r) {
             return '<tr><td class="i">' + (r + base) + '</td>' + row.map(function (v, c) {
-              var on = pairs.indexOf((r + base) + "," + (c + base)) >= 0;
+              var on = pairs.indexOf((r + base) + "," + (c + base)) >= 0 || rowsOn.indexOf(r + base) >= 0;
               return '<td class="v' + (on ? " hl" : "") + '">' + esc(v) + '</td>';
             }).join("") + '</tr>';
           }).join("") + '</table></div>';
@@ -121,7 +124,7 @@
       var hls = hl === undefined ? [] : [].concat(hl);
       ah += '<div class="arr"><span class="name">' + esc(name) + '</span>' +
         data.map(function (v, j) {
-          var cls = (hls.indexOf(j) >= 0 ? " hl" : "") + (v === "?" ? " bad" : "");   // "?" = 越界格，红色警示
+          var cls = (hls.indexOf(j + base) >= 0 ? " hl" : "") + (v === "?" ? " bad" : "");   // "?" = 越界格，红色警示
           return '<div class="cell' + cls + '"><div class="v">' + esc(v) + '</div><div class="i">' + (j + base) + '</div></div>';
         }).join("") + '</div>';
     }

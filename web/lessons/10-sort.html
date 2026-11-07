@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第10课 结构体与排序（精选演示）</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="10" data-lesson-label="第10课｜结构体与排序">
+<div class="wrap">
+  <div class="topbar">
+    <a href="../index.html">← 目录</a>
+    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../10-结构体与排序.md">10-结构体与排序.md</a></span>
+    <button id="btn-present">投屏模式</button>
+  </div>
+
+  <h1>排序：冒泡，和“一条记录一起排”</h1>
+  <p>这一页有两个演示：先看冒泡排序怎么一轮一轮把数排好（初赛要会读），再看结构体排序里<b>比较函数 <code>cmp</code> 到底在回答什么问题</b>（比赛里最常用）。</p>
+
+  <h2>1. 冒泡排序：大的数一轮一轮“冒”到最后</h2>
+  <div data-trace="ex-10-01"></div>
+  <div id="q-01a"></div>
+  <div id="q-01b"></div>
+
+  <h2>2. 结构体排序：整条记录一起动</h2>
+  <p>一个学生有名字、分数、编号三项信息，结构体把它们捆成一条记录。排序时我们要告诉 <code>sort</code>：<b>两条记录比一比，谁应该排在前面</b>。</p>
+  <div data-trace="ex-10-02"></div>
+  <div id="q-02a"></div>
+  <div id="q-02b"></div>
+  <div id="q-02c"></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把冒泡排序敲一遍，把数据改成 <code>5 1 4 2</code>，<b>先猜</b>第 1 轮结束后数组是什么，再在每轮后面加一行输出验证。</li>
+      <li>把 cmp 的第二关键字删掉，只留 <code>return a.score &gt; b.score;</code>，看看 Tom 和 Bob 的顺序会不会变（可能变，也可能不变——这正是不能依赖它的原因）。</li>
+    </ol>
+    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（<code>sort</code> 的区间写法、<code>greater</code>、多关键字完整例子等）请读 <a href="../../10-结构体与排序.md">10-结构体与排序.md</a>。</p>
+  </div>
+
+  <div id="ask-box" class="card ask-box" style="display:none">
+    <b>🙋 我的问题清单</b>（复制后发给老师）
+    <textarea readonly></textarea>
+    <div class="warn"></div>
+    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+  </div>
+</div>
+
+<script src="../data/traces/sort-10.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+
+  Q("q-01a", {
+    q: "预测：数据是 4 2 3 1。第 1 轮结束后，数组变成什么？",
+    options: ["1 2 3 4", "2 3 1 4", "2 4 3 1"],
+    answer: 1,
+    explain: "第 1 轮从左到右相邻比较：4 和 2 换、4 和 3 换、4 和 1 换，最大的 4 冒到了最后，其余的相对顺序是 2 3 1。"
+  });
+  Q("q-01b", {
+    q: "变一变：对 n 个数做冒泡排序，外层要进行几轮？",
+    options: ["n 轮", "n - 1 轮", "n / 2 轮"],
+    answer: 1,
+    explain: "每一轮都会让一个最大的数归位，n - 1 个归位后，最后一个自然就对了。4 个数就是 3 轮。"
+  });
+  Q("q-02a", {
+    q: "cmp 里写成 return a.score >= b.score; 会有什么问题？",
+    options: ["没问题，更保险", "拿 x 和自己比，cmp(x, x) 会返回 true，不符合要求，sort 可能排错甚至崩溃", "只是排得慢一点"],
+    answer: 1,
+    explain: "cmp(a, b) 表示“a 应该排在 b 前面吗”。x 不应该排在 x 自己前面，所以 cmp(x, x) 必须是 false，比较函数里只能用 > 或 <，不能带等号。"
+  });
+  Q("q-02b", {
+    q: "要求“先按总分从高到低，总分相同再按学号从小到大”，哪个 cmp 写对了？",
+    options: [
+      "if (a.total != b.total) return a.total > b.total;  return a.id < b.id;",
+      "if (a.id != b.id) return a.id < b.id;  return a.total > b.total;",
+      "return a.total > b.total && a.id < b.id;"
+    ],
+    answer: 0,
+    explain: "要一层一层比：前面的关键字不相等就直接决定结果，相等才看下一个。第二个选项先看学号，学号几乎总不同，分数就没用了；第三个选项里“分高但学号大”的人，两边都返回 false，会被当成一样大。"
+  });
+  Q("q-02c", {
+    q: "题目要求“成绩相同的按输入顺序输出”，但 cmp 只写了 return a.score > b.score;，会怎样？",
+    options: ["sort 一定会保持输入顺序", "sort 不保证同分的人保持原来的先后", "编译不通过"],
+    answer: 1,
+    explain: "sort 不保证相等元素的原有顺序（不稳定排序）。所以要把输入编号 id 记下来，作为最后一个关键字。"
+  });
+
+  mountSteppers();
+  PageKit.init();
+</script>
+</body>
+</html>
