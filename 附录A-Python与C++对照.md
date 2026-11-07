@@ -22,7 +22,7 @@
 | `s = "abc"` | `string s = "abc";`（双引号） |
 | `ok = True` | `bool ok = true;` |
 | `None` | 无对应 |
-| 整数无限大 | `int` 约 ±21 亿，`long long` 约 ±9.2×10¹⁸，超了**溢出不报错** |
+| 整数无限大 | `int` 约 ±21 亿，`long long` 约 ±9.2×10¹⁸，超了就**溢出**，运行时不会提醒，结果不可靠 |
 
 ## 运算
 
@@ -78,7 +78,7 @@
 | `a.append(x)` | `v.push_back(x);` |
 | `a.pop()` | `v.pop_back();` |
 | `len(a)` | `v.size()`；数组自己记 n |
-| `a[-1]` | `v.back()`；数组 `a[n]` |
+| `a[-1]` | `v.back()`（v 不能为空）；数组：存在 `a[0]~a[n-1]` 时是 `a[n-1]`，存在 `a[1]~a[n]`（本课程习惯）时是 `a[n]` |
 | `a.sort()` | `sort(a + 1, a + n + 1);` / `sort(v.begin(), v.end());` |
 | `a.sort(reverse=True)` | `sort(..., greater<int>());` |
 | `a.reverse()` | `reverse(a + 1, a + n + 1);` |

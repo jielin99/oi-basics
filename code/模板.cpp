@@ -16,14 +16,11 @@ int main() {
     ios::sync_with_stdio(false);   // 加速 cin/cout（之后不要再混用 scanf/printf）
     cin.tie(nullptr);
 
-    int n;
-    cin >> n;
-    for (int i = 1; i <= n; i++) {
-        cin >> a[i];
-    }
+    // TODO: 按题目要求读入、计算、输出（用不到的部分记得删掉）
+    // 例：题目先给 n，再给 n 个数，存进 a[1] ~ a[n]
+    // int n;
+    // cin >> n;
+    // for (int i = 1; i <= n; i++) cin >> a[i];
 
-    // TODO: 在这里写解题逻辑
-
-    cout << n << "\n";
     return 0;
 }

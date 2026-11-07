@@ -34,7 +34,8 @@ a.cpp:6:5: error: expected ';' before 'return'
 | `invalid operands of types ... to binary 'operator<<'` | 运算符两边类型不对 | 常见于 `cout << a ^ b`，忘记加括号 |
 | `no matching function for call to 'max(int&, long long&)'` | 函数参数类型不匹配 | `max` 两个参数类型不同 |
 | `lvalue required as left operand of assignment` | 赋值号左边不能赋值 | 把 `==` 写反成 `5 = x`，或 `a + b = c` |
-| `cannot convert 'std::string' to 'const char*'` | 类型不能转换 | 把 string 用在 `printf("%s")`/`strlen` 里（要用 `s.c_str()`） |
+| `cannot convert 'std::string' to 'const char*'` | 类型不能转换 | 把 string 传给 `strlen` 等要求 C 字符串的函数（要用 `s.c_str()`） |
+| `format '%s' expects argument of type 'char*', but argument 2 has type 'std::string'`（警告） | printf 格式和参数不符 | `printf("%s", s)` 里的 s 是 string。GCC 4.9.2（Dev-C++ 5.11 自带的版本）会直接报错 `cannot pass objects of non-trivially-copyable type`；较新的 GCC 可能接受并给格式警告（开了 `-Werror` 时警告也算错误），但运行结果不可靠。改成 `s.c_str()` 或用 `cout` |
 | `control reaches end of non-void function`（警告） | 函数可能没有返回值 | 某条路径漏写 `return` |
 | `suggest parentheses around assignment used as truth value`（警告） | 条件里用了赋值 | `if (x = 5)` 应为 `if (x == 5)` |
 | `comparison of integer expressions of different signedness`（警告） | 有符号和无符号比较 | `i < s.size()`，改为 `i < (int)s.size()` |
@@ -70,7 +71,7 @@ for (int i = 1; i <= n; i++) {
 }
 ```
 
-用 `cerr` 而不是 `cout` 的好处：`cerr` 不会写进 freopen 的输出文件，也不会影响洛谷评测（但仍然建议提交前删掉）。
+用 `cerr` 而不是 `cout` 的好处：`cerr` 不会写进 freopen 的输出文件，洛谷等 OJ 一般也只检查标准输出，不会因此判错。但输出很多时会拖慢程序，提交前仍然要删掉。
 
 ### 方法 2：手动模拟
 
@@ -85,7 +86,7 @@ for (int i = 1; i <= n; i++) {
 
 ### 方法 3：二分定位
 
-程序很长、不知道哪里错时：在中间某处输出结果，看那里对不对。对 → 错误在后半段；错 → 错误在前半段。不断缩小范围。
+程序很长、不知道哪里错时：在中间某处输出结果，看那里对不对。对 → 错误多半在后半段；错 → 错误在前半段。不断缩小范围。前提是你能判断中间结果“应该是多少”；而且中间结果对，只说明这组数据走到这里没问题，换一组数据可能又不一样。
 
 ### 方法 4：自己造数据
 
