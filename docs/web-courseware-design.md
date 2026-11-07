@@ -67,7 +67,7 @@ TRACES["ex-07-01"] = {
 | Task | 内容 | 状态 |
 |---|---|---|
 | T0 | 分支 + 本设计文档 | ✅ |
-| T1 | 框架 + CodeStepper + Quiz + verify-traces；用"最小循环累加"验证；`fact(3)` 轨迹格式纸面走查 | ⬜ |
+| T1 | 框架 + CodeStepper + Quiz + verify-traces；用"最小循环累加"验证；`fact(3)` 轨迹格式纸面走查 | ✅ 见 §8 |
 | T2 | 第 7 课精选单元（见 §5） | ⬜ |
 | T3 | 第 10 课小样（见 §5） | ⬜ |
 | T4+ | 看样板 + 孩子试用后再决定是否铺开 | ⬜ |
@@ -119,3 +119,32 @@ TRACES["ex-07-01"] = {
 - md 与 Web 内容漂移：只记基线 commit，不做自动同步
 - `file://` 下各页 localStorage 是否隔离未实测：T1 验收时实测并记录
 - 轨迹手工编排，工作量随例子数增长；铺开前以孩子试用为门槛
+
+## 8. T1 记录（2026-11-08）
+
+**交付**：`web/css/base.css`、`web/js/core/{stepper,quiz,page}.js`、`web/data/traces/loop-demo.js`、`web/lessons/t1-demo.html`、`web/index.html`、`web/tools/verify-traces.py`。
+
+**已验证（本次实跑）**
+- `python3 web/tools/verify-traces.py` → `PASS loop-sum (13 步)`，共 1 个失败 0 个。
+- 反向验证：故意把 `expectOutput` 改成 7、`line` 改成 9，脚本输出 3 条 FAIL 且退出码 1（说明校验会抓错）。
+- 无头 Chromium（`--allow-file-access-from-files`，`file://`）实测，全部 PASS：后退再前进状态一致；同页两个实例互不影响；末步停止且"下一步"禁用、末步输出 6；"重来"回到 0 步；连点两次"自动播放"定时器清除、播放中再点即暂停（断言读 `_stepper.timer`）；自动播放会推进；Quiz 答错标红/改选答对标绿；"我不懂"生成 `测试｜loop-sum｜第1步`。
+- 存储被禁用（`Storage.prototype.setItem/getItem` 抛异常）：页面照常工作，清单出现"没法保存清单，请复制"提示。
+- `file://` 跨页存储（Chrome headless，同一 profile 分两次启动）：页面 1 写入的值，页面 2 能读到。⇒ 在 Chrome 上 `file://` 各页共享同一存储区；Firefox/Safari/Edge 未测。因此首页仍**不依赖**汇总（设计决策不变）。
+
+**人工核对 `loop-sum` 中间状态**：13 步逐步对照源码执行（初始化 1 次；判断 4 次，前 3 次成立，第 4 次 `4<=3` 不成立；循环体 3 次，s 依次 1、3、6；更新 3 次，i 依次 2、3、4）。
+
+**`fact(3)` 纸面走查结论**：现有格式只有一层 `vars`，不足以表达递归中的"同名 `n`、暂停位置、返回值"。需要给步骤加**可选**字段 `stack`（调用帧数组，栈底在前）：
+```js
+// fact(3) 其中一步：已递归到 fact(1)，尚未返回
+{ line: 3, stack: [ {fn:"fact", vars:{n:3}, at:"等待 fact(2)"},
+                    {fn:"fact", vars:{n:2}, at:"等待 fact(1)"},
+                    {fn:"fact", vars:{n:1}, at:"执行中"} ],
+  ret: null, note: "..." }
+// 返回时：栈顶帧弹出，ret 记录返回值，下一帧 at 变为"拿到 1，计算 2*1"
+```
+无 `stack` 的步骤行为不变，因此对现有格式向后兼容。该字段和 CallStackViz 在第 9 课再实现，本阶段不做。
+
+**未验证**
+- Firefox / Safari / Edge 下的表现；真实投屏距离下的字号；手机/平板实机（只验证了 CSS 有 720px 断点，未实机看）。
+- HTTP 部署冒烟（本阶段未部署）。
+- 未对 `t1-demo.html` 本页做端到端点击（测试用的是同源脚本拼成的测试页，使用的是同一批 JS/CSS）。
