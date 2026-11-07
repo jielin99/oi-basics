@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第7课 数组（精选演示）</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="07" data-lesson-label="第7课｜数组">
+<div class="wrap">
+  <div class="topbar">
+    <a href="../index.html">← 目录</a>
+    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../07-数组.md">07-数组.md</a></span>
+    <button id="btn-present">投屏模式</button>
+  </div>
+
+  <h1>数组：一排带编号的格子</h1>
+  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
+
+  <h2>1. 下标从 0 开始</h2>
+  <p>数组 <code>a[5]</code> 有 5 个格子，编号（下标）是 <b>0、1、2、3、4</b>，没有 <code>a[5]</code>。没写的格子自动补 0。</p>
+  <div data-trace="ex-07-01"></div>
+  <div id="q-01a"></div>
+  <div id="q-01b"></div>
+
+  <h2>2. 越界：最危险的 bug</h2>
+  <p>数组只有 3 个格子，循环却多跑了一圈。注意：<b>C++ 不会提醒你</b>，下面红色的格子是课件替你画出来的。</p>
+  <div data-trace="ex-07-02"></div>
+  <div id="q-02a"></div>
+
+  <h2>3. 桶计数：用数值本身当下标</h2>
+  <p>要数「每个数字出现了几次」，就准备一排桶，数字 x 来了就往第 x 号桶里加 1。</p>
+  <div data-trace="ex-07-03"></div>
+  <div id="q-03a"></div>
+
+  <h2>4. 二维数组：行和列</h2>
+  <p><code>g[i][j]</code> 是第 i 行第 j 列。双重循环里，<b>外层管行，内层管列</b>。</p>
+  <div data-trace="ex-07-04"></div>
+  <div id="q-04a"></div>
+  <div id="q-04b"></div>
+  <div id="q-04c"></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把 1 号例子敲一遍，把 <code>a[0] = 10</code> 改成 <code>a[0] = 7</code>，<b>先猜</b> <code>a[4]</code> 再运行。</li>
+      <li>把 4 号例子改成 3 行 4 列，并自己用 <code>cin</code> 读入数据，看输出是不是 3 行。</li>
+    </ol>
+    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（下标从 1 开始、全局数组、memset、方向数组等）请读 <a href="../../07-数组.md">07-数组.md</a>。</p>
+  </div>
+
+  <div id="ask-box" class="card ask-box" style="display:none">
+    <b>🙋 我的问题清单</b>（复制后发给老师）
+    <textarea readonly></textarea>
+    <div class="warn"></div>
+    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+  </div>
+</div>
+
+<script src="../data/traces/array-07.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+
+  Q("q-01a", {
+    q: "预测输出：下面的代码会输出什么？",
+    code: "int b[5] = {1, 2, 3};\ncout << b[3] + b[4];",
+    options: ["5", "0", "编译出错"],
+    answer: 1,
+    explain: "没写的格子自动补 0，所以 b[3] 和 b[4] 都是 0，0 + 0 = 0。"
+  });
+  Q("q-01b", {
+    q: "变一变：把 a[0] = 10 改成 a[0] = 7，最后 a[4] 是多少？",
+    options: ["7", "14", "20"],
+    answer: 1,
+    explain: "a[4] = a[0] * 2 = 7 * 2 = 14。"
+  });
+  Q("q-02a", {
+    q: "int a[5]; 这个数组能用的下标是哪些？",
+    options: ["0 ~ 4", "1 ~ 5", "0 ~ 5"],
+    answer: 0,
+    explain: "5 个格子，下标从 0 到 4。a[5] 已经越界了，C++ 不会拦你，但结果不可靠。"
+  });
+  Q("q-03a", {
+    q: "变一变：如果数据变成 3 1 3 2 3 2（多了一个 2），最后 cnt[2] 是多少？",
+    options: ["1", "2", "3"],
+    answer: 1,
+    explain: "数字 2 一共出现了 2 次，所以 2 号桶里是 2。"
+  });
+  Q("q-04a", {
+    q: "外层 i 从 1 变成 2 以后，内层 j 从几开始？",
+    options: ["接着上一行，从 4 开始", "重新从 1 开始", "保持 3 不变"],
+    answer: 1,
+    explain: "内层循环每次都会重新执行 j = 1，所以每一行都从第 1 列开始。"
+  });
+  Q("q-04b", {
+    q: "int g[10000][10000]; 大约要多少内存？（int 占 4 字节）",
+    options: ["约 40 MB", "约 400 MB", "约 4 GB"],
+    answer: 1,
+    explain: "10000 × 10000 = 1 亿个格子，× 4 字节 = 4 亿字节，约 400 MB，一般会超内存。"
+  });
+  Q("q-04c", {
+    q: "int a[3] = {1, 2, 3}, b[3]; 然后写 b = a; 会怎样？",
+    options: ["b 变成 {1, 2, 3}", "编译不通过：数组不能整体赋值", "只复制第 1 个数"],
+    answer: 1,
+    explain: "数组不能用 = 整体赋值（编译器报 invalid array assignment），要用循环一个一个复制。"
+  });
+
+  mountSteppers();
+  PageKit.init();
+</script>
+</body>
+</html>

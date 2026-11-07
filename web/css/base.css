@@ -69,3 +69,12 @@ button.primary:hover:not(:disabled) { background: #1d4ed8; }
 .ask-box { border: 2px dashed #f59e0b; background: #fffbeb; }
 .ask-box textarea { width: 100%; min-height: 6em; font: inherit; font-size: .9rem; border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
 .warn { color: var(--bad); font-size: .85rem; }
+
+/* 越界格 / 二维数组 */
+.cell.bad .v { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); font-weight: 700; }
+.arr2 { margin-bottom: 10px; }
+.arr2 .name { font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
+.arr2 table { border-collapse: separate; border-spacing: 4px; margin-top: 4px; }
+.arr2 td.i { font-size: .7rem; color: var(--muted); text-align: center; }
+.arr2 td.v { border: 2px solid var(--line); border-radius: 8px; padding: 2px 10px; min-width: 2.4em; text-align: center; background: #fff; font-family: ui-monospace, Consolas, monospace; }
+.arr2 td.v.hl { background: var(--hl); border-color: #f59e0b; }
