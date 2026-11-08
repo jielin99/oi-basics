@@ -10,7 +10,7 @@
 <div class="wrap lesson">
   <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
   <div class="layout">
-    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. Python 和 C++ 运行方式的根本区别</a></li><li class="l2"><a href="#sec-2">2. 考场用什么环境？平时就用什么</a></li><li class="l3"><a href="#sec-3">主力环境：Dev-C++ 5.11（和考场一致，推荐）</a></li><li class="l3"><a href="#sec-4">进阶：NOI Linux 2.0 虚拟机（学完第 12 课后再装）</a></li><li class="l2"><a href="#sec-5">3. 验证环境：Hello, OI</a></li><li class="l2"><a href="#sec-6">4. 注册洛谷并提交第一题</a></li><li class="l3"><a href="#sec-7">评测结果是什么意思</a></li><li class="l2"><a href="#sec-8">5. 建议的文件夹组织</a></li><li class="l2"><a href="#sec-9">✅ 自查清单</a></li></ol></details></nav>
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. Python 和 C++ 运行方式的根本区别</a></li><li class="l2"><a href="#sec-2">2. 考场用什么环境？平时就用什么</a></li><li class="l3"><a href="#sec-3">选择一：Dev-C++ 5.11（和考场完全一致）</a></li><li class="l3"><a href="#sec-4">选择二：小熊猫 Dev-C++ 6.7.5（很多老师和培训机构在用）</a></li><li class="l3"><a href="#sec-5">进阶：NOI Linux 2.0 虚拟机（学完第 12 课后再装）</a></li><li class="l2"><a href="#sec-6">3. 验证环境：Hello, OI</a></li><li class="l2"><a href="#sec-7">4. 注册洛谷并提交第一题</a></li><li class="l3"><a href="#sec-8">评测结果是什么意思</a></li><li class="l2"><a href="#sec-9">5. 建议的文件夹组织</a></li><li class="l2"><a href="#sec-10">✅ 自查清单</a></li></ol></details></nav>
     <main>
 <div data-md><h1>第 0 课 环境搭建：让第一个程序跑起来</h1></div>
 <div data-md><blockquote><p>预计用时：1 小时 本课目标：装好编辑器和编译器；能新建、编译、运行一个 <code>.cpp</code> 文件；注册洛谷并提交第一道题。</p></blockquote></div>
@@ -20,13 +20,14 @@
   <div id="q2"></div>
 </div>
 
-<div data-md><h2 id="sec-2">2. 考场用什么环境？平时就用什么</h2><p>信奥考试<b>不是</b>用 VS Code 这类通用编辑器，而是用指定的环境。平时练习最好和考场保持一致，免得考试时手忙脚乱。</p><table class="calc-tbl"><tr><th>考试</th><th>考场环境</th><th>评测环境</th></tr><tr><td><b>GESP 等级考试</b></td><td>官方建议 <b>Dev-C++ 5.11</b></td><td>官方系统（官网“考试环境说明”列出的评测选项是 <code>-std=c++11</code>）</td></tr><tr><td><b>CSP-J/S 第二轮、NOIP</b></td><td>以 <b>NOI Linux 2.0</b> 为准；不少省份另外提供 Windows（常见 <b>Dev-C++ 5.11</b>、Code::Blocks），Linux 用虚拟机</td><td>统一用 <b>NOI Linux 2.0</b>（Ubuntu 20.04，g++ 9.3）</td></tr></table><blockquote><p>要点：<b>无论考场里用哪个编辑器写代码，最后都放到 Linux 上用 g++ 评测。</b> 所以代码要按标准 C++ 写，不能用 Windows 专有的东西（见附录 C）。每年具体环境以 CCF 和本省的考试通知为准。</p></blockquote></div>
-<div data-md><h3 id="sec-3">主力环境：Dev-C++ 5.11（和考场一致，推荐）</h3><ul><li>一个安装包里同时带了编辑器和编译器，装完就能用，<b>F11 一键编译运行</b>。</li><li>下载：GESP 官网“考试环境说明”页面提供下载；也可以去 SourceForge 搜 “Orwell Dev-C++ 5.11”。</li><li><b>安装后必须做的设置</b>（很重要）：<ol><li><code>工具 → 编译选项</code>，在“编译器”页勾选 <b>“编译时加入以下命令”</b>，填入：<code>-std=c++14 -Wall</code><ul><li>原因：5.11 自带的编译器比较老，<b>默认不是 C++14</b>。不加这一条，课程里的 <code>for (char c : s)</code>、<code>auto</code>、<code>to_string</code> 等写法会编译失败。</li><li><code>-Wall</code> 会打开更多警告，帮你发现隐藏的 bug。</li></ul></li><li><code>工具 → 编辑器选项 → 显示</code>：字体选等宽字体（如 Consolas），字号调大一点。</li><li>编译器下拉框选 <code>TDM-GCC 4.9.2 64-bit Release</code>。</li></ol></li><li>装好后用下面第 3 节的程序检查一下，再编译一段含 <code>for (char c : s)</code> 的代码，确认新标准已经生效（能编译通过只说明至少是 C++11，具体是哪个标准以编译选项为准）。</li></ul><blockquote><p>也可以用 <b>小熊猫 Dev-C++</b>（Dev-C++ 的国产升级版，界面一样，编译器更新，报错提示更友好），刚入门时用着更顺手。<b>但考试前至少 2~3 周要换回 Dev-C++ 5.11 练习</b>，熟悉考场环境。</p></blockquote></div>
-<div data-md><h3 id="sec-4">进阶：NOI Linux 2.0 虚拟机（学完第 12 课后再装）</h3><ul><li>准备 CSP 第二轮时，在 noi.cn 下载 NOI Linux 2.0 镜像，装进虚拟机（VirtualBox 或 VMware），熟悉 Linux 下的文件管理、编辑器和终端。</li><li>会用终端手动编译、运行，考场上最可靠：</li></ul><pre class="quiz-code"><code>g++ a.cpp -o a -std=c++14 -O2 -Wall</code></pre><pre class="quiz-code"><code>./a</code></pre><blockquote><p>在 Windows 上调试通过后，<b>最好再放到 NOI Linux 里编译运行一次</b>，这是各省考试通知里反复提醒的。</p></blockquote><p>VS Code 不用专门学。以后想用可以用，但信奥阶段没有必要。</p></div>
+<div data-md><h2 id="sec-2">2. 考场用什么环境？平时就用什么</h2><p>信奥考试<b>不是</b>用 VS Code 这类通用编辑器，而是用指定的环境。平时练习最好和考场保持一致，免得考试时手忙脚乱。</p><table class="calc-tbl"><tr><th>考试</th><th>考场环境</th><th>评测环境</th></tr><tr><td><b>GESP 等级考试</b></td><td>官方建议 <b>Dev-C++ 5.11</b></td><td>官方系统（官网“考试环境说明”列出的评测选项是 <code>-std=c++11</code>）</td></tr><tr><td><b>CSP-J/S 第二轮、NOIP</b></td><td>以 <b>NOI Linux 2.0</b> 为准；不少省份另外提供 Windows（常见 <b>Dev-C++ 5.11</b>、Code::Blocks），Linux 用虚拟机</td><td>统一用 <b>NOI Linux 2.0</b>（Ubuntu 20.04，g++ 9.3）</td></tr></table><blockquote><p>要点：<b>无论考场里用哪个编辑器写代码，最后都放到 Linux 上用 g++ 评测。</b> 所以代码要按标准 C++ 写，不能用 Windows 专有的东西（见附录 C）。每年具体环境以 CCF 和本省的考试通知为准。</p></blockquote><p>日常练习可以在下面两个中选一个。<b>老师或培训机构已经指定了的，就用指定的那个。</b> 两者界面、菜单、快捷键基本一样，换来换去不需要重新适应。</p></div>
+<div data-md><h3 id="sec-3">选择一：Dev-C++ 5.11（和考场完全一致）</h3><ul><li>一个安装包里同时带了编辑器和编译器，装完就能用，<b>F11 一键编译运行</b>。</li><li>下载：GESP 官网“考试环境说明”页面提供下载；也可以去 SourceForge 搜 “Orwell Dev-C++ 5.11”。</li><li><b>安装后必须做的设置</b>（很重要）：<ol><li><code>工具 → 编译选项</code>，在“编译器”页勾选 <b>“编译时加入以下命令”</b>，填入：<code>-std=c++14 -Wall</code><ul><li>原因：5.11 自带的编译器比较老，<b>默认不是 C++14</b>。不加这一条，课程里的 <code>for (char c : s)</code>、<code>auto</code>、<code>to_string</code> 等写法会编译失败。</li><li><code>-Wall</code> 会打开更多警告，帮你发现隐藏的 bug。</li></ul></li><li><code>工具 → 编辑器选项 → 显示</code>：字体选等宽字体（如 Consolas），字号调大一点。</li><li>编译器下拉框选 <code>TDM-GCC 4.9.2 64-bit Release</code>。</li></ol></li><li>装好后用下面第 3 节的程序检查一下，再编译一段含 <code>for (char c : s)</code> 的代码，确认新标准已经生效（能编译通过只说明至少是 C++11，具体是哪个标准以编译选项为准）。</li></ul></div>
+<div data-md><h3 id="sec-4">选择二：小熊猫 Dev-C++ 6.7.5（很多老师和培训机构在用）</h3><ul><li><b>它是什么</b>：小熊猫 Dev-C++（Red Panda Dev-C++）是国内开发者在 Dev-C++ 5.11 基础上改进的版本，<b>开源免费</b>（GPL-3.0 许可证）。安装包里显示的版本号是 “Dev-C++ 6.7.5”，这是该系列的最后一版（2021 年 8 月发布）。</li><li><b>和 5.11 比</b>：界面、菜单、F11 编译运行都一样；自带的编译器换成了新得多的 GCC（MSYS2 版），中文支持和报错提示更友好，代码补全更好用。</li><li><b>下载</b>：优先用老师给的安装包；自己下载请到作者的 GitHub 发布页 <code>github.com/royqh1979/Dev-Cpp/releases</code>，<b>不要从来路不明的下载站下载</b>。</li><li><b>安装后的设置</b>：<ol><li><code>工具 → 编译选项</code>，勾选 <b>“编译时加入以下命令”</b>，填入：<code>-std=c++14 -Wall</code><ul><li>原因和 5.11 正好相反：6.7.5 的编译器很新，<b>默认允许 C++17 等更新的写法</b>，可能在考场环境下编译不过。指定 <code>-std=c++14</code> 可以让平时写的代码和考场标准保持一致。</li></ul></li><li>字体、字号的设置同上。</li></ol></li><li>它已经停止更新，但对学语言基础和信奥练习<b>没有任何影响</b>。作者后来另起了新项目“小熊猫C++”（Red Panda C++，Gitee / GitHub 上搜 <code>RedPanda-CPP</code>），功能更多、仍在更新，以后想换也可以。</li></ul><blockquote><p>不管平时用哪个，<b>正式考试前 2~3 周，最好找机会在 Dev-C++ 5.11 上做几套题</b>（考 CSP 的话，再加上 NOI Linux），熟悉考场环境。</p></blockquote></div>
+<div data-md><h3 id="sec-5">进阶：NOI Linux 2.0 虚拟机（学完第 12 课后再装）</h3><ul><li>准备 CSP 第二轮时，在 noi.cn 下载 NOI Linux 2.0 镜像，装进虚拟机（VirtualBox 或 VMware），熟悉 Linux 下的文件管理、编辑器和终端。</li><li>会用终端手动编译、运行，考场上最可靠：</li></ul><pre class="quiz-code"><code>g++ a.cpp -o a -std=c++14 -O2 -Wall</code></pre><pre class="quiz-code"><code>./a</code></pre><blockquote><p>在 Windows 上调试通过后，<b>最好再放到 NOI Linux 里编译运行一次</b>，这是各省考试通知里反复提醒的。</p></blockquote><p>VS Code 不用专门学。以后想用可以用，但信奥阶段没有必要。</p></div>
 <div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q3"></div>
 </div>
 
-<div data-md><h2 id="sec-5">3. 验证环境：Hello, OI</h2><p>新建文件 <code>hello.cpp</code>，<b>一个字一个字敲</b>进去：</p><pre class="quiz-code"><code>#include &lt;iostream&gt;
+<div data-md><h2 id="sec-6">3. 验证环境：Hello, OI</h2><p>新建文件 <code>hello.cpp</code>，<b>一个字一个字敲</b>进去：</p><pre class="quiz-code"><code>#include &lt;iostream&gt;
 using namespace std;
 
 int main() {
@@ -36,7 +37,7 @@ int main() {
 <div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q4"></div>
 </div>
 
-<div data-md><h2 id="sec-6">4. 注册洛谷并提交第一题</h2><ol><li>打开 www.luogu.com.cn 注册账号（请家长协助）。</li><li>打开题目 <b>P1001 A+B Problem</b>，读题：输入两个整数，输出它们的和。</li><li>先在本地写好、测试通过：</li></ol><pre class="quiz-code"><code>#include &lt;iostream&gt;
+<div data-md><h2 id="sec-7">4. 注册洛谷并提交第一题</h2><ol><li>打开 www.luogu.com.cn 注册账号（请家长协助）。</li><li>打开题目 <b>P1001 A+B Problem</b>，读题：输入两个整数，输出它们的和。</li><li>先在本地写好、测试通过：</li></ol><pre class="quiz-code"><code>#include &lt;iostream&gt;
 using namespace std;
 
 int main() {
@@ -45,17 +46,17 @@ int main() {
     cout &lt;&lt; a + b &lt;&lt; endl;
     return 0;
 }</code></pre><ol start="4"><li>复制到洛谷提交框，语言选 <b>C++14</b>，提交。</li><li>看到绿色的 <b>AC（Accepted）</b> 就成功了！</li></ol></div>
-<div data-md><h3 id="sec-7">评测结果是什么意思</h3><table class="calc-tbl"><tr><th>结果</th><th>含义</th><th>常见原因</th></tr><tr><td><b>AC</b></td><td>通过</td><td>🎉</td></tr><tr><td><b>WA</b></td><td>答案错误</td><td>逻辑错、输出格式不对、溢出</td></tr><tr><td><b>TLE</b></td><td>超时</td><td>算法太慢、死循环、输入太多却用了慢速读入</td></tr><tr><td><b>MLE</b></td><td>超内存</td><td>数组开得太大</td></tr><tr><td><b>RE</b></td><td>运行时错误</td><td>数组越界、除以 0、递归太深</td></tr><tr><td><b>CE</b></td><td>编译错误</td><td>语法错，或者语言选错了</td></tr></table></div>
+<div data-md><h3 id="sec-8">评测结果是什么意思</h3><table class="calc-tbl"><tr><th>结果</th><th>含义</th><th>常见原因</th></tr><tr><td><b>AC</b></td><td>通过</td><td>🎉</td></tr><tr><td><b>WA</b></td><td>答案错误</td><td>逻辑错、输出格式不对、溢出</td></tr><tr><td><b>TLE</b></td><td>超时</td><td>算法太慢、死循环、输入太多却用了慢速读入</td></tr><tr><td><b>MLE</b></td><td>超内存</td><td>数组开得太大</td></tr><tr><td><b>RE</b></td><td>运行时错误</td><td>数组越界、除以 0、递归太深</td></tr><tr><td><b>CE</b></td><td>编译错误</td><td>语法错，或者语言选错了</td></tr></table></div>
 <div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q5"></div>
   <div id="q6"></div>
 </div>
 
-<div data-md><h2 id="sec-8">5. 建议的文件夹组织</h2><pre class="quiz-code"><code>D:\oi\
+<div data-md><h2 id="sec-9">5. 建议的文件夹组织</h2><pre class="quiz-code"><code>D:\oi\
 ├── lesson01\          每课一个文件夹，课堂示例和练习放这里
 ├── lesson02\
 ├── luogu\             洛谷题，文件名就用题号，如 P1001.cpp
 └── 错题本\            做错/不会的题，附上一段文字说明错因</code></pre><p>用题号命名非常重要：以后复习、找回旧代码会方便很多。</p></div>
-<div data-md><h2 id="sec-9">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我能新建一个 <code>.cpp</code> 文件，编译并运行它</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道“编译”和“运行”是两步，改代码后要重新编译</label></li><li class="task"><label><input type="checkbox" class="chk"> 我在洛谷 AC 了 P1001</label></li><li class="task"><label><input type="checkbox" class="chk"> 我认识 AC / WA / TLE / RE / CE 这几个评测结果</label></li></ul></div>
+<div data-md><h2 id="sec-10">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我能新建一个 <code>.cpp</code> 文件，编译并运行它</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道“编译”和“运行”是两步，改代码后要重新编译</label></li><li class="task"><label><input type="checkbox" class="chk"> 我在洛谷 AC 了 P1001</label></li><li class="task"><label><input type="checkbox" class="chk"> 我认识 AC / WA / TLE / RE / CE 这几个评测结果</label></li></ul></div>
       <div id="ask-box" class="card ask-box" style="display:none">
         <b>🙋 我的问题清单</b>（复制后发给老师）
         <textarea readonly></textarea>
