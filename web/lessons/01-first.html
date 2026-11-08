@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 1 课 第一个程序：C++ 程序长什么样</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="01" data-lesson-label="第1课｜第一个程序">
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 用 cout 输出</a></li><li class="l3"><a href="#sec-4">2.2 endl 和 &amp;quot;\n&amp;quot;</a></li><li class="l3"><a href="#sec-5">2.3 注释</a></li><li class="l3"><a href="#sec-6">2.4 转义字符</a></li><li class="l3"><a href="#sec-7">2.5 一个完整的小例子：打印字符画</a></li><li class="l2"><a href="#sec-8">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-9">4. 课堂练习</a></li><li class="l2"><a href="#sec-10">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-11">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 1 课 第一个程序：C++ 程序长什么样</h1></div>
+<div data-md><blockquote><p>预计用时：1 周 本课目标：看懂 C++ 程序的骨架；会用 <code>cout</code> 输出文字和计算结果；理解分号、花括号、注释。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><p>同一个功能，两种语言对比：</p><pre class="quiz-code"><code># Python
+print(&quot;Hello&quot;)
+print(3 + 4)</code></pre><pre class="quiz-code"><code>// C++
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; &quot;Hello&quot; &lt;&lt; endl;
+    cout &lt;&lt; 3 + 4 &lt;&lt; endl;
+    return 0;
+}</code></pre><p>C++ 多出来的那些东西，每一行都有用：</p><table class="calc-tbl"><tr><th>代码</th><th>作用</th><th>Python 里对应的</th></tr><tr><td><code>#include &lt;iostream&gt;</code></td><td>引入输入输出库（<code>cin</code>、<code>cout</code> 在里面）</td><td><code>import</code>（但 Python 的 <code>print</code> 不用 import）</td></tr><tr><td><code>using namespace std;</code></td><td>让我们能直接写 <code>cout</code>，否则要写 <code>std::cout</code></td><td>类似 <code>from xxx import *</code></td></tr><tr><td><code>int main() { ... }</code></td><td><b>主函数</b>，程序从这里开始执行，<b>必须有且只有一个</b></td><td>Python 从文件第一行开始执行</td></tr><tr><td><code>;</code></td><td>每条语句结尾的分号</td><td>Python 靠换行区分语句</td></tr><tr><td><code>{ }</code></td><td>花括号包住一段代码</td><td>Python 靠缩进</td></tr><tr><td><code>return 0;</code></td><td>告诉系统“程序正常结束”</td><td>无</td></tr></table><blockquote><p>💡 <b>重要观念转变</b>：Python 里缩进是语法，缩进错了就报错；C++ 里<b>花括号才是语法</b>，缩进只是给人看的。但缩进仍然要写整齐——这是好习惯，不是可选项。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div class="card"><div class="flow">
+    <div class="box">📝 源代码<small>a.cpp，你写的</small></div><div class="arrow">→</div>
+    <div class="box err">🔧 编译<small>g++ 检查语法<br><b>语法错误在这里报</b></small></div><div class="arrow">→</div>
+    <div class="box">⚙️ 可执行文件<small>a.exe</small></div><div class="arrow">→</div>
+    <div class="box err">▶️ 运行<small><b>运行出错、答案不对在这里</b></small></div>
+  </div><p style="margin:10px 0 0">和 Python 不同：C++ 要<b>先编译、再运行</b>。编译没通过就不会有可执行文件；编译通过了，答案也不一定对。</p></div>
+</div>
+
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 用 <code>cout</code> 输出</h3><pre class="quiz-code"><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; &quot;I love OI&quot;;          // 输出文字，文字要用双引号
+    cout &lt;&lt; endl;                 // endl 表示换行
+    cout &lt;&lt; &quot;Line 2\n&quot;;           // \n 也是换行，写在字符串里面
+    cout &lt;&lt; 10 &lt;&lt; &quot; &quot; &lt;&lt; 20 &lt;&lt; endl;  // 可以用 &lt;&lt; 连续接多个东西
+    cout &lt;&lt; 7 * 6 &lt;&lt; endl;        // 输出计算结果：42
+    cout &lt;&lt; &quot;7 * 6&quot; &lt;&lt; endl;      // 加了引号就是文字：7 * 6
+    return 0;
+}</code></pre><p>运行结果：</p><pre class="quiz-code"><code>I love OI
+Line 2
+10 20
+42
+7 * 6</code></pre><p>和 Python <code>print</code> 的区别：</p><ul><li><code>cout</code> <b>不会自动换行</b>，也<b>不会自动在两个值之间加空格</b>。要什么就得自己写什么。</li><li><code>&lt;&lt;</code> 可以理解为“把右边的东西送进输出流”，箭头方向指向 <code>cout</code>。</li></ul></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-01-01"></div>
+  <div id="q1"></div>
+  <div id="q2"></div>
+</div>
+
+<div data-md><h3 id="sec-4">2.2 <code>endl</code> 和 <code>&quot;\n&quot;</code></h3><p>两者都换行。区别是 <code>endl</code> 还会“刷新缓冲区”，速度慢一点。<b>数据量大时用 <code>&quot;\n&quot;</code></b>，平时随意。建议直接养成用 <code>&quot;\n&quot;</code> 的习惯。</p></div>
+<div data-md><h3 id="sec-5">2.3 注释</h3><pre class="quiz-code"><code>// 这是单行注释，和 Python 的 # 一样
+
+/*
+  这是多行注释
+  可以写很多行
+*/</code></pre></div>
+<div data-md><h3 id="sec-6">2.4 转义字符</h3><p>字符串里有些字符要用反斜杠 <code>\</code> 来表示：</p><table class="calc-tbl"><tr><th>写法</th><th>含义</th></tr><tr><td><code>\n</code></td><td>换行</td></tr><tr><td><code>\t</code></td><td>Tab（制表符）</td></tr><tr><td><code>\\</code></td><td>一个反斜杠 <code>\</code></td></tr><tr><td><code>\&quot;</code></td><td>一个双引号 <code>&quot;</code></td></tr></table><pre class="quiz-code"><code>cout &lt;&lt; &quot;He said \&quot;Hi\&quot;&quot; &lt;&lt; &quot;\n&quot;;   // 输出：He said &quot;Hi&quot;</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q3"></div>
+</div>
+
+<div data-md><h3 id="sec-7">2.5 一个完整的小例子：打印字符画</h3><pre class="quiz-code"><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; &quot;  *  \n&quot;;
+    cout &lt;&lt; &quot; *** \n&quot;;
+    cout &lt;&lt; &quot;*****\n&quot;;
+    cout &lt;&lt; &quot; *** \n&quot;;
+    cout &lt;&lt; &quot;  *  \n&quot;;
+    return 0;
+}</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-01-02"></div>
+</div>
+
+<div data-md><h2 id="sec-8">3. ⚠️ 易错点</h2><ol><li><b>漏分号</b>：编译器报错的行号常常是<b>下一行</b>，因为它读到下一行才发现上一行没结束。</li><li><b>中文标点</b>：<code>；</code> <code>（</code> <code>）</code> <code>“</code> <code>”</code> 全部是错的，必须英文半角。</li><li><b>大小写</b>：C++ 区分大小写，<code>Cout</code>、<code>Main</code>、<code>Return</code> 全是错的。</li><li><b>花括号不配对</b>：每写一个 <code>{</code> 立刻写好 <code>}</code>，再往中间填内容。</li><li><b><code>main</code> 写错</b>：本课程统一写 <code>int main()</code>，不能写 <code>void main()</code>（g++ 直接报错）。</li></ol></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q4"></div>
+  <div id="q5"></div>
+  <div id="q6"></div>
+  <div id="q7"></div>
+</div>
+
+<div data-md><h2 id="sec-9">4. 课堂练习</h2><p><b>练习 1-1</b>：输出你的名字（拼音）、年级、最喜欢的数字，每项一行。</p><p><b>练习 1-2</b>：不用计算器，让程序算出 <code>123 * 456 + 789</code> 的值并输出。</p><p><b>练习 1-3</b>：输出下面这个图形（注意空格）：</p><pre class="quiz-code"><code>+-----+
+|  OI |
++-----+</code></pre><p><b>练习 1-4</b>：输出这一行文字（含引号和反斜杠）：<code>Path is &quot;C:\oi&quot;</code></p><details class="ans"><summary>点击查看参考答案</summary><pre class="quiz-code"><code>// 练习 1-2
+#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    cout &lt;&lt; 123 * 456 + 789 &lt;&lt; &quot;\n&quot;;   // 56877
+    return 0;
+}</code></pre><pre class="quiz-code"><code>// 练习 1-4
+#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    cout &lt;&lt; &quot;Path is \&quot;C:\\oi\&quot;&quot; &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre></details></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把 ex-01-01 敲一遍，编译运行，看输出是不是 5 行。再故意删掉一个分号，读一读编译器的报错，找到它指的是第几行。</li>
+      <li>输出你的名字（拼音）、年级、最喜欢的数字，每项一行。不用计算器，让程序算出 <code>123 * 456 + 789</code> 并输出。</li>
+    </ol>
+  </div>
+
+<div data-md><h2 id="sec-10">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P1000</td><td>超级玛丽游戏</td><td>照着输出字符画，练耐心和转义</td><td>★核心</td></tr><tr><td>P1001</td><td>A+B Problem</td><td>第 0 课做过的可以跳过</td><td>★核心</td></tr><tr><td>P2433</td><td>【深基1-2】小学数学 N 合一</td><td>大综合题，可以先做前几问，学完第 3 课再回来补完</td><td>选做</td></tr></table><blockquote><p>洛谷题单搜索“【入门1】顺序结构”，里面的题目会贯穿前 3 课。</p></blockquote></div>
+<div data-md><h2 id="sec-11">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我能<b>不看资料</b>默写出 C++ 程序的骨架（include、using、main、return）</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道 <code>cout</code> 不会自动换行、不会自动加空格</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能区分 <code>cout &lt;&lt; 3+4</code> 和 <code>cout &lt;&lt; &quot;3+4&quot;</code> 的输出</label></li><li class="task"><label><input type="checkbox" class="chk"> 我遇到过至少一次编译错误，并且自己改好了</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="00-setup.html">← 第 0 课 环境搭建</a><a href="02-types.html">第 2 课 变量与数据类型 →</a></nav>
+    </main>
+  </div>
+</div>
+
+<script src="../data/traces/first-01.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "预测输出：cout 会不会在两个值之间自动加空格？", "code": "cout << 10 << 20;", "options": ["10 ⏎ 20", "10 20", "1020", "30"], "answer": 2, "explain": "cout 什么都不会自动加：不加空格，也不换行。10 和 20 直接连在一起，输出 1020。"});
+  Q("q2", {"q": "预测输出：加不加引号的区别：", "code": "cout << 7 * 6 << \"\\n\";\ncout << \"7 * 6\" << \"\\n\";", "options": ["42 ⏎ 7 * 6", "7 * 6 ⏎ 7 * 6", "7 * 6 ⏎ 42", "42 ⏎ 42"], "answer": 0, "explain": "没有引号是算式，会算出结果；有引号是文字，原样输出。输出 42 ⏎ 7 * 6。"});
+  Q("q3", {"q": "预测输出：想输出带双引号的文字，要用转义：", "code": "cout << \"He said \\\"Hi\\\"\" << \"\\n\";", "options": ["编译错误", "He said \"Hi\"", "He said Hi", "He said \\\"Hi\\\""], "answer": 1, "explain": "字符串里想要一个双引号，要写成 \\\"；想要换行写 \\n；想要一个反斜杠写 \\\\。输出 He said \"Hi\"。"});
+  Q("q4", {"q": "编译器提示“缺少分号”，报错指着第 6 行，真正漏写分号的地方最可能在哪里？", "options": ["第 6 行或者它的上一行：要连同上一行一起检查", "一定是第 6 行", "第 6 行之后很远的地方"], "answer": 0, "explain": "编译器要读到下一行才发现上一行没结束，所以有的编译器（比如 Dev-C++ 自带的老版本）会把报错位置标在下一行。看到这类报错，先检查报错行和它的上一行。"});
+  Q("q5", {"q": "代码里写了中文标点：cout << \"hi\"；（分号是中文的），会怎样？", "options": ["能正常运行，看着一样", "编译不通过：必须是英文半角标点", "只是警告"], "answer": 1, "explain": "；（）“”全是错的，必须用英文半角。报错信息里会看到 stray '\\357' in program 这样的怪字符，就是中文标点。"});
+  Q("q6", {"q": "C++ 区分大小写。把 cout 写成 Cout，会怎样？", "options": ["没关系，一样", "编译不通过：Cout 没有定义", "输出会变成大写"], "answer": 1, "explain": "Cout、Main、Return 全是错的。"});
+  Q("q7", {"q": "把 main 写成 void main()，会怎样？", "options": ["没关系，很多书上都这样写", "g++ 直接报错：本课程统一写 int main()", "只是警告"], "answer": 1, "explain": "main 函数必须返回 int。统一写 int main() { ... return 0; }。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

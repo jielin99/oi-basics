@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>附录 C：考场代码模板与比赛规范</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="C" data-lesson-label="附录C｜考场模板与规范">
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 起手模板</a></li><li class="l2"><a href="#sec-2">2. 比赛规范（不注意可能直接丢分）</a></li><li class="l3"><a href="#sec-3">freopen 用法</a></li><li class="l2"><a href="#sec-4">3. 数据范围 → 类型与数组大小</a></li><li class="l2"><a href="#sec-5">4. 复杂度估算：程序会不会超时？</a></li><li class="l2"><a href="#sec-6">5. 代码风格规范</a></li><li class="l2"><a href="#sec-7">6. 考前检查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>附录 C：考场代码模板与比赛规范</h1></div>
+<div data-md><blockquote><p>这些规范<b>从第 1 课起就要遵守</b>。比赛中因为不规范丢分，是最冤的。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 起手模板</h2><p>见 <a href="../code/模板.cpp"><code>code/模板.cpp</code></a>。逐行解释：</p><pre class="quiz-code"><code>#include &lt;bits/stdc++.h&gt;   // “万能头文件”，包含所有常用标准库。GCC 支持，比赛可用
+using namespace std;       // 省得每次写 std::cout
+
+typedef long long ll;      // 类型别名，少打字
+const int N = 100000 + 10; // 数组大小用常量，“+10”是防止边界越界的保险
+
+int a[N];                  // 大数组放全局：①自动初始化为 0 ②不会爆栈
+
+int main() {
+    ios::sync_with_stdio(false);  // 让 cin/cout 和 scanf/printf 一样快
+    cin.tie(nullptr);
+    ...
+    return 0;              // 正常结束返回 0（main 不写也默认是 0，本课程约定写上）；返回非 0 可能被判 RE
+}</code></pre><blockquote><p>关于万能头：初学时建议<b>先手写具体头文件</b>（<code>&lt;iostream&gt;</code>、<code>&lt;cstdio&gt;</code>、<code>&lt;cstring&gt;</code>、<code>&lt;algorithm&gt;</code>……）一段时间，知道每个函数来自哪里；熟练后再换成万能头。</p></blockquote></div>
+<div data-md><h2 id="sec-2">2. 比赛规范（不注意可能直接丢分）</h2><table class="calc-tbl"><tr><th>规范</th><th>说明</th></tr><tr><td><code>main</code> 函数必须是 <code>int main()</code></td><td>不能写 <code>void main()</code>，g++ 直接编译失败。末尾写 <code>return 0;</code> 是本课程约定</td></tr><tr><td><b>严格按题目要求的格式输出</b></td><td>不要输出“请输入：”之类的提示语，多输出的内容会被判错。（行末多一个空格、末尾多一个换行，多数评测会忽略，但不要依赖）</td></tr><tr><td><b>文件读写</b>（若题目要求）</td><td>文件名必须与题目一致，<b>全小写，不要写路径</b>。考前最后检查 <code>freopen</code> 没被注释掉</td></tr><tr><td>不能使用 <code>conio.h</code>、<code>windows.h</code>；不要写 <code>system(&quot;pause&quot;)</code></td><td>前两个在 Linux 下没有，直接编译失败；<code>system(&quot;pause&quot;)</code> 能编译，但 Linux 没有 pause 命令，只会多出报错信息、白白耗时</td></tr><tr><td>源文件放在规定的文件夹里</td><td>CSP 要求每题一个以题目英文名命名的子文件夹，具体看考场说明</td></tr><tr><td>不要用 Windows 专有的 <code>%I64d</code></td><td>输出 <code>long long</code> 用 <code>%lld</code>，或者直接用 <code>cout</code></td></tr></table></div>
+<div data-md><h3 id="sec-3">freopen 用法</h3><pre class="quiz-code"><code>int main() {
+    freopen(&quot;apple.in&quot;, &quot;r&quot;, stdin);    // 从 apple.in 读入
+    freopen(&quot;apple.out&quot;, &quot;w&quot;, stdout);  // 输出写到 apple.out
+    // 之后 cin/scanf 就从文件读，cout/printf 就写入文件，其他代码完全不用改
+    ...
+}</code></pre><p><b>考场检查口诀：文件名对不对？注释删没删？<code>return 0</code> 有没有？</b></p></div>
+<div data-md><h2 id="sec-4">3. 数据范围 → 类型与数组大小</h2><p>读题第一件事：<b>看数据范围</b>。</p><table class="calc-tbl"><tr><th>题目说</th><th>应该用</th></tr><tr><td>数值 ≤ 10⁹</td><td><code>int</code> 够用（<code>int</code> 最大约 2.1×10⁹）</td></tr><tr><td>数值 ≤ 10¹⁸，或两个 10⁹ 级别的数相乘/累加</td><td><b><code>long long</code></b></td></tr><tr><td>有小数</td><td><b><code>double</code></b>（不要用 <code>float</code>，精度太差）</td></tr><tr><td>n ≤ 10⁵</td><td>数组 <code>const int N = 1e5 + 10;</code></td></tr></table><blockquote><p>口诀：<b>“十年 OI 一场空，不开 long long 见祖宗。”</b> 拿不准就开 <code>long long</code>。</p></blockquote></div>
+<div data-md><h2 id="sec-5">4. 复杂度估算：程序会不会超时？</h2><p>粗略估计：评测机 <b>1 秒大约能执行 10⁸（一亿）次简单运算</b>。这只是数量级估算，接近上限时要留余量。根据 n 的大小判断能用多慢的算法：</p><table class="calc-tbl"><tr><th>n 的范围</th><th>能接受的复杂度</th><th>典型写法</th></tr><tr><td>n ≤ 10</td><td>O(n!)、O(2ⁿ)</td><td>全排列、暴力搜索</td></tr><tr><td>n ≤ 500</td><td>O(n³)</td><td>三重循环</td></tr><tr><td>n ≤ 5000</td><td>O(n²)</td><td>双重循环</td></tr><tr><td>n ≤ 10⁶</td><td>O(n log n)</td><td>排序、二分</td></tr><tr><td>n ≤ 10⁸</td><td>O(n)</td><td>一重循环</td></tr><tr><td>n 更大</td><td>O(log n) 或 O(1)</td><td>数学公式、二分</td></tr></table><p>第 12 课会详细讲。</p></div>
+<div data-md><h2 id="sec-6">5. 代码风格规范</h2><ol><li><b>缩进</b>：每层 4 个空格（或 1 个 Tab），花括号对齐。编辑器一般有“格式化代码”功能（小熊猫 Dev-C++：<code>Ctrl+Shift+A</code>）。</li><li><b>变量名有含义</b>：<code>sum</code>、<code>cnt</code>、<code>maxScore</code> 好过 <code>a1</code>、<code>b2</code>、<code>xx</code>。循环变量用 <code>i, j, k</code> 没问题。</li><li><b>一行只写一条语句</b>。</li><li><b>每道题顶部写两行注释</b>：题号 + 思路，方便日后复习。</li><li><b>数组下标习惯从 1 开始</b>（<code>for (int i = 1; i &lt;= n; i++)</code>）——信奥题目数据大多从第 1 个开始编号，这样不容易错位；数组记得多开几个（多开只是保险，下标仍然要自己算对）。</li></ol></div>
+<div data-md><h2 id="sec-7">6. 考前检查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 每题都在本地用<b>样例</b>测过，结果完全一致（包括空格、换行）</label></li><li class="task"><label><input type="checkbox" class="chk"> 自己造了<b>边界数据</b>测过：最小值（n=1）、最大值、全相同、负数……</label></li><li class="task"><label><input type="checkbox" class="chk"> 该开 <code>long long</code> 的开了</label></li><li class="task"><label><input type="checkbox" class="chk"> 数组开够了，没有越界</label></li><li class="task"><label><input type="checkbox" class="chk"> <code>freopen</code> 文件名正确，没有被注释</label></li><li class="task"><label><input type="checkbox" class="chk"> 删除了所有调试输出（<code>cout &lt;&lt; &quot;debug&quot;</code> 之类）</label></li><li class="task"><label><input type="checkbox" class="chk"> 文件名、文件夹名符合要求</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="B-errors.html">← 附录 B 常见错误与调试</a><span></span></nav>
+    </main>
+  </div>
+</div>
+
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

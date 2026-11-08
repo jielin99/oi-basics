@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 8 课 字符与字符串</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="08" data-lesson-label="第8课｜字符与字符串">
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 char 与 ASCII 码</a></li><li class="l3"><a href="#sec-4">2.2 string 的基本使用</a></li><li class="l3"><a href="#sec-5">2.3 string 常用函数</a></li><li class="l3"><a href="#sec-6">2.4 读入一整行</a></li><li class="l3"><a href="#sec-7">2.5 C 风格字符串：char 数组（了解，能看懂）</a></li><li class="l3"><a href="#sec-8">2.6 综合例子：统计单词中每个字母出现次数</a></li><li class="l2"><a href="#sec-9">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-10">4. 课堂练习</a></li><li class="l2"><a href="#sec-11">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-12">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 8 课 字符与字符串</h1></div>
+<div data-md><blockquote><p>预计用时：1.5 周 本课目标：理解 <code>char</code> 和 ASCII 码；会做大小写转换、字符判断；熟练使用 <code>string</code>；会读入带空格的整行；了解 C 风格字符数组。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><table class="calc-tbl"><tr><th></th><th>Python</th><th>C++</th></tr><tr><td>单个字符</td><td>就是长度为 1 的字符串 <code>&quot;a&quot;</code></td><td>专门的 <code>char</code> 类型，用<b>单引号</b> <code>&#x27;a&#x27;</code></td></tr><tr><td>字符串</td><td><code>str</code>，用单双引号都行</td><td><code>string</code>，<b>只能用双引号</b> <code>&quot;abc&quot;</code></td></tr><tr><td>字符串能否修改</td><td>不能（<code>s[0] = &#x27;x&#x27;</code> 报错）</td><td><b>能</b>（<code>s[0] = &#x27;x&#x27;</code> 没问题）</td></tr><tr><td>字符 ↔ 数字</td><td><code>ord(&#x27;a&#x27;)</code> / <code>chr(97)</code></td><td>直接用：<code>(int)&#x27;a&#x27;</code> / <code>(char)97</code>，<b>字符本身就是整数</b></td></tr><tr><td>长度</td><td><code>len(s)</code></td><td><code>s.size()</code> 或 <code>s.length()</code></td></tr><tr><td>读一个词</td><td><code>input().split()[0]</code></td><td><code>cin &gt;&gt; s</code></td></tr><tr><td>读一整行</td><td><code>input()</code></td><td><code>getline(cin, s)</code></td></tr></table></div>
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 <code>char</code> 与 ASCII 码</h3><p>在计算机里，英文字母、数字和常见符号，每个字符都对应一个整数编号（ASCII 码）。本课只处理这类字符（中文不在 ASCII 里，比赛题一般也不会让你逐个处理中文）。<b>必须记住这三段</b>：</p><table class="calc-tbl"><tr><th>字符</th><th>ASCII 码</th></tr><tr><td><code>&#x27;0&#x27;</code> ~ <code>&#x27;9&#x27;</code></td><td>48 ~ 57</td></tr><tr><td><code>&#x27;A&#x27;</code> ~ <code>&#x27;Z&#x27;</code></td><td>65 ~ 90</td></tr><tr><td><code>&#x27;a&#x27;</code> ~ <code>&#x27;z&#x27;</code></td><td>97 ~ 122</td></tr></table><p>规律：小写字母 = 大写字母 + 32；同类字符连续编号。</p><pre class="quiz-code"><code>char c = &#x27;A&#x27;;
+cout &lt;&lt; c &lt;&lt; &quot;\n&quot;;            // A
+cout &lt;&lt; (int)c &lt;&lt; &quot;\n&quot;;       // 65
+cout &lt;&lt; (char)(c + 1) &lt;&lt; &quot;\n&quot;;// B
+cout &lt;&lt; c + 1 &lt;&lt; &quot;\n&quot;;        // 66  ← char 参与运算时变成 int</code></pre><p><b>字符的常见操作</b>（不用背 ASCII 数字，直接用字符计算）：</p><pre class="quiz-code"><code>// 判断
+if (c &gt;= &#x27;0&#x27; &amp;&amp; c &lt;= &#x27;9&#x27;)   // 是数字字符
+if (c &gt;= &#x27;a&#x27; &amp;&amp; c &lt;= &#x27;z&#x27;)   // 是小写字母
+if (c &gt;= &#x27;A&#x27; &amp;&amp; c &lt;= &#x27;Z&#x27;)   // 是大写字母
+
+// 转换
+int d = c - &#x27;0&#x27;;            // 数字字符 → 数字：&#x27;7&#x27; - &#x27;0&#x27; = 7
+char e = d + &#x27;0&#x27;;           // 数字 → 数字字符
+char up = c - &#x27;a&#x27; + &#x27;A&#x27;;    // 小写 → 大写
+char low = c - &#x27;A&#x27; + &#x27;a&#x27;;   // 大写 → 小写
+int idx = c - &#x27;a&#x27;;          // &#x27;a&#x27;→0, &#x27;b&#x27;→1, ... &#x27;z&#x27;→25，常用来做桶的下标</code></pre><p><code>&lt;cctype&gt;</code> 里也有现成函数：<code>isdigit(c)</code>、<code>isalpha(c)</code>、<code>isupper(c)</code>、<code>islower(c)</code>、<code>toupper(c)</code>、<code>tolower(c)</code>。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-calc="ascii"></div>
+  <div id="q1"></div>
+  <div id="q2"></div>
+  <div id="q3"></div>
+</div>
+
+<div data-md><h3 id="sec-4">2.2 <code>string</code> 的基本使用</h3><pre class="quiz-code"><code>#include &lt;string&gt;
+string s = &quot;hello&quot;;
+string t;
+cin &gt;&gt; t;                     // 读一个“词”，遇到空格/换行就停
+
+cout &lt;&lt; s.size() &lt;&lt; &quot;\n&quot;;     // 5
+cout &lt;&lt; s[0] &lt;&lt; &quot;\n&quot;;         // h
+s[0] = &#x27;H&#x27;;                   // 可以修改 → &quot;Hello&quot;
+s = s + &quot; world&quot;;             // 拼接 → &quot;Hello world&quot;
+s += &#x27;!&#x27;;                     // 追加一个字符
+if (s == &quot;Hello world!&quot;) ...  // 直接用 == 比较
+if (s &lt; t) ...                // 按字典序比较</code></pre><p><b>遍历字符串</b></p><pre class="quiz-code"><code>for (int i = 0; i &lt; (int)s.size(); i++) {   // string 下标从 0 开始
+    cout &lt;&lt; s[i];
+}
+for (char c : s) {                          // 范围 for，类似 Python 的 for c in s
+    cout &lt;&lt; c;
+}</code></pre><blockquote><p>为什么写 <code>(int)s.size()</code>？<code>size()</code> 返回的是“无符号整数”，和 int 比较时偶尔出问题（比如 <code>s.size() - 1</code> 在空串时会变成一个巨大的数）。转成 int 更安全。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-08-01"></div>
+  <div id="q4"></div>
+  <div id="q5"></div>
+  <div id="q6"></div>
+</div>
+
+<div data-md><h3 id="sec-5">2.3 <code>string</code> 常用函数</h3><table class="calc-tbl"><tr><th>函数</th><th>作用</th><th>例子（s = "abcdef"）</th></tr><tr><td><code>s.substr(pos, len)</code></td><td>从 pos 开始取 len 个字符</td><td><code>s.substr(1, 3)</code> → <code>&quot;bcd&quot;</code></td></tr><tr><td><code>s.find(t)</code></td><td>查找 t 第一次出现的位置，找不到返回 <code>string::npos</code></td><td><code>s.find(&quot;cd&quot;)</code> → 2</td></tr><tr><td><code>s.insert(pos, t)</code></td><td>在 pos 处插入</td><td><code>s.insert(0, &quot;x&quot;)</code> → <code>&quot;xabcdef&quot;</code></td></tr><tr><td><code>s.erase(pos, len)</code></td><td>删除从 pos 开始的 len 个</td><td><code>s.erase(1, 2)</code> → <code>&quot;adef&quot;</code></td></tr><tr><td><code>s.replace(pos, len, t)</code></td><td>替换</td><td></td></tr><tr><td><code>reverse(s.begin(), s.end())</code></td><td>反转（需要 <code>&lt;algorithm&gt;</code>）</td><td>→ <code>&quot;fedcba&quot;</code></td></tr><tr><td><code>to_string(123)</code></td><td>数字 → 字符串</td><td><code>&quot;123&quot;</code></td></tr><tr><td><code>stoi(&quot;123&quot;)</code></td><td>字符串 → int</td><td><code>123</code></td></tr></table><pre class="quiz-code"><code>if (s.find(&quot;ab&quot;) != string::npos) cout &lt;&lt; &quot;found\n&quot;;</code></pre></div>
+<div data-md><h3 id="sec-6">2.4 读入一整行</h3><pre class="quiz-code"><code>string line;
+getline(cin, line);           // 读一整行，包括空格</code></pre><blockquote><p>⚠️ <b>经典坑</b>：先 <code>cin &gt;&gt; n;</code> 再 <code>getline(cin, line);</code>，getline 会读到 n 后面那个残留的换行符，得到空字符串。解决：中间加一句 <code>getline(cin, line);</code>，把 n 所在那一行<b>剩下的内容连同换行</b>一起吃掉。</p></blockquote><pre class="quiz-code"><code>int n;
+cin &gt;&gt; n;
+getline(cin, line);           // 先吃掉 n 所在行剩下的内容（包括换行）
+getline(cin, line);           // 现在能正确读到下一行了</code></pre><blockquote><p>这个写法的前提是：要读的文字<b>在下一行</b>。如果题目把文字和 n 放在同一行，第一句 <code>getline</code> 会把它们一起丢掉，那时就要换别的读法。</p></blockquote><blockquote><p>你可能在题解里见到 <code>cin.ignore();</code>：它<b>只丢掉 1 个字符</b>。如果 n 后面还跟着空格，它只丢掉一个空格，下一个 <code>getline</code> 读到的是剩下的空格，仍然读不到目标的下一行。要用 <code>ignore</code> 就写完整版 <code>cin.ignore(numeric_limits&lt;streamsize&gt;::max(), &#x27;\n&#x27;);</code>（需要 <code>&lt;limits&gt;</code>），意思是“一直丢到换行为止”。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-traces="ex-08-02a,ex-08-02b" data-labels="直接 getline（读到空行）|先多读一次（正确）"></div>
+  <div id="q7"></div>
+</div>
+
+<div data-md><h3 id="sec-7">2.5 C 风格字符串：<code>char</code> 数组（了解，能看懂）</h3><pre class="quiz-code"><code>#include &lt;cstring&gt;
+char s[110];
+scanf(&quot;%s&quot;, s);               // 读一个词（注意不加 &amp;）
+int len = strlen(s);          // 长度
+for (int i = 0; i &lt; len; i++) ...</code></pre><ul><li>末尾有一个隐藏的 <code>&#x27;\0&#x27;</code> 表示结束，所以要多开一个位置。</li><li><code>strlen</code> 每次调用都要数一遍，<b>不要写在循环条件里</b>（<code>for (i = 0; i &lt; strlen(s); i++)</code> 会很慢）。</li><li>有时为了下标从 1 开始，写 <code>scanf(&quot;%s&quot;, s + 1); int len = strlen(s + 1);</code></li></ul><blockquote><p><b>建议：日常用 <code>string</code></b>，看到别人代码里的 <code>char s[]</code> 能读懂即可。</p></blockquote></div>
+<div data-md><h3 id="sec-8">2.6 综合例子：统计单词中每个字母出现次数</h3><pre class="quiz-code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int cnt[26];
+
+int main() {
+    string s;
+    cin &gt;&gt; s;
+    for (char c : s) {
+        if (c &gt;= &#x27;a&#x27; &amp;&amp; c &lt;= &#x27;z&#x27;) cnt[c - &#x27;a&#x27;]++;
+    }
+    for (int i = 0; i &lt; 26; i++) {
+        if (cnt[i] &gt; 0) cout &lt;&lt; (char)(&#x27;a&#x27; + i) &lt;&lt; &quot;:&quot; &lt;&lt; cnt[i] &lt;&lt; &quot;\n&quot;;
+    }
+    return 0;
+}</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-08-03"></div>
+</div>
+
+<div data-md><h2 id="sec-9">3. ⚠️ 易错点</h2><ol><li><code>&#x27;a&#x27;</code> 和 <code>&quot;a&quot;</code> 混用：单引号是一个字符（<code>char</code>），双引号是字符串；<code>string s = &quot;a&quot;;</code> 才得到一个 <code>string</code>。</li><li><code>cin &gt;&gt; s</code> 读不到空格后面的内容 → 需要整行用 <code>getline</code>。</li><li><code>cin</code> 后接 <code>getline</code> 读到空行。</li><li>用 <code>int</code> 存 <code>s.size() - 1</code> 之前没转型，空串时出错。</li><li><code>cout &lt;&lt; c + 1</code> 输出的是数字而不是字符 → 要 <code>(char)(c + 1)</code>。</li></ol></div>
+<div data-md><h2 id="sec-10">4. 课堂练习</h2><p><b>练习 8-1</b>：输入一行字符串（可能含空格），统计其中数字、字母、空格、其他字符各有多少个。</p><p><b>练习 8-2</b>：输入一个单词，判断是否是回文（正着读和反着读一样，如 <code>level</code>）。</p><p><b>练习 8-3</b>：凯撒密码：输入一个小写单词和整数 k（0 ≤ k ≤ 1000），把每个字母往后移 k 位（<code>z</code> 之后回到 <code>a</code>），输出结果。</p><p><b>练习 8-4</b>：输入一个由数字字符组成的字符串（长度 ≤ 100），输出各位数字之和。</p><details class="ans"><summary>点击查看参考答案</summary><pre class="quiz-code"><code>// 8-2
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+int main() {
+    string s;
+    cin &gt;&gt; s;
+    string t = s;
+    reverse(t.begin(), t.end());
+    cout &lt;&lt; (s == t ? &quot;Yes&quot; : &quot;No&quot;) &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre><pre class="quiz-code"><code>// 8-3
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+int main() {
+    string s;
+    int k;
+    cin &gt;&gt; s &gt;&gt; k;
+    k %= 26;                         // 移 26 位等于没移
+    // 拓展：如果 k 可以是负数，改成 k = (k % 26 + 26) % 26;
+    for (int i = 0; i &lt; (int)s.size(); i++) {
+        s[i] = (s[i] - &#x27;a&#x27; + k) % 26 + &#x27;a&#x27;;
+    }
+    cout &lt;&lt; s &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre></details></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把统计字母的例子敲一遍，输入一个全部由小写英文字母组成的单词（比如你名字的拼音），看每个字母出现几次。再试试输入带大写字母的，看看那个范围检查起什么作用。</li>
+      <li>把“先 cin >> n 再 getline”的两种写法都敲一遍，输入 <code>3</code> 换行 <code>abc</code>，亲眼看看区别。</li>
+    </ol>
+  </div>
+
+<div data-md><h2 id="sec-11">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P5733</td><td>【深基6.例1】自动修正</td><td>大小写转换</td><td>★核心</td></tr><tr><td>P1914</td><td>小书童——凯撒密码</td><td>字符移位</td><td>巩固</td></tr><tr><td>P5734</td><td>【深基6.例6】文字处理软件</td><td>string 各种函数</td><td>巩固</td></tr><tr><td>P1125</td><td>[NOIP 2008 提高组] 笨小猴</td><td>字母计数 + 质数</td><td>巩固</td></tr><tr><td>P5015</td><td>[NOIP 2018 普及组] 标题统计</td><td>getline / 字符判断</td><td>★核心</td></tr><tr><td>P1055</td><td>[NOIP 2008 普及组] ISBN 号码</td><td>字符 ↔ 数字</td><td>★核心</td></tr><tr><td>P1308</td><td>[NOIP 2011 普及组] 统计单词数</td><td>find、大小写、整行读入</td><td>选做</td></tr><tr><td>P1765</td><td>手机</td><td>字符映射</td><td>选做</td></tr><tr><td>P1597</td><td>语句解析</td><td>字符串模拟</td><td>挑战</td></tr></table><blockquote><p>洛谷题单：【入门5】字符串</p></blockquote></div>
+<div data-md><h2 id="sec-12">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我记得 <code>&#x27;0&#x27;</code>、<code>&#x27;A&#x27;</code>、<code>&#x27;a&#x27;</code> 的 ASCII 码</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会用 <code>c - &#x27;0&#x27;</code>、<code>c - &#x27;a&#x27;</code> 做转换</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会用 string 的 size、substr、find、下标访问</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道 <code>cin &gt;&gt; s</code> 和 <code>getline</code> 的区别，以及混用时的坑</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能看懂 <code>char s[110]; scanf(&quot;%s&quot;, s); strlen(s)</code> 这种写法</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="07-array.html">← 第 7 课 数组</a><a href="09-func.html">第 9 课 函数与递归 →</a></nav>
+    </main>
+  </div>
+</div>
+
+<script src="../data/traces/str-08.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "预测输出：char 参与运算会变成 int。输出什么？", "code": "char c = 'A';\ncout << c + 1 << \" \" << (char)(c + 1);", "options": ["A 66", "B B", "66 66", "66 B"], "answer": 3, "explain": "c + 1 里 char 先变成 int（65 + 1 = 66），所以输出数字；想要字符 B，要写 (char)(c + 1)。输出 66 B。"});
+  Q("q2", {"q": "预测输出：数字字符怎么变成数字？", "code": "char c = '7';\nint d = c - '0';\ncout << d + 1;", "options": ["55", "8", "56", "7"], "answer": 1, "explain": "'7' 的编码是 55，'0' 是 48，相减得到数字 7，再加 1 就是 8。直接把 '7' 当数字用会得到 55。输出 8。"});
+  Q("q3", {"q": "预测输出：小写变大写：", "code": "char c = 'q';\ncout << (char)(c - 'a' + 'A');", "options": ["Q", "81", "q", "113"], "answer": 0, "explain": "c - 'a' 是它在字母表里的位置，加上 'A' 就是对应的大写字母。（小写 = 大写 + 32）输出 Q。"});
+  Q("q4", {"q": "预测输出：cin >> s 读 string，遇到空格会怎样？输入是“hello world”：", "code": "string s;\ncin >> s;\ncout << s;", "options": ["hello world", "world", "hello", "hello w"], "answer": 2, "explain": "cin >> s 读“一个词”，遇到空格或换行就停，world 还在输入里没被读。要读整行用 getline(cin, s)。输出 hello。"});
+  Q("q5", {"q": "string s = 'a'; 这样写对吗？", "options": ["对，单引号双引号都行", "编译不通过：'a' 是一个字符，字符串要用双引号 \"a\"", "能编译，s 是空串"], "answer": 1, "explain": "单引号是一个字符（char），双引号是字符串。string s = \"a\"; 才得到一个 string。"});
+  Q("q6", {"q": "s 是空串，cout << s.size() - 1; 会输出什么？", "options": ["-1", "0", "一个巨大的正数"], "answer": 2, "explain": "size() 返回的是“无符号整数”，空串时 0 - 1 不会得到 -1，而是回绕成一个巨大的数。所以写 (int)s.size() - 1 更安全。（我们真实运行过：确实输出了一个十位以上的大数。）"});
+  Q("q7", {"q": "预测输出：先 cin >> n，再直接 getline，输入是“3 换行 abc”：", "code": "int n;\nstring line;\ncin >> n;\ngetline(cin, line);\ncout << \"[\" << line << \"]\";", "options": ["[]", "[abc]", "[3]", "[3abc]"], "answer": 0, "explain": "getline 读到的是 n 后面残留的换行，得到空字符串。要在中间多加一句 getline 把它吃掉。输出 []。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

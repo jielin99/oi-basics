@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 10 课 结构体与排序</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="10" data-lesson-label="第10课｜结构体与排序">
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 结构体：自定义一种“打包”类型</a></li><li class="l3"><a href="#sec-4">2.2 sort：排序神器（&amp;lt;algorithm&amp;gt;）</a></li><li class="l3"><a href="#sec-5">2.3 自定义比较函数</a></li><li class="l3"><a href="#sec-6">2.4 多关键字排序（考试最常见）</a></li><li class="l3"><a href="#sec-7">2.5 完整例子</a></li><li class="l3"><a href="#sec-8">2.6 了解：冒泡排序（初赛常考）</a></li><li class="l2"><a href="#sec-9">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-10">4. 课堂练习</a></li><li class="l2"><a href="#sec-11">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-12">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 10 课 结构体与排序</h1></div>
+<div data-md><blockquote><p>预计用时：1 周 本课目标：会定义结构体、结构体数组；会用 <code>sort</code> 排序普通数组和结构体数组；会写自定义比较函数实现多关键字排序。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><pre class="quiz-code"><code># Python：用元组/字典/类来存一个学生的多项信息，用 sorted 排序
+students = [(&quot;Tom&quot;, 90, 85), (&quot;Amy&quot;, 95, 80)]
+students.sort(key=lambda s: (-(s[1] + s[2]), s[0]))   # 总分降序，同分按名字升序</code></pre><pre class="quiz-code"><code>// C++：用 struct 打包，用 sort + 比较函数排序
+struct Student {
+    string name;
+    int chinese, math;
+};
+
+bool cmp(Student a, Student b) {
+    int sa = a.chinese + a.math, sb = b.chinese + b.math;
+    if (sa != sb) return sa &gt; sb;   // 总分高的在前
+    return a.name &lt; b.name;          // 同分时名字字典序小的在前
+}
+
+sort(stu + 1, stu + n + 1, cmp);</code></pre></div>
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 结构体：自定义一种“打包”类型</h3><pre class="quiz-code"><code>struct Student {        // 定义一个新类型 Student
+    string name;
+    int score;
+    int id;
+};                      // ⚠️ 末尾的分号不能少！
+
+Student s;              // 定义一个 Student 类型的变量
+s.name = &quot;Tom&quot;;         // 用 . 访问成员
+s.score = 95;
+
+Student stu[1010];      // 结构体数组，存 1000 个学生
+stu[1].name = &quot;Amy&quot;;</code></pre><p>读入 n 个学生：</p><pre class="quiz-code"><code>for (int i = 1; i &lt;= n; i++) {
+    cin &gt;&gt; stu[i].name &gt;&gt; stu[i].score;
+    stu[i].id = i;      // 记录原始编号，排序后常常需要
+}</code></pre><blockquote><p>🎯 为什么要用结构体？如果用三个独立数组 <code>name[]</code>、<code>score[]</code>、<code>id[]</code>，排序时要同步交换三个数组，很麻烦也容易错。结构体把一个人的信息“捆”在一起，排序时整体移动。</p></blockquote></div>
+<div data-md><h3 id="sec-4">2.2 <code>sort</code>：排序神器（<code>&lt;algorithm&gt;</code>）</h3><pre class="quiz-code"><code>int a[100010];
+// 数组下标 1~n
+sort(a + 1, a + n + 1);              // 从小到大
+sort(a + 1, a + n + 1, greater&lt;int&gt;()); // 从大到小
+
+// 数组下标 0~n-1
+sort(a, a + n);</code></pre><p><b>区间是左闭右开</b>：<code>sort(a + 1, a + n + 1)</code> 排的是 a[1] ~ a[n]，不包含 a[n+1]。和 Python 的 <code>range</code> 一样“不包含右端”。</p><p><code>sort</code> 的时间复杂度是 O(n log n)，10⁶ 个数也能很快排完。<b>比赛中几乎不需要自己手写排序</b>，但冒泡排序、选择排序的原理初赛会考，要能看懂。</p></div>
+<div data-md><h3 id="sec-5">2.3 自定义比较函数</h3><p>比较函数 <code>cmp(a, b)</code> 的含义：<b>返回 <code>true</code> 表示 a 应该排在 b 前面。</b></p><pre class="quiz-code"><code>bool cmp1(int a, int b) {
+    return a &gt; b;              // 大的在前 → 降序
+}
+
+bool cmp2(int a, int b) {      // 按个位数从小到大，个位相同按数值从小到大
+    if (a % 10 != b % 10) return a % 10 &lt; b % 10;
+    return a &lt; b;
+}
+
+sort(a + 1, a + n + 1, cmp1);</code></pre><blockquote><p>⚠️ <b>比较函数里不能写 <code>&gt;=</code> 或 <code>&lt;=</code></b>，只能用严格的 <code>&gt;</code> 或 <code>&lt;</code>。检验方法：拿一个元素 x 问 <code>cmp(x, x)</code>——“x 应该排在 x 自己前面吗？”答案必须是 <code>false</code>。写了等号，<code>cmp(x, x)</code> 就成了 <code>true</code>，<code>sort</code> 可能排错甚至崩溃。多关键字比较时，所有关键字都相同的两条记录，<code>cmp</code> 也必须返回 <code>false</code>。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q1"></div>
+</div>
+
+<div data-md><h3 id="sec-6">2.4 多关键字排序（考试最常见）</h3><blockquote><p>按总分从高到低；总分相同按语文从高到低；再相同按学号从小到大。</p></blockquote><pre class="quiz-code"><code>struct Student {
+    int id, chinese, math, english, total;
+};
+Student stu[310];
+
+bool cmp(Student a, Student b) {
+    if (a.total != b.total) return a.total &gt; b.total;        // 第一关键字
+    if (a.chinese != b.chinese) return a.chinese &gt; b.chinese; // 第二关键字
+    return a.id &lt; b.id;                                       // 第三关键字
+}</code></pre><p>套路：<b>一层一层比，前面的关键字不相等就直接决定结果，相等才看下一个。</b></p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-10-02"></div>
+  <div id="q2"></div>
+</div>
+
+<div data-md><h3 id="sec-7">2.5 完整例子</h3><blockquote><p>输入 n 个学生的名字和成绩，按成绩从高到低输出，成绩相同的按输入顺序输出。</p></blockquote><pre class="quiz-code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+struct Student {
+    string name;
+    int score, id;
+};
+Student stu[1010];
+
+bool cmp(Student a, Student b) {
+    if (a.score != b.score) return a.score &gt; b.score;
+    return a.id &lt; b.id;
+}
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    for (int i = 1; i &lt;= n; i++) {
+        cin &gt;&gt; stu[i].name &gt;&gt; stu[i].score;
+        stu[i].id = i;
+    }
+    sort(stu + 1, stu + n + 1, cmp);
+    for (int i = 1; i &lt;= n; i++) {
+        cout &lt;&lt; stu[i].name &lt;&lt; &quot; &quot; &lt;&lt; stu[i].score &lt;&lt; &quot;\n&quot;;
+    }
+    return 0;
+}</code></pre><blockquote><p>💡 为什么要记 id？因为 <code>sort</code> <b>不保证</b>相等元素保持原来的顺序（叫“不稳定排序”）。需要保持原顺序时，要么加 id 作为最后关键字，要么用 <code>stable_sort</code>。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q3"></div>
+</div>
+
+<div data-md><h3 id="sec-8">2.6 了解：冒泡排序（初赛常考）</h3><pre class="quiz-code"><code>for (int i = 1; i &lt; n; i++)              // 进行 n-1 轮
+    for (int j = 1; j &lt;= n - i; j++)     // 每轮把最大的“冒”到最后
+        if (a[j] &gt; a[j + 1]) swap(a[j], a[j + 1]);</code></pre><p>时间复杂度 O(n²)，n 超过几千就会很慢。只需要会读、会分析，比赛写代码用 <code>sort</code>。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-10-01"></div>
+  <div id="q4"></div>
+  <div id="q5"></div>
+</div>
+
+<div data-md><h2 id="sec-9">3. ⚠️ 易错点</h2><ol><li>结构体定义末尾漏了分号。</li><li><code>sort</code> 范围写错：下标从 1 开始却写了 <code>sort(a, a + n)</code>。</li><li>比较函数里用了 <code>&gt;=</code>。</li><li>比较函数里把“前面的关键字”和“后面的关键字”顺序弄反。</li><li>题目要求“相同时按输入顺序”却没有处理。</li></ol></div>
+<div data-md><h2 id="sec-10">4. 课堂练习</h2><p><b>练习 10-1</b>：输入 n 个整数，先按从小到大输出，再按从大到小输出。</p><p><b>练习 10-2</b>：输入 n 个点的坐标 (x, y)，按 x 从小到大排序，x 相同按 y 从大到小。</p><p><b>练习 10-3</b>：输入 n 个学生的姓名和生日（年 月 日），按年龄从大到小输出姓名（即生日从早到晚）。</p><p><b>练习 10-4</b>：手写冒泡排序，并在每一轮结束后输出当前数组，观察“冒泡”的过程。</p><details class="ans"><summary>点击查看参考答案</summary><pre class="quiz-code"><code>// 10-3 比较函数
+struct Person {
+    string name;
+    int y, m, d;
+};
+bool cmp(Person a, Person b) {
+    if (a.y != b.y) return a.y &lt; b.y;
+    if (a.m != b.m) return a.m &lt; b.m;
+    return a.d &lt; b.d;
+}</code></pre></details></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把冒泡排序敲一遍，把数据改成 <code>5 1 4 2</code>，<b>先猜</b>第 1 轮结束后数组是什么，再在每轮后面加一行输出验证。</li>
+      <li>把 cmp 的第二关键字删掉，只留 <code>return a.score &gt; b.score;</code>，看看 Tom 和 Bob 的顺序会不会变（可能变，也可能不变——这正是不能依赖它的原因）。</li>
+    </ol>
+  </div>
+
+<div data-md><h2 id="sec-11">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P1177</td><td>【模板】排序</td><td>sort 基本用法</td><td>巩固</td></tr><tr><td>P5740</td><td>【深基7.例9】最厉害的学生</td><td>结构体 + 求最值</td><td>★核心</td></tr><tr><td>P5741</td><td>【深基7.例10】旗鼓相当的对手 - 加强版</td><td>结构体 + 双重循环</td><td>巩固</td></tr><tr><td>P5742</td><td>【深基7.例11】评等级</td><td>结构体 + 函数</td><td>巩固</td></tr><tr><td>P1093</td><td>[NOIP 2007 普及组] 奖学金</td><td><b>多关键字排序经典题</b></td><td>★核心</td></tr><tr><td>P1104</td><td>生日</td><td>多关键字 + 输入顺序。注意：<b>同生日时输入靠后的先输出</b>（id 降序），和 2.5 节例子的方向相反，先读题再写 cmp</td><td>★核心</td></tr><tr><td>P1068</td><td>[NOIP 2009 普及组] 分数线划定</td><td>排序 + 统计</td><td>巩固</td></tr><tr><td>P1059</td><td>[NOIP 2006 普及组] 明明的随机数</td><td>排序 + 去重</td><td>巩固</td></tr><tr><td>P1012</td><td>[NOIP 1998 提高组] 拼数</td><td>字符串 + 特殊比较函数</td><td>挑战</td></tr></table><blockquote><p>洛谷题单：【入门6】函数与结构体（后半部分）、【算法1-2】排序</p></blockquote></div>
+<div data-md><h2 id="sec-12">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我会定义结构体和结构体数组</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会用 <code>sort</code> 对下标 1~n 的数组升序、降序排序</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道比较函数返回 true 的含义，并且不写 <code>&gt;=</code></label></li><li class="task"><label><input type="checkbox" class="chk"> 我能写出三个关键字的比较函数</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道 sort 不稳定，会用 id 保持原顺序</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能看懂冒泡排序代码</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="09-func.html">← 第 9 课 函数与递归</a><a href="11-stl.html">第 11 课 STL 入门 →</a></nav>
+    </main>
+  </div>
+</div>
+
+<script src="../data/traces/sort-10.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "cmp 里写成 return a.score >= b.score; 会有什么问题？", "options": ["没问题，更保险", "拿 x 和自己比，cmp(x, x) 会返回 true，不符合要求，sort 可能排错甚至崩溃", "只是排得慢一点"], "answer": 1, "explain": "cmp(a, b) 表示“a 应该排在 b 前面吗”。x 不应该排在 x 自己前面，所以 cmp(x, x) 必须是 false，比较函数里只能用 > 或 <，不能带等号。"});
+  Q("q2", {"q": "要求“先按总分从高到低，总分相同再按学号从小到大”，哪个 cmp 写对了？", "options": ["if (a.total != b.total) return a.total > b.total;  return a.id < b.id;", "if (a.id != b.id) return a.id < b.id;  return a.total > b.total;", "return a.total > b.total && a.id < b.id;"], "answer": 0, "explain": "要一层一层比：前面的关键字不相等就直接决定结果，相等才看下一个。第二个选项先看学号，学号几乎总不同，分数就没用了；第三个选项里“分高但学号大”的人，两边都返回 false，会被当成一样大。"});
+  Q("q3", {"q": "题目要求“成绩相同的按输入顺序输出”，但 cmp 只写了 return a.score > b.score;，会怎样？", "options": ["sort 一定会保持输入顺序", "sort 不保证同分的人保持原来的先后", "编译不通过"], "answer": 1, "explain": "sort 不保证相等元素的原有顺序（不稳定排序）。所以要把输入编号 id 记下来，作为最后一个关键字。"});
+  Q("q4", {"q": "预测：数据是 4 2 3 1。第 1 轮结束后，数组变成什么？", "options": ["1 2 3 4", "2 3 1 4", "2 4 3 1"], "answer": 1, "explain": "第 1 轮从左到右相邻比较：4 和 2 换、4 和 3 换、4 和 1 换，最大的 4 冒到了最后，其余的相对顺序是 2 3 1。"});
+  Q("q5", {"q": "变一变：对 n 个数做冒泡排序，外层要进行几轮？", "options": ["n 轮", "n - 1 轮", "n / 2 轮"], "answer": 1, "explain": "每一轮都会让一个最大的数归位，n - 1 个归位后，最后一个自然就对了。4 个数就是 3 轮。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

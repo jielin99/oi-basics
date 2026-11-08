@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 12 课 指针、位运算与比赛规范</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="12" data-lesson-label="第12课｜指针位运算与比赛规范">
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">第一部分：指针初识</a></li><li class="l3"><a href="#sec-2">1. 从 Python 说起</a></li><li class="l3"><a href="#sec-3">2. 地址与指针</a></li><li class="l3"><a href="#sec-4">3. 指针与数组</a></li><li class="l2"><a href="#sec-5">第二部分：位运算</a></li><li class="l3"><a href="#sec-6">1. 二进制回顾</a></li><li class="l3"><a href="#sec-7">2. 六种位运算</a></li><li class="l3"><a href="#sec-8">3. 常用技巧</a></li><li class="l3"><a href="#sec-9">4. 初赛常考的相关知识</a></li><li class="l2"><a href="#sec-10">第三部分：比赛规范与复杂度</a></li><li class="l3"><a href="#sec-11">1. 文件读写 freopen</a></li><li class="l3"><a href="#sec-12">2. 时间复杂度：程序会不会超时</a></li><li class="l3"><a href="#sec-13">3. 空间估算</a></li><li class="l3"><a href="#sec-14">4. 部分分意识</a></li><li class="l2"><a href="#sec-15">4. 课堂练习</a></li><li class="l2"><a href="#sec-16">5. 结业：模拟测试</a></li><li class="l2"><a href="#sec-17">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 12 课 指针、位运算与比赛规范</h1></div>
+<div data-md><blockquote><p>预计用时：1.5 周 本课目标：理解指针和地址的基本概念（能看懂初赛题）；掌握位运算的基本操作；会用 <code>freopen</code>；会根据数据范围估算时间复杂度；完成一次模拟考试。</p></blockquote><p>这一课的内容分两部分：<b>初赛（笔试）必考的知识</b>和<b>复赛（上机）必备的规范</b>。</p><blockquote><p><b>分次学习</b>：第一部分（指针）、第二部分（位运算）、第三部分（规范与复杂度）可以分三次学。指针目前要求能看懂初赛题里的短代码；如果目标是 GESP 4 级，指针和参数传递需要另外加练到会写。第 5 节结业的 3.5 小时考场模拟可以等接近备赛时再安排。</p></blockquote></div>
+<div data-md><h2 id="sec-1">第一部分：指针初识</h2></div>
+<div data-md><h3 id="sec-2">1. 从 Python 说起</h3><p>Python 里没有指针，但你其实一直在用类似的东西：</p><pre class="quiz-code"><code>a = [1, 2, 3]
+b = a          # b 和 a 指向同一个列表
+b[0] = 100
+print(a)       # [100, 2, 3]</code></pre><p>C++ 的指针就是把这件事<b>明着写出来</b>：一个变量里存的是另一个变量的<b>地址</b>。</p></div>
+<div data-md><h3 id="sec-3">2. 地址与指针</h3><p>内存就像一排编了号的格子，每个变量占一些格子，格子的编号就是<b>地址</b>。</p><pre class="quiz-code"><code>int a = 5;
+int *p = &amp;a;       // &amp; 取地址：p 存的是 a 的地址；int* 表示“指向 int 的指针”
+cout &lt;&lt; p &lt;&lt; &quot;\n&quot;;     // 输出一个地址，如 0x61fe14
+cout &lt;&lt; *p &lt;&lt; &quot;\n&quot;;    // * 解引用：p 指向的那个变量的值 → 5
+*p = 10;               // 通过指针修改 a
+cout &lt;&lt; a &lt;&lt; &quot;\n&quot;;     // 10</code></pre><table class="calc-tbl"><tr><th>符号</th><th>写在哪</th><th>含义</th></tr><tr><td><code>int *p</code></td><td>声明时</td><td>p 是一个指向 int 的指针</td></tr><tr><td><code>&amp;a</code></td><td>表达式中</td><td>取 a 的地址</td></tr><tr><td><code>*p</code></td><td>表达式中</td><td>取 p 所指向的值</td></tr><tr><td><code>int &amp;r = a</code></td><td>声明时</td><td>r 是 a 的引用（第 9 课）</td></tr></table><blockquote><p>💡 现在可以解释第 3 课的 <code>scanf(&quot;%d&quot;, &amp;n)</code> 了：scanf 需要知道把读到的数<b>存到哪里</b>，所以要传 n 的地址。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-12-01"></div>
+  <div id="q1"></div>
+</div>
+
+<div data-md><h3 id="sec-4">3. 指针与数组</h3><p>在多数表达式中，数组名会<b>转换成指向首元素的指针</b>，所以可以写 <code>int *p = a;</code>。但数组本身不是指针（比如 <code>int a[5]</code> 的 <code>sizeof(a)</code> 是 20，而指针 <code>p</code> 的 <code>sizeof(p)</code> 在 64 位环境下是 8）：</p><pre class="quiz-code"><code>int a[5] = {10, 20, 30, 40, 50};
+int *p = a;            // 等价于 p = &amp;a[0]
+cout &lt;&lt; *p &lt;&lt; &quot;\n&quot;;        // 10
+cout &lt;&lt; *(p + 2) &lt;&lt; &quot;\n&quot;;  // 30，p+2 指向 a[2]
+cout &lt;&lt; p[3] &lt;&lt; &quot;\n&quot;;      // 40，p[3] 就是 *(p+3)</code></pre><p>这也解释了：</p><ul><li><code>sort(a + 1, a + n + 1)</code> 里 <code>a + 1</code> 就是 a[1] 的地址。</li><li>数组传进函数时传的是地址，所以函数里能改外面的数组。</li><li><code>lower_bound(...) - a</code> 是两个地址相减，得到下标。</li></ul><blockquote><p>🎯 <b>要求</b>：能读懂含有 <code>*</code>、<code>&amp;</code>、指针加减的初赛阅读程序题即可。比赛写代码时几乎不需要自己用指针（链表等结构也常用数组模拟）。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-12-02"></div>
+  <div id="q2"></div>
+</div>
+
+<div data-md><h2 id="sec-5">第二部分：位运算</h2></div>
+<div data-md><h3 id="sec-6">1. 二进制回顾</h3><p>计算机内部用二进制存数。例如 <code>13 = 8 + 4 + 1 = 1101₂</code>。</p><p><b>十进制转二进制</b>：不断除以 2 取余数，倒着读。</p><pre class="quiz-code"><code>void toBinary(int n) {
+    if (n &gt;= 2) toBinary(n / 2);
+    cout &lt;&lt; n % 2;
+}</code></pre></div>
+<div data-md><h3 id="sec-7">2. 六种位运算</h3><p>对两个数的<b>每一个二进制位</b>分别运算：</p><table class="calc-tbl"><tr><th>运算</th><th>符号</th><th>规则</th><th>例子：<code>12 = 1100</code>，<code>10 = 1010</code></th></tr><tr><td>与</td><td><code>&amp;</code></td><td>都是 1 才是 1</td><td><code>12 &amp; 10 = 1000 = 8</code></td></tr><tr><td>或</td><td><code>|</code></td><td>有一个 1 就是 1</td><td><code>12 | 10 = 1110 = 14</code></td></tr><tr><td>异或</td><td><code>^</code></td><td>不同为 1，相同为 0</td><td><code>12 ^ 10 = 0110 = 6</code></td></tr><tr><td>取反</td><td><code>~</code></td><td>0 变 1，1 变 0</td><td><code>~0 = -1</code></td></tr><tr><td>左移</td><td><code>&lt;&lt;</code></td><td>所有位左移，右边补 0</td><td><code>3 &lt;&lt; 2 = 1100 = 12</code>（相当于 ×4）</td></tr><tr><td>右移</td><td><code>&gt;&gt;</code></td><td>所有位右移</td><td><code>12 &gt;&gt; 2 = 11 = 3</code>（相当于 ÷4）</td></tr></table></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-calc="bits"></div>
+  <div id="q3"></div>
+</div>
+
+<div data-md><h3 id="sec-8">3. 常用技巧</h3><pre class="quiz-code"><code>x &lt;&lt; k              // x × 2^k
+x &gt;&gt; k              // x ÷ 2^k（向下取整，对正数）
+1 &lt;&lt; k              // 2^k（要得到正数，k 只能是 0~30）
+1LL &lt;&lt; k            // 2^k（long long 版，k 只能是 0~62）
+x &amp; 1               // 判断奇偶：1 是奇数，0 是偶数
+(x &gt;&gt; k) &amp; 1        // 取 x 二进制的第 k 位（从 0 开始，从右往左数）
+x ^ x               // 0
+a ^ b ^ b           // a（异或两次相同的数等于没异或）</code></pre><blockquote><p>⚠️ 位运算优先级很低，<b>一定要加括号</b>：<code>if (x &amp; 1 == 0)</code> 实际是 <code>x &amp; (1 == 0)</code>，要写 <code>if ((x &amp; 1) == 0)</code>。 ⚠️ <code>1 &lt;&lt; 31</code> 得不到正数 2³¹（<code>int</code> 最大只到 2³¹−1），要写 <code>1LL &lt;&lt; 31</code>。 ⚠️ 移位的位数必须在 0 ~ 类型位数−1 之间：<code>int</code> 最多移 31 位，<code>long long</code> 最多移 63 位。<code>1LL</code> 只是把左边变成 64 位，<code>1LL &lt;&lt; 70</code> 照样不行。入门阶段只对非负数做移位。位数合法、左边非负还不够，<code>x &lt;&lt; k</code> 的结果也必须装得下（比如 <code>int</code> 里 <code>1 &lt;&lt; 31</code> 位数合法，但结果超出了正数范围）。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-12-03"></div>
+  <div id="q4"></div>
+  <div id="q5"></div>
+</div>
+
+<div data-md><h3 id="sec-9">4. 初赛常考的相关知识</h3><ul><li>原码、反码、补码：负数在计算机中用<b>补码</b>表示（<code>-1</code> 的补码是全 1）。</li><li>进制转换：二进制、八进制、十进制、十六进制互转。</li><li><code>int</code> 是 32 位，范围 −2³¹ ~ 2³¹−1。</li><li>1 Byte = 8 bit，1 KB = 1024 Byte，1 MB = 1024 KB。</li></ul></div>
+<div data-md><h2 id="sec-10">第三部分：比赛规范与复杂度</h2></div>
+<div data-md><h3 id="sec-11">1. 文件读写 <code>freopen</code></h3><p>CSP 复赛等比赛常要求“从 <code>xxx.in</code> 读入，输出到 <code>xxx.out</code>”：</p><pre class="quiz-code"><code>#include &lt;cstdio&gt;
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    freopen(&quot;sum.in&quot;, &quot;r&quot;, stdin);
+    freopen(&quot;sum.out&quot;, &quot;w&quot;, stdout);
+
+    int a, b;
+    cin &gt;&gt; a &gt;&gt; b;
+    cout &lt;&lt; a + b &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre><p>练习方法：在代码所在文件夹新建 <code>sum.in</code>，写入 <code>3 5</code>，运行程序后打开 <code>sum.out</code> 应该看到 <code>8</code>。</p><blockquote><p>🎯 <b>从现在开始，所有在本地做的题，都尝试加上 freopen 来测试。</b> 让它成为肌肉记忆。考场上最惨的事就是“题做对了，文件名写错了，0 分”。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q6"></div>
+</div>
+
+<div data-md><h3 id="sec-12">2. 时间复杂度：程序会不会超时</h3><p><b>粗略估计：评测机 1 秒大约执行 10⁸ 次简单运算。</b> 这只是数量级估算，不是“算出来不到 10⁸ 就一定能过”：还要看时限、每次操作有多重、有多少组数据，接近上限时要留余量。</p><p>数一数程序“最多执行多少次基本操作”：</p><pre class="quiz-code"><code>for (int i = 1; i &lt;= n; i++) ...                        // n 次 → O(n)
+for (int i = 1; i &lt;= n; i++) for (int j = 1; j &lt;= n; j++) ...  // n² 次 → O(n²)
+for (int i = 1; i &lt;= n / i; i++) ...                    // √n 次 → O(√n)（即 i*i &lt;= n，见第 6 课）
+while (n &gt; 0) n /= 2;                                   // log₂n 次 → O(log n)
+sort(a + 1, a + n + 1);                                 // O(n log n)</code></pre><p><b>拿到题目先看 n 的范围，倒推需要什么复杂度：</b></p><table class="calc-tbl"><tr><th>n 的最大值</th><th>可以接受</th><th>估算</th></tr><tr><td>20</td><td>O(2ⁿ)</td><td>2²⁰ ≈ 10⁶ ✅</td></tr><tr><td>500</td><td>O(n³)</td><td>1.25×10⁸ 勉强</td></tr><tr><td>5000</td><td>O(n²)</td><td>2.5×10⁷ ✅</td></tr><tr><td>10⁵</td><td>O(n log n)</td><td>≈ 1.7×10⁶ ✅；O(n²) = 10¹⁰ ❌</td></tr><tr><td>10⁶</td><td>O(n) 或 O(n log n)</td><td></td></tr><tr><td>10⁹ 以上</td><td>O(√n)、O(log n)、O(1)</td><td></td></tr></table><blockquote><p>🎯 例：题目 n ≤ 10⁵，你想到的是双重循环 O(n²) → 10¹⁰，肯定超时。要么换更好的算法，要么至少能拿部分分（比赛按测试点给分，小数据能过也有分！）。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q7"></div>
+  <div id="q8"></div>
+</div>
+
+<div data-md><h3 id="sec-13">3. 空间估算</h3><table class="calc-tbl"><tr><th>类型</th><th>每个元素</th><th>10⁶ 个元素约占</th></tr><tr><td><code>int</code></td><td>4 字节</td><td>4 MB</td></tr><tr><td><code>long long</code> / <code>double</code></td><td>8 字节</td><td>8 MB</td></tr><tr><td><code>char</code> / <code>bool</code></td><td>1 字节</td><td>1 MB</td></tr></table><p>比赛内存限制通常 256 MB 或 512 MB。<code>int a[5000][5000]</code> = 2.5×10⁷ × 4 = 100 MB，要小心。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q9"></div>
+</div>
+
+<div data-md><h3 id="sec-14">4. 部分分意识</h3><ul><li>比赛<b>按测试点给分</b>，不是全对才有分。</li><li>想不出满分做法时，<b>先写暴力</b>拿小数据的分。</li><li>题目里“对于 30% 的数据，n ≤ 100”这种说明，就是在提示你部分分。</li></ul></div>
+<div data-md><h2 id="sec-15">4. 课堂练习</h2><p><b>练习 12-1</b>：预测输出</p><pre class="quiz-code"><code>int a[4] = {1, 2, 3, 4};
+int *p = a + 1;
+*p += 10;
+p++;
+cout &lt;&lt; *p &lt;&lt; &quot; &quot; &lt;&lt; a[1] &lt;&lt; &quot;\n&quot;;</code></pre><p><b>练习 12-2</b>：输入一个正整数，输出它的二进制表示中有多少个 1。（用 <code>&amp; 1</code> 和 <code>&gt;&gt; 1</code>）</p><p><b>练习 12-3</b>：给你一段代码，估算当 n = 10⁵ 时是否会超时：</p><pre class="quiz-code"><code>for (int i = 1; i &lt;= n; i++)
+    for (int j = i; j &lt;= n; j += i)
+        cnt++;</code></pre><p>（提示：内层循环次数是 n/1 + n/2 + n/3 + ... + n/n，大约是 n × ln n）</p><p><b>练习 12-4</b>：用 freopen 改写第 10 课的成绩排序程序，从 <code>score.in</code> 读、写到 <code>score.out</code>。</p><details class="ans"><summary>点击查看参考答案</summary><p><b>12-1</b>：<code>3 12</code>。p 先指向 a[1]，a[1] 变成 12；p++ 后指向 a[2]，值为 3。</p><p><b>12-2</b>：</p><pre class="quiz-code"><code>int n, cnt = 0;
+cin &gt;&gt; n;
+while (n &gt; 0) {
+    cnt += n &amp; 1;
+    n &gt;&gt;= 1;
+}
+cout &lt;&lt; cnt &lt;&lt; &quot;\n&quot;;</code></pre><p><b>12-3</b>：约 10⁵ × 12 ≈ 1.2×10⁶，不会超时。这叫“调和级数”，复杂度 O(n log n)。</p></details></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把指针的例子敲一遍，再试 <code>cout &lt;&lt; p;</code>，看看输出的地址长什么样（每台电脑都不同）。</li>
+      <li>用 <code>n &amp; 1</code> 和 <code>n &gt;&gt;= 1</code> 写一个“数二进制里有几个 1”的程序，用 freopen 从 <code>count.in</code> 读入。</li>
+    </ol>
+  </div>
+
+<div data-md><h2 id="sec-16">5. 结业：模拟测试</h2><p>结业分两部分：<b>A. 考场熟练度模拟</b>（下面的题前面都做过，检验的是重做熟练度和考场操作）；<b>B. 新题迁移测评</b>（没见过的题，检验是否真正会用）。</p><p><b>A. 考场熟练度模拟</b>：做完前 12 课后，用下面这套题做一次<b>计时 3.5 小时的模拟赛</b>（真实第二轮时长约 3.5~4 小时，以当年公告为准），全程用 freopen，不看任何资料：</p><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>对应知识点</th></tr><tr><td>P1980</td><td>[NOIP 2013 普及组] 计数问题</td><td>循环、拆数位</td></tr><tr><td>P1055</td><td>[NOIP 2008 普及组] ISBN 号码</td><td>字符串</td></tr><tr><td>P1093</td><td>[NOIP 2007 普及组] 奖学金</td><td>结构体排序</td></tr><tr><td>P1540</td><td>[NOIP 2010 提高组] 机器翻译</td><td>队列</td></tr></table><p><b>A 部分参考</b>：4 题都 AC 说明熟练度和考场操作没问题；没过的题，对照错因回到对应的课补练（不需要把全部题单重刷一遍）。</p><p><b>B. 新题迁移测评</b>（60~90 分钟，由老师/家长另选没做过的题）。下面只是<b>示例</b>：它印在讲义里，又和练习 7-2 很像，孩子读过或做过就不算新题，正式测评请换题：</p><blockquote><p>输入 n 张阅读卡，每张有编号和阅读页数。输出页数<b>严格大于</b>全体平均值的卡号，按输入顺序输出，空格隔开；没有则输出 <code>NONE</code>。约定 1 ≤ n ≤ 100，页数是 0~1000 的整数，编号互不相同。</p></blockquote><p>做完后再完成三件事：① 自己造 3 组测试数据（最小的 n、全部相同、有人刚好等于平均值）并说明预期输出；② 讲清楚：按“输入只读一遍、最后按原顺序输出”的做法，为什么必须把数据存起来；③ 把一段老师故意改错的程序修好，说出错因。</p><p><b>如何判断能否进入算法阶段</b>：A 部分大部分 AC，<b>并且</b> B 部分新题能独立写对核心逻辑、会造边界数据、能讲清自己的代码。哪一项弱就补哪一项。</p><p><b>另外，初赛准备</b>：去洛谷找“CSP-J 初赛”历年真题，先做一套感受题型。语言部分的阅读程序题，学完本课程应该能看懂大部分；计算机基础知识（进制、编码、网络、历史、排列组合等）需要另外专门复习。</p></div>
+<div data-md><h2 id="sec-17">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我能说出 <code>&amp;a</code>、<code>*p</code>、<code>int *p</code>、<code>int &amp;r</code> 各自的含义</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能解释为什么 scanf 要加 &amp;</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会算 <code>&amp;</code>、<code>|</code>、<code>^</code>、<code>&lt;&lt;</code>、<code>&gt;&gt;</code> 的结果</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会用 <code>x &amp; 1</code> 判断奇偶，<code>1 &lt;&lt; k</code> 求 2 的幂</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能不看资料写出 freopen</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能根据 n 的范围判断 O(n²) 会不会超时</label></li><li class="task"><label><input type="checkbox" class="chk"> 我完成了结业模拟测试</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="11-stl.html">← 第 11 课 STL 入门</a><a href="A-python-cpp.html">附录 A Python 与 C++ 对照 →</a></nav>
+    </main>
+  </div>
+</div>
+
+<script src="../data/traces/ptr-bit-12.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "scanf(\"%d\", &n) 里，为什么要写 &n？", "options": ["规定而已，没有道理", "scanf 需要知道把读到的数存到哪里，所以要传 n 的地址", "& 表示“并且”"], "answer": 1, "explain": "& 是取地址。scanf 拿到 n 的地址，才能把读到的数放进 n 里。"});
+  Q("q2", {"q": "预测输出（练习 12-1）：", "code": "int a[4] = {1, 2, 3, 4};\nint *p = a + 1;\n*p += 10;\np++;\ncout << *p << \" \" << a[1];", "options": ["3 12", "3 2", "2 12", "13 2"], "answer": 0, "explain": "p 先指向 a[1]，a[1] 变成 12；p++ 后指向 a[2]，值为 3。输出 3 12。"});
+  Q("q3", {"q": "预测输出：六种位运算（12 = 1100，10 = 1010）：", "code": "cout << (12 & 10) << \" \" << (12 | 10) << \" \" << (12 ^ 10) << \" \" << (3 << 2) << \" \" << (12 >> 2);", "options": ["14 8 6 12 3", "8 14 6 3 12", "8 14 2 12 3", "8 14 6 12 3"], "answer": 3, "explain": "与：都是 1 才是 1 → 1000 = 8；或：有一个 1 就是 1 → 1110 = 14；异或：不同为 1 → 0110 = 6；3 << 2 相当于 ×4 = 12；12 >> 2 相当于 ÷4 = 3。输出 8 14 6 12 3。"});
+  Q("q4", {"q": "预测输出：位运算优先级很低，一定要加括号。判断 x = 4 是不是偶数：", "code": "int x = 4;\nif (x & 1 == 0) cout << \"even\";\nelse cout << \"odd\";", "options": ["even", "编译错误", "odd"], "answer": 2, "explain": "1 == 0 的优先级比 & 高，实际算的是 x & (1 == 0) = 4 & 0 = 0（假），走 else。正确写法 (x & 1) == 0。输出 odd。"});
+  Q("q5", {"q": "预测输出：异或两次相同的数等于没异或：", "code": "int a = 7, b = 9;\ncout << (a ^ b ^ b);", "options": ["7", "0", "9", "14"], "answer": 0, "explain": "a ^ b ^ b = a ^ (b ^ b) = a ^ 0 = a。输出 7。"});
+  Q("q6", {"q": "比赛要求文件读写，freopen 里文件名写错了（比如题目是 sum.in，你写成 Sum.in），会怎样？", "options": ["没关系，大小写无所谓", "程序读不到数据，输出不对，通常是 0 分：题做对了也白做", "评测机会自动改"], "answer": 1, "explain": "“题做对了，文件名写错了，0 分”是考场上最惨的事。所以本地做题时就养成加 freopen 的习惯。"});
+  Q("q7", {"q": "题目 n ≤ 100000，时限约 1 秒。你写了双重循环（两层各执行 n 次，O(n²)），按本课的估算会怎样？", "options": ["10⁵ × 10⁵ = 10¹⁰ 次，远超 1 秒大约能做的 10⁸ 次，通常无法通过，需要优化", "10⁵ 不大，肯定能过", "只要不死循环就能过"], "answer": 0, "explain": "先看 n 的范围，倒推需要什么复杂度。想不出满分做法时，先写暴力拿小数据的部分分——比赛按测试点给分。"});
+  Q("q8", {"q": "估算（练习 12-3）：n = 100000 时，下面的循环里 cnt++ 一共执行多少次？", "code": "int n = 100000;\nlong long cnt = 0;\nfor (int i = 1; i <= n; i++)\n    for (int j = i; j <= n; j += i)\n        cnt++;\ncout << cnt;", "options": ["1166750", "10000000000", "5000050000", "100000"], "answer": 0, "explain": "内层次数是 n/1 + n/2 + n/3 + …，叫“调和级数”，大约 n × ln n，也就是 O(n log n)。这里约 1.2×10⁶，远小于 10⁸，按本课的估算，通常足够快。真实输出 1166750。"});
+  Q("q9", {"q": "int a[5000][5000]; 大约占多少内存？（int 占 4 字节）", "options": ["约 25 MB", "约 100 MB", "约 400 MB"], "answer": 1, "explain": "5000 × 5000 = 2.5×10⁷ 个元素，× 4 字节 = 1 亿字节，约 100 MB。比赛内存限制通常 256 MB 或 512 MB，要小心。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

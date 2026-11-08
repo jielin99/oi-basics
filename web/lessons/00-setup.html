@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 0 课 环境搭建：让第一个程序跑起来</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="00" data-lesson-label="第0课｜环境搭建">
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. Python 和 C++ 运行方式的根本区别</a></li><li class="l2"><a href="#sec-2">2. 考场用什么环境？平时就用什么</a></li><li class="l3"><a href="#sec-3">主力环境：Dev-C++ 5.11（和考场一致，推荐）</a></li><li class="l3"><a href="#sec-4">进阶：NOI Linux 2.0 虚拟机（学完第 12 课后再装）</a></li><li class="l2"><a href="#sec-5">3. 验证环境：Hello, OI</a></li><li class="l2"><a href="#sec-6">4. 注册洛谷并提交第一题</a></li><li class="l3"><a href="#sec-7">评测结果是什么意思</a></li><li class="l2"><a href="#sec-8">5. 建议的文件夹组织</a></li><li class="l2"><a href="#sec-9">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 0 课 环境搭建：让第一个程序跑起来</h1></div>
+<div data-md><blockquote><p>预计用时：1 小时 本课目标：装好编辑器和编译器；能新建、编译、运行一个 <code>.cpp</code> 文件；注册洛谷并提交第一道题。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. Python 和 C++ 运行方式的根本区别</h2><table class="calc-tbl"><tr><th></th><th>Python</th><th>C++</th></tr><tr><td>运行方式</td><td><b>解释执行</b>：<code>python a.py</code>，由解释器直接拿源代码去执行</td><td><b>编译执行</b>：先把 <code>a.cpp</code> <b>编译</b>成 <code>a.exe</code>，再运行 <code>a.exe</code></td></tr><tr><td>错误什么时候出现</td><td>语法错误在开始执行前就会报出来；其他错误（除以 0、下标越界、名字写错……）运行到那一行才报</td><td>大部分语法错误在<b>编译时</b>就报出来，一个错都不能有，否则根本生成不了程序</td></tr><tr><td>速度</td><td>慢</td><td>快（通常快几十倍）——这是信奥用 C++ 的主要原因</td></tr></table><pre class="quiz-code"><code>  a.cpp  ──(编译器 g++)──►  a.exe  ──(运行)──►  结果
+ 源代码       编译                 可执行文件</code></pre><blockquote><p>记住：<b>改了代码，一定要重新编译</b>，否则运行的还是旧程序。这是新手最常见的“我明明改了怎么没变”。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q1"></div>
+  <div id="q2"></div>
+</div>
+
+<div data-md><h2 id="sec-2">2. 考场用什么环境？平时就用什么</h2><p>信奥考试<b>不是</b>用 VS Code 这类通用编辑器，而是用指定的环境。平时练习最好和考场保持一致，免得考试时手忙脚乱。</p><table class="calc-tbl"><tr><th>考试</th><th>考场环境</th><th>评测环境</th></tr><tr><td><b>GESP 等级考试</b></td><td>官方建议 <b>Dev-C++ 5.11</b></td><td>官方系统（官网“考试环境说明”列出的评测选项是 <code>-std=c++11</code>）</td></tr><tr><td><b>CSP-J/S 第二轮、NOIP</b></td><td>以 <b>NOI Linux 2.0</b> 为准；不少省份另外提供 Windows（常见 <b>Dev-C++ 5.11</b>、Code::Blocks），Linux 用虚拟机</td><td>统一用 <b>NOI Linux 2.0</b>（Ubuntu 20.04，g++ 9.3）</td></tr></table><blockquote><p>要点：<b>无论考场里用哪个编辑器写代码，最后都放到 Linux 上用 g++ 评测。</b> 所以代码要按标准 C++ 写，不能用 Windows 专有的东西（见附录 C）。每年具体环境以 CCF 和本省的考试通知为准。</p></blockquote></div>
+<div data-md><h3 id="sec-3">主力环境：Dev-C++ 5.11（和考场一致，推荐）</h3><ul><li>一个安装包里同时带了编辑器和编译器，装完就能用，<b>F11 一键编译运行</b>。</li><li>下载：GESP 官网“考试环境说明”页面提供下载；也可以去 SourceForge 搜 “Orwell Dev-C++ 5.11”。</li><li><b>安装后必须做的设置</b>（很重要）：<ol><li><code>工具 → 编译选项</code>，在“编译器”页勾选 <b>“编译时加入以下命令”</b>，填入：<code>-std=c++14 -Wall</code><ul><li>原因：5.11 自带的编译器比较老，<b>默认不是 C++14</b>。不加这一条，课程里的 <code>for (char c : s)</code>、<code>auto</code>、<code>to_string</code> 等写法会编译失败。</li><li><code>-Wall</code> 会打开更多警告，帮你发现隐藏的 bug。</li></ul></li><li><code>工具 → 编辑器选项 → 显示</code>：字体选等宽字体（如 Consolas），字号调大一点。</li><li>编译器下拉框选 <code>TDM-GCC 4.9.2 64-bit Release</code>。</li></ol></li><li>装好后用下面第 3 节的程序检查一下，再编译一段含 <code>for (char c : s)</code> 的代码，确认新标准已经生效（能编译通过只说明至少是 C++11，具体是哪个标准以编译选项为准）。</li></ul><blockquote><p>也可以用 <b>小熊猫 Dev-C++</b>（Dev-C++ 的国产升级版，界面一样，编译器更新，报错提示更友好），刚入门时用着更顺手。<b>但考试前至少 2~3 周要换回 Dev-C++ 5.11 练习</b>，熟悉考场环境。</p></blockquote></div>
+<div data-md><h3 id="sec-4">进阶：NOI Linux 2.0 虚拟机（学完第 12 课后再装）</h3><ul><li>准备 CSP 第二轮时，在 noi.cn 下载 NOI Linux 2.0 镜像，装进虚拟机（VirtualBox 或 VMware），熟悉 Linux 下的文件管理、编辑器和终端。</li><li>会用终端手动编译、运行，考场上最可靠：</li></ul><pre class="quiz-code"><code>g++ a.cpp -o a -std=c++14 -O2 -Wall</code></pre><pre class="quiz-code"><code>./a</code></pre><blockquote><p>在 Windows 上调试通过后，<b>最好再放到 NOI Linux 里编译运行一次</b>，这是各省考试通知里反复提醒的。</p></blockquote><p>VS Code 不用专门学。以后想用可以用，但信奥阶段没有必要。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q3"></div>
+</div>
+
+<div data-md><h2 id="sec-5">3. 验证环境：Hello, OI</h2><p>新建文件 <code>hello.cpp</code>，<b>一个字一个字敲</b>进去：</p><pre class="quiz-code"><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; &quot;Hello, OI!&quot; &lt;&lt; endl;
+    return 0;
+}</code></pre><p>编译运行，看到 <code>Hello, OI!</code> 就说明环境 OK。</p><p>如果报错，最常见的原因：</p><ul><li>中文输入法打出了中文标点（<code>；</code> <code>（</code> <code>“</code>）→ 切回英文输入法重打。</li><li>文件扩展名是 <code>.txt</code> 或 <code>.c</code> 而不是 <code>.cpp</code>。</li><li>路径里有中文或空格导致老版编译器异常 → 换个纯英文路径，如 <code>D:\oi\</code>。</li></ul></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q4"></div>
+</div>
+
+<div data-md><h2 id="sec-6">4. 注册洛谷并提交第一题</h2><ol><li>打开 www.luogu.com.cn 注册账号（请家长协助）。</li><li>打开题目 <b>P1001 A+B Problem</b>，读题：输入两个整数，输出它们的和。</li><li>先在本地写好、测试通过：</li></ol><pre class="quiz-code"><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a, b;
+    cin &gt;&gt; a &gt;&gt; b;
+    cout &lt;&lt; a + b &lt;&lt; endl;
+    return 0;
+}</code></pre><ol start="4"><li>复制到洛谷提交框，语言选 <b>C++14</b>，提交。</li><li>看到绿色的 <b>AC（Accepted）</b> 就成功了！</li></ol></div>
+<div data-md><h3 id="sec-7">评测结果是什么意思</h3><table class="calc-tbl"><tr><th>结果</th><th>含义</th><th>常见原因</th></tr><tr><td><b>AC</b></td><td>通过</td><td>🎉</td></tr><tr><td><b>WA</b></td><td>答案错误</td><td>逻辑错、输出格式不对、溢出</td></tr><tr><td><b>TLE</b></td><td>超时</td><td>算法太慢、死循环、输入太多却用了慢速读入</td></tr><tr><td><b>MLE</b></td><td>超内存</td><td>数组开得太大</td></tr><tr><td><b>RE</b></td><td>运行时错误</td><td>数组越界、除以 0、递归太深</td></tr><tr><td><b>CE</b></td><td>编译错误</td><td>语法错，或者语言选错了</td></tr></table></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q5"></div>
+  <div id="q6"></div>
+</div>
+
+<div data-md><h2 id="sec-8">5. 建议的文件夹组织</h2><pre class="quiz-code"><code>D:\oi\
+├── lesson01\          每课一个文件夹，课堂示例和练习放这里
+├── lesson02\
+├── luogu\             洛谷题，文件名就用题号，如 P1001.cpp
+└── 错题本\            做错/不会的题，附上一段文字说明错因</code></pre><p>用题号命名非常重要：以后复习、找回旧代码会方便很多。</p></div>
+<div data-md><h2 id="sec-9">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我能新建一个 <code>.cpp</code> 文件，编译并运行它</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道“编译”和“运行”是两步，改代码后要重新编译</label></li><li class="task"><label><input type="checkbox" class="chk"> 我在洛谷 AC 了 P1001</label></li><li class="task"><label><input type="checkbox" class="chk"> 我认识 AC / WA / TLE / RE / CE 这几个评测结果</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><span></span><a href="01-first.html">第 1 课 第一个程序 →</a></nav>
+    </main>
+  </div>
+</div>
+
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "你改了代码，但直接点“运行”，没有重新编译，运行的是什么？", "options": ["新代码，因为文件已经保存了", "旧的 a.exe：没重新编译，可执行文件还是改动前生成的", "什么都不会运行"], "answer": 1, "explain": "C++ 是先编译再运行：改了代码一定要重新编译，否则运行的还是旧程序。这是新手最常见的“我明明改了怎么没变”。"});
+  Q("q2", {"q": "语法错误（比如漏了分号）在 C++ 里什么时候会被发现？", "options": ["运行到那一行才报错，和 Python 一样", "编译的时候就会报出来，一个错都不能有，否则生成不了程序", "永远不会被发现"], "answer": 1, "explain": "C++ 大部分语法错误在编译时就报出来。有语法错误，根本生成不了可执行文件。"});
+  Q("q3", {"q": "在考场里用 Dev-C++ 写好代码，最后评测是在哪里进行的？", "options": ["就在写代码的那个 Windows 里", "统一放到 Linux 上用 g++ 评测，所以代码要按标准 C++ 写，不能用 Windows 专有的东西", "由选手自己决定"], "answer": 1, "explain": "课程 md 里的原话：无论考场里用哪个编辑器写代码，最后都放到 Linux 上用 g++ 评测。具体环境以每年 CCF 和本省的通知为准。"});
+  Q("q4", {"q": "hello.cpp 编译总是出怪错，文件放在“桌面\\我的 C++ 作业\\”里，可能的原因和办法是？", "options": ["没有问题，是电脑坏了", "路径里有中文或空格会让老版编译器异常，换个纯英文路径，如 D:\\oi\\", "必须放在 C 盘根目录"], "answer": 1, "explain": "还要检查：输入法有没有打出中文标点；文件扩展名是不是 .cpp（不是 .txt 或 .c）。"});
+  Q("q5", {"q": "洛谷提交后显示 RE（运行时错误），最可能是什么原因？", "options": ["数组越界、除以 0、递归太深", "算法太慢", "语法写错了"], "answer": 0, "explain": "RE 是程序运行起来以后出的错。语法错是 CE（编译错误）；算法太慢是 TLE（超时）；输出不对是 WA（答案错误）。"});
+  Q("q6", {"q": "洛谷显示 TLE，说明什么？", "options": ["答案错误", "超时：算法太慢、死循环、或者输入太多却用了慢速读入", "超内存"], "answer": 1, "explain": "超内存是 MLE（数组开得太大）。AC 才是通过。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

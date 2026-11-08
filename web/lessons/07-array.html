@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 7 课 数组：C++ 版的“列表”，但很不一样</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="07" data-lesson-label="第7课｜数组">
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 定义与访问</a></li><li class="l3"><a href="#sec-4">2.2 下标从 1 开始的习惯</a></li><li class="l3"><a href="#sec-5">2.3 大数组开在全局</a></li><li class="l3"><a href="#sec-6">2.4 数组越界：最危险的 bug</a></li><li class="l3"><a href="#sec-7">2.5 常见操作</a></li><li class="l3"><a href="#sec-8">2.6 二维数组</a></li><li class="l2"><a href="#sec-9">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-10">4. 课堂练习</a></li><li class="l2"><a href="#sec-11">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-12">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 7 课 数组：C++ 版的“列表”，但很不一样</h1></div>
+<div data-md><blockquote><p>预计用时：1.5 周 本课目标：会定义、读入、遍历一维和二维数组；理解数组越界的危害；知道大数组为什么开在全局；掌握“桶计数”等数组基本用法。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><table class="calc-tbl"><tr><th></th><th>Python 列表 <code>list</code></th><th>C++ 数组</th></tr><tr><td>长度</td><td>可变，随时 <code>append</code></td><td><b>固定</b>，定义时就要写好大小</td></tr><tr><td>元素类型</td><td>什么都能混着放</td><td><b>只能放同一种类型</b></td></tr><tr><td>下标越界</td><td>报 <code>IndexError</code></td><td><b>不会自动检查边界！</b>编译通过也不代表安全；越界后程序行为没有保证：可能算错、改坏别的数据、崩溃，也可能暂时看不出问题</td></tr><tr><td>负下标</td><td><code>a[-1]</code> 是最后一个</td><td><code>a[-1]</code> 是越界，<b>绝对不能用</b></td></tr><tr><td>切片</td><td><code>a[1:3]</code></td><td>没有</td></tr><tr><td>长度</td><td><code>len(a)</code></td><td>没有，自己用变量 n 记住</td></tr></table><pre class="quiz-code"><code>a = []
+for i in range(n):
+    a.append(int(input()))</code></pre><pre class="quiz-code"><code>int a[1010];              // 开一个能放 1010 个 int 的数组
+for (int i = 1; i &lt;= n; i++) {
+    cin &gt;&gt; a[i];
+}</code></pre><blockquote><p>💡 C++ 也有类似 Python 列表的 <code>vector</code>（第 11 课）。但<b>普通数组是信奥最基本、最常用的工具</b>，必须先掌握它。</p></blockquote></div>
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 定义与访问</h3><pre class="quiz-code"><code>int a[5];                    // 5 个 int：a[0] a[1] a[2] a[3] a[4]，没有 a[5]！
+int b[5] = {1, 2, 3};        // b = {1, 2, 3, 0, 0}，没写的自动补 0
+int c[5] = {0};              // 全部是 0
+double d[100];
+a[0] = 10;
+a[4] = a[0] * 2;</code></pre><ul><li>下标从 <b>0</b> 到 <b>大小−1</b>。</li><li>数组大小必须是<b>常量</b>（<code>const int N = 1000; int a[N];</code>）。</li></ul></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-07-01"></div>
+  <div id="q1"></div>
+  <div id="q2"></div>
+</div>
+
+<div data-md><h3 id="sec-4">2.2 下标从 1 开始的习惯</h3><p>信奥题目里数据常常是“第 1 个 … 第 n 个”。为了不在 0 和 1 之间来回换算，我们<b>习惯从下标 1 开始存</b>，并且<b>数组多开一些</b>：</p><pre class="quiz-code"><code>const int N = 100000 + 10;   // 题目说 n ≤ 100000
+int a[N];
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    for (int i = 1; i &lt;= n; i++) cin &gt;&gt; a[i];   // a[1] ~ a[n]
+}</code></pre></div>
+<div data-md><h3 id="sec-5">2.3 大数组开在全局</h3><pre class="quiz-code"><code>int big[1000000];            // ✅ 开在 main 外面（全局）：自动全部为 0，空间大
+
+int main() {
+    int small[1000000];      // ❌ 开在 main 里（局部）：值不确定，而且太大会“爆栈”导致程序崩溃
+}</code></pre><blockquote><p>🎯 <b>规则：数组一律开在 <code>main</code> 外面。</b> 这一条能帮你避免大量莫名其妙的错误。</p></blockquote></div>
+<div data-md><h3 id="sec-6">2.4 数组越界：最危险的 bug</h3><pre class="quiz-code"><code>int a[10];
+a[10] = 5;     // 越界！编译器不会拦你，但可能改坏了别的变量
+a[100000] = 1; // 越界很多，常见结果是程序崩溃（RE），但也不保证一定崩溃</code></pre><p>越界的常见原因：</p><ul><li>数组开小了（没仔细看数据范围）</li><li>循环条件写成了 <code>i &lt;= n</code> 但数组只开了 <code>n</code></li><li>计算 <code>a[i-1]</code> 时 i=0，或 <code>a[i+1]</code> 时 i=n</li></ul><blockquote><p>🎯 <b>防御方法</b>：按数据范围开数组时<b>多开 5~10 个</b>。但这只是保险，<b>不能代替把下标算对</b>——循环多跑一次，读到多开的那几个格子，程序不会崩溃，答案却悄悄错了。写完循环要检查：第一个和最后一个访问的下标分别是多少？</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-07-02"></div>
+  <div id="q3"></div>
+</div>
+
+<div data-md><h3 id="sec-7">2.5 常见操作</h3><p><b>遍历求和、求最值</b></p><pre class="quiz-code"><code>long long sum = 0;
+int mx = a[1];
+for (int i = 1; i &lt;= n; i++) {
+    sum += a[i];
+    if (a[i] &gt; mx) mx = a[i];
+}</code></pre><p><b>逆序输出</b></p><pre class="quiz-code"><code>for (int i = n; i &gt;= 1; i--) cout &lt;&lt; a[i] &lt;&lt; &quot; &quot;;</code></pre><p><b>清空数组：<code>memset</code></b>（需要 <code>&lt;cstring&gt;</code>）</p><pre class="quiz-code"><code>memset(a, 0, sizeof(a));    // 全部设为 0
+memset(a, -1, sizeof(a));   // 全部设为 -1
+memset(a, 1, sizeof(a));    // ⚠️ 不是全 1！是 16843009</code></pre><blockquote><p><code>memset</code> 是<b>按字节</b>填充的：每个 <code>int</code> 有 4 个字节，每个字节都填成 1，拼起来就是 16843009。所以对 <code>int</code> 数组，它只适合清 0 和设成 -1：每个字节全是 0，拼起来是 0；每个字节全是二进制 1，拼起来恰好是 -1。想把数组全部设成别的值，用循环或 <code>fill</code>（在 <code>&lt;algorithm&gt;</code> 里）：</p><pre class="quiz-code"><code>fill(a, a + 100, 1);         // a[0]~a[99] 全部设为 1</code></pre></blockquote><p><b>桶（计数数组）——非常重要的思想</b></p><blockquote><p>输入 n 个 1~100 之间的整数，统计每个数出现了几次。</p></blockquote><pre class="quiz-code"><code>int cnt[110];     // cnt[x] 表示 x 出现的次数，全局自动为 0
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    for (int i = 1; i &lt;= n; i++) {
+        int x; cin &gt;&gt; x;
+        cnt[x]++;           // 把 x 放进第 x 号“桶”
+    }
+    for (int x = 1; x &lt;= 100; x++) {
+        if (cnt[x] &gt; 0) cout &lt;&lt; x &lt;&lt; &quot;: &quot; &lt;&lt; cnt[x] &lt;&lt; &quot;\n&quot;;
+    }
+}</code></pre><p>用数值本身当下标——这个技巧在“去重”“判断是否出现过”“计数排序”中反复出现。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-07-03"></div>
+  <div id="q4"></div>
+</div>
+
+<div data-md><h3 id="sec-8">2.6 二维数组</h3><pre class="quiz-code"><code>int g[110][110];   // 110 行 110 列
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for (int i = 1; i &lt;= n; i++)
+        for (int j = 1; j &lt;= m; j++)
+            cin &gt;&gt; g[i][j];
+
+    // 按行输出
+    for (int i = 1; i &lt;= n; i++) {
+        for (int j = 1; j &lt;= m; j++) cout &lt;&lt; g[i][j] &lt;&lt; &quot; &quot;;
+        cout &lt;&lt; &quot;\n&quot;;
+    }
+}</code></pre><p><code>g[i][j]</code> 表示第 i 行第 j 列。二维数组常用于：矩阵、地图、棋盘、表格。</p><p><b>方向数组</b>（以后搜索题必备，先认识一下）：</p><pre class="quiz-code"><code>int dx[4] = {-1, 1, 0, 0};    // 上 下 左 右
+int dy[4] = {0, 0, -1, 1};
+for (int k = 0; k &lt; 4; k++) {
+    int nx = x + dx[k], ny = y + dy[k];   // (x,y) 的四个邻居
+}</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-07-04"></div>
+  <div id="q5"></div>
+</div>
+
+<div data-md><h2 id="sec-9">3. ⚠️ 易错点</h2><ol><li>数组开小了 / 下标越界 → WA 或 RE，而且难以发现。</li><li>局部数组没初始化 → 值不确定，结果不可靠。</li><li><code>memset(a, 1, sizeof(a))</code> 以为能全设成 1。</li><li>二维数组太大：<code>int g[10000][10000]</code> 需要约 400MB → 超内存。估算方法：元素个数 × 4 字节。</li><li>想用 <code>a = b</code> 复制数组 → 不能这样写，要用循环逐个复制。</li></ol></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q6"></div>
+  <div id="q7"></div>
+</div>
+
+<div data-md><h2 id="sec-10">4. 课堂练习</h2><p><b>练习 7-1</b>：输入 n 个整数，逆序输出。</p><p><b>练习 7-2</b>：输入 n 个整数，输出所有<b>大于平均数</b>的数。（为什么这题必须用数组？）</p><p><b>练习 7-3</b>：输入 n 个 0~1000 的整数，去掉重复的，从小到大输出。（提示：桶）</p><p><b>练习 7-4</b>：输入一个 n×m 的矩阵，输出它的转置（m×n，行列互换）。</p><p><b>练习 7-5</b>：输出杨辉三角的前 n 行（1 ≤ n ≤ 20）。</p><pre class="quiz-code"><code>1
+1 1
+1 2 1
+1 3 3 1</code></pre><details class="ans"><summary>点击查看参考答案</summary><p><b>7-2</b>：因为要先读完所有数才能算出平均数，再回头逐个比较——必须把数存起来。</p><pre class="quiz-code"><code>// 7-3
+#include &lt;iostream&gt;
+using namespace std;
+bool seen[1010];
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    for (int i = 1; i &lt;= n; i++) {
+        int x; cin &gt;&gt; x;
+        seen[x] = true;
+    }
+    for (int x = 0; x &lt;= 1000; x++)
+        if (seen[x]) cout &lt;&lt; x &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre><pre class="quiz-code"><code>// 7-5
+#include &lt;iostream&gt;
+using namespace std;
+int c[25][25];
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    for (int i = 1; i &lt;= n; i++) {
+        c[i][1] = c[i][i] = 1;
+        for (int j = 2; j &lt; i; j++) c[i][j] = c[i-1][j-1] + c[i-1][j];
+        for (int j = 1; j &lt;= i; j++) cout &lt;&lt; c[i][j] &lt;&lt; &quot; &quot;;
+        cout &lt;&lt; &quot;\n&quot;;
+    }
+    return 0;
+}</code></pre></details></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把 2.1 小节后“数组的下标”动画里的代码敲一遍，把 <code>a[0] = 10</code> 改成 <code>a[0] = 7</code>，<b>先猜</b> <code>a[4]</code> 再运行。</li>
+      <li>把 2.6 小节后“二维数组”动画里的代码改成 3 行 4 列，并自己用 <code>cin</code> 读入数据，看输出是不是 3 行。</li>
+    </ol>
+  </div>
+
+<div data-md><h2 id="sec-11">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P1428</td><td>小鱼比可爱</td><td>双重循环 + 数组</td><td>巩固</td></tr><tr><td>P1427</td><td>小鱼的数字游戏</td><td>逆序输出</td><td>★核心</td></tr><tr><td>P5727</td><td>【深基5.例3】冰雹猜想</td><td>先存再逆序输出</td><td>巩固</td></tr><tr><td>P1046</td><td>[NOIP 2005 普及组] 陶陶摘苹果</td><td>简单数组</td><td>巩固</td></tr><tr><td>P1047</td><td>[NOIP 2005 普及组] 校门外的树</td><td>标记数组</td><td>★核心</td></tr><tr><td>P5728</td><td>【深基5.例5】旗鼓相当的对手</td><td>二维数组</td><td>巩固</td></tr><tr><td>P5729</td><td>【深基5.例7】工艺品制作</td><td>三维数组：<code>bool a[25][25][25];</code>，用法和二维一样，多一个下标</td><td>选做</td></tr><tr><td>P2141</td><td>[NOIP 2014 普及组] 珠心算测验</td><td>桶 / 枚举</td><td>巩固</td></tr><tr><td>P1554</td><td>[USACO06DEC] 梦中的统计 Dream Counting B</td><td>桶计数</td><td>★核心</td></tr><tr><td>P5732</td><td>【深基5.习7】杨辉三角</td><td>二维数组</td><td>★核心</td></tr><tr><td>P5731</td><td>【深基5.习6】蛇形方阵</td><td>二维数组 + 方向</td><td>选做</td></tr><tr><td>P1059</td><td>[NOIP 2006 普及组] 明明的随机数</td><td>去重 + 排序（桶）</td><td>选做</td></tr><tr><td>P2615</td><td>[NOIP 2015 提高组] 神奇的幻方</td><td>二维模拟</td><td>挑战</td></tr></table><blockquote><p>洛谷题单：【入门4】数组</p></blockquote></div>
+<div data-md><h2 id="sec-12">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我知道 <code>int a[5]</code> 的合法下标是 0~4</label></li><li class="task"><label><input type="checkbox" class="chk"> 我的大数组都开在 main 外面；多开几个只是保险，我会检查循环第一个和最后一个访问的下标</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道数组不会自动检查下标，越界后结果不能依赖，所以要自己检查边界</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会用桶数组计数、去重</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会读入、遍历、输出二维数组</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能估算一个数组大概占多少内存</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="06-loop.html">← 第 6 课 循环结构</a><a href="08-string.html">第 8 课 字符与字符串 →</a></nav>
+    </main>
+  </div>
+</div>
+
+<script src="../data/traces/array-07.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "预测输出：下面的代码会输出什么？", "code": "int b[5] = {1, 2, 3};\ncout << b[3] + b[4];", "options": ["5", "0", "编译出错"], "answer": 1, "explain": "没写的格子自动补 0，所以 b[3] 和 b[4] 都是 0，0 + 0 = 0。"});
+  Q("q2", {"q": "变一变：把 a[0] = 10 改成 a[0] = 7，最后 a[4] 是多少？", "options": ["7", "14", "20"], "answer": 1, "explain": "a[4] = a[0] * 2 = 7 * 2 = 14。"});
+  Q("q3", {"q": "int a[5]; 这个数组能用的下标是哪些？", "options": ["0 ~ 4", "1 ~ 5", "0 ~ 5"], "answer": 0, "explain": "5 个格子，下标从 0 到 4。a[5] 已经越界了，C++ 不会拦你，但结果不可靠。"});
+  Q("q4", {"q": "变一变：如果数据变成 3 1 3 2 3 2（多了一个 2），最后 cnt[2] 是多少？", "options": ["1", "2", "3"], "answer": 1, "explain": "数字 2 一共出现了 2 次，所以 2 号桶里是 2。"});
+  Q("q5", {"q": "外层 i 从 1 变成 2 以后，内层 j 从几开始？", "options": ["接着上一行，从 4 开始", "重新从 1 开始", "保持 3 不变"], "answer": 1, "explain": "内层循环每次都会重新执行 j = 1，所以每一行都从第 1 列开始。"});
+  Q("q6", {"q": "int g[10000][10000]; 大约要多少内存？（int 占 4 字节）", "options": ["约 40 MB", "约 400 MB", "约 4 GB"], "answer": 1, "explain": "10000 × 10000 = 1 亿个格子，× 4 字节 = 4 亿字节，约 400 MB，一般会超内存。"});
+  Q("q7", {"q": "int a[3] = {1, 2, 3}, b[3]; 然后写 b = a; 会怎样？", "options": ["b 变成 {1, 2, 3}", "编译不通过：数组不能整体赋值", "只复制第 1 个数"], "answer": 1, "explain": "数组不能用 = 整体赋值（编译器报 invalid array assignment），要用循环一个一个复制。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

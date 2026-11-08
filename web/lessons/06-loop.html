@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 6 课 循环结构</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="06" data-lesson-label="第6课｜循环">
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 三种循环</a></li><li class="l3"><a href="#sec-4">2.2 break 和 continue（和 Python 一样）</a></li><li class="l3"><a href="#sec-5">2.3 五个必会套路</a></li><li class="l3"><a href="#sec-6">2.4 嵌套循环：打印图形</a></li><li class="l3"><a href="#sec-7">2.5 九九乘法表</a></li><li class="l3"><a href="#sec-8">2.6 死循环与调试</a></li><li class="l2"><a href="#sec-9">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-10">4. 课堂练习</a></li><li class="l2"><a href="#sec-11">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-12">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 6 课 循环结构</h1></div>
+<div data-md><blockquote><p>预计用时：1.5~2 周（<b>题目最多的一课</b>） 本课目标：熟练写 <code>for</code>、<code>while</code>、<code>do-while</code>；会用 <code>break</code>/<code>continue</code>；会写嵌套循环；掌握累加、计数、求最值、判断质数、拆数位等基本套路。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><pre class="quiz-code"><code># Python
+for i in range(1, 11):       # 1 到 10
+    print(i)
+
+for i in range(10, 0, -2):   # 10 8 6 4 2
+    print(i)
+
+while n &gt; 0:
+    n //= 10</code></pre><pre class="quiz-code"><code>// C++
+for (int i = 1; i &lt;= 10; i++) {     // 1 到 10
+    cout &lt;&lt; i &lt;&lt; &quot;\n&quot;;
+}
+
+for (int i = 10; i &gt; 0; i -= 2) {   // 10 8 6 4 2
+    cout &lt;&lt; i &lt;&lt; &quot;\n&quot;;
+}
+
+while (n &gt; 0) {
+    n /= 10;
+}</code></pre><p>C++ 的 <code>for</code> 括号里三部分，用<b>分号</b>隔开：</p><pre class="quiz-code"><code>for ( 初始化 ; 继续条件 ; 每轮结束后做什么 ) { 循环体 }
+      int i=1   i&lt;=10      i++</code></pre><p>执行顺序：<b>初始化 → 判断条件 → 循环体 → 更新 → 判断条件 → 循环体 → 更新 → …… → 条件为假时退出</b>。</p><p><code>range(a, b)</code> 对应 <code>for (int i = a; i &lt; b; i++)</code>——注意 Python 的 range <b>不包含 b</b>。</p></div>
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 三种循环</h3><pre class="quiz-code"><code>// for：知道循环次数时用
+for (int i = 1; i &lt;= n; i++) { ... }
+
+// while：不知道次数，只知道什么时候停
+while (n &gt; 0) { ... }
+
+// do-while：先执行一次，再判断（至少执行一次），用得少
+do {
+    cin &gt;&gt; x;
+} while (x &lt; 0);    // 注意末尾有分号</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="loop-sum"></div>
+  <div id="q1"></div>
+  <div id="q2"></div>
+</div>
+
+<div data-md><h3 id="sec-4">2.2 <code>break</code> 和 <code>continue</code>（和 Python 一样）</h3><pre class="quiz-code"><code>for (int i = 1; i &lt;= 100; i++) {
+    if (i % 3 == 0) continue;   // 跳过 3 的倍数，直接进入下一轮
+    if (i &gt; 20) break;          // 超过 20 就结束整个循环
+    cout &lt;&lt; i &lt;&lt; &quot; &quot;;
+}</code></pre><blockquote><p>⚠️ <code>break</code> 只跳出<b>最内层</b>的那一个循环。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-06-01"></div>
+  <div id="q3"></div>
+</div>
+
+<div data-md><h3 id="sec-5">2.3 五个必会套路</h3><p><b>① 累加</b></p><pre class="quiz-code"><code>long long sum = 0;              // 一定要初始化为 0
+for (int i = 1; i &lt;= n; i++) sum += i;</code></pre><p><b>② 计数</b></p><pre class="quiz-code"><code>int cnt = 0;
+for (int i = 1; i &lt;= n; i++) {
+    int x; cin &gt;&gt; x;
+    if (x % 2 == 0) cnt++;
+}</code></pre><p><b>③ 求最大值/最小值</b></p><pre class="quiz-code"><code>int mx = INT_MIN, mn = INT_MAX;   // 需要 #include &lt;climits&gt;；或者用第一个数做初值
+for (int i = 1; i &lt;= n; i++) {
+    int x; cin &gt;&gt; x;
+    mx = max(mx, x);
+    mn = min(mn, x);
+}</code></pre><blockquote><p>初值要选得“足够极端”，或者直接用第一个读入的数当初值。<code>INT_MAX</code> / <code>INT_MIN</code> 是 int 的最大/最小值；也可以用 <code>1e9</code> 之类足够大的数。</p></blockquote><p><b>④ 拆数位（while + <code>% 10</code> + <code>/ 10</code>）</b></p><pre class="quiz-code"><code>int n = 12345, digitSum = 0, rev = 0;
+while (n &gt; 0) {
+    int d = n % 10;        // 取出个位
+    digitSum += d;
+    rev = rev * 10 + d;    // 反转数字
+    n /= 10;               // 去掉个位
+}
+// digitSum = 15, rev = 54321</code></pre><p><b>⑤ 判断质数</b></p><pre class="quiz-code"><code>bool isPrime = true;
+if (n &lt; 2) isPrime = false;
+for (int i = 2; i &lt;= n / i; i++) {   // 只要试到 √n。写成 i &lt;= n / i 而不是 i * i &lt;= n：n 接近 int 上限时 i*i 会溢出
+    if (n % i == 0) {
+        isPrime = false;
+        break;
+    }
+}</code></pre><blockquote><p>为什么只试到 √n？如果 n = a × b 且 a ≤ b，那么 a ≤ √n。所以 √n 以内没有因数，后面也不会有。代码里写成 <code>i &lt;= n / i</code>，意思就是“i × i 不超过 n”：既不用 <code>sqrt</code> 带来的浮点误差，也避免 <code>i * i</code> 在 n 接近 int 上限时溢出。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-06-02"></div>
+  <div id="q4"></div>
+  <div data-traces="ex-06-03a,ex-06-03b" data-labels="n = 7（质数）|n = 15（不是质数）"></div>
+</div>
+
+<div data-md><h3 id="sec-6">2.4 嵌套循环：打印图形</h3><p>外层循环管“第几行”，内层循环管“这一行打印什么”。</p><pre class="quiz-code"><code>// 打印 n 行的直角三角形
+// *
+// **
+// ***
+for (int i = 1; i &lt;= n; i++) {
+    for (int j = 1; j &lt;= i; j++) {    // 第 i 行打印 i 个星
+        cout &lt;&lt; &quot;*&quot;;
+    }
+    cout &lt;&lt; &quot;\n&quot;;
+}</code></pre><pre class="quiz-code"><code>// 打印 n 行的等腰三角形（n=3）
+//   *
+//  ***
+// *****
+for (int i = 1; i &lt;= n; i++) {
+    for (int j = 1; j &lt;= n - i; j++) cout &lt;&lt; &quot; &quot;;       // 前面 n-i 个空格
+    for (int j = 1; j &lt;= 2 * i - 1; j++) cout &lt;&lt; &quot;*&quot;;   // 2i-1 个星
+    cout &lt;&lt; &quot;\n&quot;;
+}</code></pre><blockquote><p>🎯 <b>打印图形的方法</b>：先在纸上写出每一行的“行号 i、空格数、星号数”，找出它们和 i 的关系式，再写代码。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-06-04"></div>
+</div>
+
+<div data-md><h3 id="sec-7">2.5 九九乘法表</h3><pre class="quiz-code"><code>for (int i = 1; i &lt;= 9; i++) {
+    for (int j = 1; j &lt;= i; j++) {
+        printf(&quot;%d*%d=%-2d &quot;, j, i, i * j);
+    }
+    printf(&quot;\n&quot;);
+}</code></pre></div>
+<div data-md><h3 id="sec-8">2.6 死循环与调试</h3><pre class="quiz-code"><code>for (int i = 1; i &lt;= n; i--) { ... }   // i 越来越小，永远 &lt;= n → 死循环
+while (n &gt; 0) { cout &lt;&lt; n; }           // 忘了改 n → 死循环</code></pre><p>程序卡住不动时，大概率是死循环。调试方法：在循环里临时输出变量值，看它怎么变化。</p></div>
+<div data-md><h2 id="sec-9">3. ⚠️ 易错点</h2><ol><li><code>for (int i = 1; i &lt;= n; i++);</code> 括号后多了分号 → 循环体是空的。</li><li>累加变量没有初始化为 0，或者<b>放在循环里面</b>初始化（每轮都被清零）。</li><li><code>for</code> 里用<b>逗号</b>而不是分号分隔三部分。</li><li>循环变量在 for 里声明 <code>int i</code>，出了循环就不能再用 <code>i</code> 了。</li><li>嵌套循环内外层变量不要同名：内层重新写 <code>int i</code> 会<b>遮住</b>外层的 <code>i</code>，代码很容易看错；内层没有重新声明、直接用外层的 <code>i</code>，就会改动外层循环。统一外层用 <code>i</code>、内层用 <code>j</code> 最清楚。</li><li>累加和超过 int 范围 → 用 <code>long long</code>。</li></ol></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q5"></div>
+  <div id="q6"></div>
+  <div id="q7"></div>
+  <div id="q8"></div>
+  <div id="q9"></div>
+</div>
+
+<div data-md><h2 id="sec-10">4. 课堂练习</h2><p><b>练习 6-1</b>：输出 1~100 中所有既是 3 的倍数又是 5 的倍数的数。</p><p><b>练习 6-2</b>：输入 n，计算 1! + 2! + ... + n!（n ≤ 20）。提示：用 long long，并且第 i 项的阶乘可以由第 i−1 项乘 i 得到，不需要双重循环。</p><p><b>练习 6-3</b>：输入 n，输出 n 以内所有质数。</p><p><b>练习 6-4</b>：打印 n 行的菱形（n 为奇数）。例如 n = 5：</p><pre class="quiz-code"><code>  *
+ ***
+*****
+ ***
+  *</code></pre><p><b>练习 6-5</b>：“水仙花数”是一个三位数，各位数字的立方和等于它本身（如 153 = 1³+5³+3³）。输出所有水仙花数。</p><details class="ans"><summary>点击查看参考答案</summary><pre class="quiz-code"><code>// 6-2
+#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    long long fact = 1, sum = 0;
+    for (int i = 1; i &lt;= n; i++) {
+        fact *= i;       // fact 现在是 i!
+        sum += fact;
+    }
+    cout &lt;&lt; sum &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre><pre class="quiz-code"><code>// 6-4
+#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    int h = n / 2 + 1;   // 上半部分（含中间行）的行数
+    for (int i = 1; i &lt;= n; i++) {
+        int k = (i &lt;= h) ? i : n + 1 - i;   // 第 i 行相当于上半部分的第 k 行
+        for (int j = 1; j &lt;= h - k; j++) cout &lt;&lt; &quot; &quot;;
+        for (int j = 1; j &lt;= 2 * k - 1; j++) cout &lt;&lt; &quot;*&quot;;
+        cout &lt;&lt; &quot;\n&quot;;
+    }
+    return 0;
+}</code></pre></details></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把拆数位的例子敲一遍，把 <code>n</code> 改成你的生日（如 20120315），<b>先猜</b>数位和与反转数，再运行。</li>
+      <li>把直角三角形改成 5 行；再试试改成“每行 <code>2*i-1</code> 个星”，看看图形怎么变。</li>
+      <li>做洛谷入门题单里“循环结构”那一组题（题号见 md）。</li>
+    </ol>
+  </div>
+
+<div data-md><h2 id="sec-11">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P5718</td><td>【深基4.例2】找最小值</td><td>求最值</td><td>★核心</td></tr><tr><td>P5719</td><td>【深基4.例3】分类平均</td><td>计数 + 平均</td><td>巩固</td></tr><tr><td>P5720</td><td>【深基4.例4】一尺之棰</td><td>while 循环</td><td>巩固</td></tr><tr><td>P1085</td><td>[NOIP 2004 普及组] 不高兴的津津</td><td>循环读 7 天 + 分支记录最大值和是哪一天</td><td>巩固</td></tr><tr><td>P5721</td><td>【深基4.例6】数字直角三角形</td><td>嵌套循环 + 格式</td><td>★核心</td></tr><tr><td>P1009</td><td>[NOIP 1998 普及组] 阶乘之和</td><td>先用 long long 做 n≤20 的情况；完整版需要高精度，以后再来</td><td>选做</td></tr><tr><td>P1980</td><td>[NOIP 2013 普及组] 计数问题</td><td>拆数位</td><td>★核心</td></tr><tr><td>P1035</td><td>[NOIP 2002 普及组] 级数求和</td><td>while + 浮点</td><td>巩固</td></tr><tr><td>P5723</td><td>【深基4.例13】质数口袋</td><td>质数判断</td><td>★核心</td></tr><tr><td>P1307</td><td>[NOIP 2011 普及组] 数字反转</td><td>拆数位、负数</td><td>巩固</td></tr><tr><td>P1423</td><td>小玉在游泳</td><td>while</td><td>选做</td></tr><tr><td>P5722</td><td>【深基4.例11】数列求和</td><td></td><td>选做</td></tr><tr><td>P5724</td><td>【深基4.习5】求极差</td><td></td><td>选做</td></tr><tr><td>P5725</td><td>【深基4.习8】求三角形</td><td>图形 + 格式</td><td>选做</td></tr><tr><td>P1424</td><td>小鱼的航程（改进版）</td><td>模拟日期</td><td>选做</td></tr><tr><td>P1217</td><td>[USACO1.5] 回文质数</td><td>有难度，综合</td><td>挑战</td></tr></table><blockquote><p>洛谷题单：【入门3】循环结构。<b>这一课题目多，可以分两周做完。</b> 做完这一课可以考虑报名 GESP C++ 1~2 级检验。</p></blockquote></div>
+<div data-md><h2 id="sec-12">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我能把 Python 的 <code>range(a, b, step)</code> 翻译成 C++ for 循环</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能默写累加、计数、求最值、拆数位、判质数五个套路</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会用“列表格找规律”的方法打印图形</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能说出 <code>break</code> 和 <code>continue</code> 的区别</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道判质数为什么只试到 √n</label></li><li class="task"><label><input type="checkbox" class="chk"> 洛谷【入门3】循环结构 题单已完成大部分</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="05-branch.html">← 第 5 课 分支结构</a><a href="07-array.html">第 7 课 数组 →</a></nav>
+    </main>
+  </div>
+</div>
+
+<script src="../data/traces/loop-demo.js"></script>
+<script src="../data/traces/loop-06.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "上面的循环里，条件 i <= 3 一共被判断了几次？", "options": ["3 次", "4 次", "5 次"], "answer": 1, "explain": "i 为 1、2、3 时成立（3 次），i 变成 4 时还要判断一次才发现不成立，所以是 4 次。"});
+  Q("q2", {"q": "变一变：把步长改成 i += 2，会输出什么？", "code": "for (int i = 1; i <= 7; i += 2) {\n    cout << i << \" \";\n}", "options": ["1 3 5 7", "3 5 7", "1 2 3 4 5 6 7", "1 3 5"], "answer": 0, "explain": "i 从 1 开始，每圈加 2：1、3、5、7，7 <= 7 还成立，所以是 1 3 5 7。"});
+  Q("q3", {"q": "预测输出：break 在内层循环里，跳出的是哪一层？", "code": "for (int i = 1; i <= 2; i++) {\n    for (int j = 1; j <= 3; j++) {\n        if (j == 2) break;\n        cout << i << j << \" \";\n    }\n}", "options": ["11", "11 21", "11 12", "11 12 13 21 22 23"], "answer": 1, "explain": "break 只跳出最内层的那个循环（j 的循环）。i = 1 时 j = 2 就跳出；外层 i 继续，i = 2 时再来一遍，所以是 11 21。"});
+  Q("q4", {"q": "变一变：如果 n 是 405，这段代码会输出什么？", "code": "int n = 405, digitSum = 0, rev = 0;\nwhile (n > 0) {\n    int d = n % 10;\n    digitSum += d;\n    rev = rev * 10 + d;\n    n /= 10;\n}\ncout << digitSum << \" \" << rev;", "options": ["9 54", "5 504", "9 405", "9 504"], "answer": 3, "explain": "5、0、4 依次取出：数位和 9；rev 依次是 5、50、504，所以反转数是 504（中间的 0 也要参与计算）。输出 9 504。"});
+  Q("q5", {"q": "预测输出：for 括号后面多写了一个分号，会输出什么？", "code": "int s = 0, i;\nfor (i = 1; i <= 3; i++);\ns += i;\ncout << s;", "options": ["6", "0", "4", "3"], "answer": 2, "explain": "多出来的 ; 让循环体变成了空语句：循环空转到 i 变成 4 才结束，然后 s += i 只执行一次，s = 0 + 4 = 4。"});
+  Q("q6", {"q": "想输出累计和 1 3 6，但 sum 的初始化写在了循环里面，实际输出是什么？", "code": "for (int i = 1; i <= 3; i++) {\n    int sum = 0;\n    sum += i;\n    cout << sum << \" \";\n}", "options": ["6", "1 3 6", "1 2 3", "0 0 0"], "answer": 2, "explain": "每一圈都会重新执行 int sum = 0，上一圈的结果被清掉了，所以只能看到 1 2 3。累加变量要放在循环外面初始化。"});
+  Q("q7", {"q": "for 括号里的三部分用逗号分隔：for (int i = 1, i <= 3, i++)，会怎样？", "options": ["正常运行，输出 1 2 3", "编译不通过：三部分必须用分号分隔", "死循环"], "answer": 1, "explain": "for 的三部分是用分号 ; 隔开的，写成逗号编译器会报错。（Python 程序员容易写错的地方。）"});
+  Q("q8", {"q": "在 for 里声明了 int i，循环结束后还想用 i：cout << i; 会怎样？", "options": ["输出 4", "输出 3", "编译不通过：出了循环，i 就不存在了"], "answer": 2, "explain": "在 for 里声明的变量只在这个 for 里面有效。如果循环结束后还要用 i，要把 int i 声明在 for 外面。"});
+  Q("q9", {"q": "求 1 + 2 + … + 100000 的和（约 50 亿），累加变量 sum 应该用什么类型？", "options": ["int", "long long", "char"], "answer": 1, "explain": "1 到 100000 的和是 5000050000，超过 int 的最大值 2147483647（约 21 亿），要用 long long。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 9 课 函数与递归</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="09" data-lesson-label="第9课｜函数与递归">
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 函数的定义和调用</a></li><li class="l3"><a href="#sec-4">2.2 值传递：函数拿到的是“复印件”</a></li><li class="l3"><a href="#sec-5">2.3 引用传递：函数拿到的是“原件”</a></li><li class="l3"><a href="#sec-6">2.4 数组作为参数</a></li><li class="l3"><a href="#sec-7">2.5 全局变量与局部变量</a></li><li class="l3"><a href="#sec-8">2.6 递归：函数调用自己</a></li><li class="l2"><a href="#sec-9">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-10">4. 课堂练习</a></li><li class="l2"><a href="#sec-11">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-12">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 9 课 函数与递归</h1></div>
+<div data-md><blockquote><p>预计用时：1.5 周 本课目标：会定义和调用函数；理解值传递与引用传递；理解全局变量与局部变量；会写简单递归，并理解递归的执行过程。</p><p><b>分次学习</b>：第一次学 2.1~2.5（函数、参数、作用域）；第二次学 2.6 递归的阶乘和朴素斐波那契。记忆化和汉诺塔<b>暂作了解</b>，能看懂即可，算法阶段还会再学。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><pre class="quiz-code"><code># Python
+def add(a, b):
+    return a + b
+
+def show(msg):
+    print(msg)          # 没有返回值</code></pre><pre class="quiz-code"><code>// C++
+int add(int a, int b) {        // 返回值类型  函数名(参数类型 参数名, ...)
+    return a + b;
+}
+
+void show(string msg) {        // void 表示没有返回值
+    cout &lt;&lt; msg &lt;&lt; &quot;\n&quot;;
+}</code></pre><p>区别：</p><ol><li>要写<b>返回值类型</b>和<b>每个参数的类型</b>。</li><li>没有返回值用 <code>void</code>。</li><li>函数要<b>写在调用它的地方之前</b>（或者先写一个声明）。</li><li><b>不能</b>像 Python 那样一次返回多个值（<code>return a, b</code>）。需要返回多个结果时用<b>引用参数</b>（见 2.3）或结构体（第 10 课）。</li></ol></div>
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 函数的定义和调用</h3><pre class="quiz-code"><code>#include &lt;iostream&gt;
+using namespace std;
+
+bool isPrime(int n) {
+    if (n &lt; 2) return false;
+    for (int i = 2; i &lt;= n / i; i++)    // 即 i*i &lt;= n，这样写不会溢出（见第 6 课）
+        if (n % i == 0) return false;   // return 会立即结束函数
+    return true;
+}
+
+int main() {
+    for (int i = 1; i &lt;= 50; i++)
+        if (isPrime(i)) cout &lt;&lt; i &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre><blockquote><p>🎯 <b>什么时候该写函数？</b> 同样的代码要用两次以上，或者某一段逻辑独立、可以起个名字（比如 <code>isPrime</code>、<code>isLeap</code>、<code>digitSum</code>）。函数让主程序更清晰，也更容易单独测试。</p></blockquote></div>
+<div data-md><h3 id="sec-4">2.2 值传递：函数拿到的是“复印件”</h3><pre class="quiz-code"><code>void change(int x) {
+    x = 100;            // 改的是复印件
+}
+
+int main() {
+    int a = 5;
+    change(a);
+    cout &lt;&lt; a &lt;&lt; &quot;\n&quot;;  // 还是 5
+}</code></pre></div>
+<div data-md><h3 id="sec-5">2.3 引用传递：函数拿到的是“原件”</h3><p>在参数类型后加 <code>&amp;</code>：</p><pre class="quiz-code"><code>void change(int &amp;x) {   // x 是 a 的“别名”
+    x = 100;
+}
+
+int main() {
+    int a = 5;
+    change(a);
+    cout &lt;&lt; a &lt;&lt; &quot;\n&quot;;  // 100
+}</code></pre><p><b>引用的典型用途</b></p><pre class="quiz-code"><code>// ① 交换两个数（标准库其实已经有 swap，这里理解原理）
+void mySwap(int &amp;a, int &amp;b) {
+    int t = a; a = b; b = t;
+}
+
+// ② 一次“返回”多个结果
+void divide(int a, int b, int &amp;q, int &amp;r) {
+    q = a / b;
+    r = a % b;
+}
+// 调用：int q, r; divide(17, 5, q, r);  → q=3, r=2</code></pre><blockquote><p>💡 和 Python 对比：Python 里传列表进函数，在函数里修改会影响外面；传整数则不会。C++ 里<b>默认都是复印件</b>（包括 string、vector），想改原件必须写 <code>&amp;</code>。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-traces="ex-09-01a,ex-09-01b" data-labels="值传递（复印件）|引用传递（int &x）"></div>
+  <div id="q1"></div>
+  <div id="q2"></div>
+</div>
+
+<div data-md><h3 id="sec-6">2.4 数组作为参数</h3><p>数组传进函数时<b>不是复印件</b>，函数里改了会影响外面（原因见第 12 课指针）：</p><pre class="quiz-code"><code>void fill(int a[], int n) {
+    for (int i = 1; i &lt;= n; i++) a[i] = i * i;
+}</code></pre><p>不过信奥里更常见的做法是：<b>数组开成全局的，函数直接用</b>，不需要传参。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q3"></div>
+</div>
+
+<div data-md><h3 id="sec-7">2.5 全局变量与局部变量</h3><pre class="quiz-code"><code>int n;              // 全局变量：所有函数都能用，自动初始化为 0
+int a[100010];
+
+void work() {
+    int cnt = 0;    // 局部变量：只在 work 里有效，每次调用重新创建
+    for (int i = 1; i &lt;= n; i++) ...
+}</code></pre><ul><li><b>局部变量和全局变量同名时，局部的优先</b>（会“挡住”全局的）——这经常导致 bug。比如全局有 <code>n</code>，main 里又写了 <code>int n; cin &gt;&gt; n;</code>，那么其他函数看到的全局 <code>n</code> 还是 0。</li><li>🎯 信奥常用风格：<code>n</code>、数组等题目数据放全局；循环变量、临时变量放局部。<b>不要在 main 里重复声明全局已有的变量。</b></li></ul></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q4"></div>
+</div>
+
+<div data-md><h3 id="sec-8">2.6 递归：函数调用自己</h3><p><b>例 1：阶乘</b>  n! = n × (n−1)!，0! = 1（适用于 0 ≤ n ≤ 20：21! 已经超过 <code>long long</code>）</p><pre class="quiz-code"><code>long long fact(int n) {
+    if (n == 0) return 1;           // ① 终止条件（出口）
+    return n * fact(n - 1);         // ② 递归调用，规模变小
+}</code></pre><p>执行 <code>fact(3)</code> 的过程：</p><pre class="quiz-code"><code>fact(3) = 3 * fact(2)
+              fact(2) = 2 * fact(1)
+                            fact(1) = 1 * fact(0)
+                                          fact(0) = 1      ← 到底了，开始返回
+                            fact(1) = 1 * 1 = 1
+              fact(2) = 2 * 1 = 2
+fact(3) = 3 * 2 = 6</code></pre><p><b>写递归的两要素</b>：</p><ol><li><b>出口</b>：什么时候不再递归，直接返回结果。</li><li><b>递推关系</b>：怎样把大问题变成规模更小的同类问题。</li></ol><p>缺了出口 → 无限递归 → 程序崩溃（栈溢出，RE）。</p><p><b>例 2：斐波那契数列</b>  f(1)=f(2)=1，f(n)=f(n−1)+f(n−2)</p><pre class="quiz-code"><code>int fib(int n) {
+    if (n &lt;= 2) return 1;
+    return fib(n - 1) + fib(n - 2);
+}</code></pre><blockquote><p>⚠️ 这个写法非常慢：fib(40) 要调用两亿多次。因为 fib(38) 被算了 2 次、fib(37) 被算了 3 次……同一个值被反复计算。<b>改进办法</b>：用数组记住算过的结果（“记忆化”），这是以后学动态规划的起点。</p></blockquote><pre class="quiz-code"><code>long long memo[100];                         // 适用于 1 ≤ n ≤ 90：f(93) 起超过 long long
+long long fib2(int n) {
+    if (n &lt;= 2) return 1;
+    if (memo[n] != 0) return memo[n];        // 算过了，直接返回
+    return memo[n] = fib2(n - 1) + fib2(n - 2);
+}</code></pre><p><b>例 3：汉诺塔</b>（递归思想的经典）</p><pre class="quiz-code"><code>// 把 n 个盘子从 from 柱借助 mid 柱移到 to 柱
+void hanoi(int n, char from, char mid, char to) {
+    if (n == 0) return;
+    hanoi(n - 1, from, to, mid);                      // 上面 n-1 个先挪到中间
+    cout &lt;&lt; from &lt;&lt; &quot;-&gt;&quot; &lt;&lt; to &lt;&lt; &quot;\n&quot;;               // 最大的盘子挪到目标
+    hanoi(n - 1, mid, from, to);                      // 中间 n-1 个挪到目标
+}</code></pre><blockquote><p>🎯 <b>理解递归分两步</b>：</p><ol><li><b>先展开小例子</b>：刚学时拿很小的 n（如 <code>fact(3)</code>、<code>hanoi(2, &#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;)</code>）像上面那样一层层写出来，看清“谁在暂停等待、每一层的 n 是多少、结果按什么顺序返回”。</li><li><b>再学会“相信”</b>：熟悉执行过程以后，n 一大就不可能逐层展开了。这时<b>相信“函数能正确解决规模更小的问题”</b>，只考虑当前这一层怎么利用它。</li></ol></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-09-02"></div>
+  <div id="q5"></div>
+  <div id="q6"></div>
+  <div id="q7"></div>
+</div>
+
+<div data-md><h2 id="sec-9">3. ⚠️ 易错点</h2><ol><li>有返回值的函数，某些路径忘写 <code>return</code> → 这是程序错误，结果不可靠，甚至可能崩溃（不是“返回一个随机数”那么简单）。加 <code>-Wall</code> 编译器会警告。</li><li>想在函数里修改外面的变量，忘了写 <code>&amp;</code>。</li><li>局部变量和全局变量同名，main 里重复声明 <code>int n</code>。</li><li>递归没有出口或出口写错 → RE。</li><li>递归太深（比如递归 10⁶ 层）→ 栈溢出。</li></ol></div>
+<div data-md><h2 id="sec-10">4. 课堂练习</h2><p><b>练习 9-1</b>：写函数 <code>int digitSum(int n)</code> 返回 n 的各位数字之和；写函数 <code>bool isLeap(int y)</code>。在 main 里测试。</p><p><b>练习 9-2</b>：写函数 <code>void sortThree(int &amp;a, int &amp;b, int &amp;c)</code>，调用后 a ≤ b ≤ c。</p><p><b>练习 9-3</b>：用递归求最大公约数（辗转相除法）：gcd(a, b) = gcd(b, a % b)，gcd(a, 0) = a。</p><p><b>练习 9-4</b>：用递归输出一个正整数的各位数字，从高位到低位，用空格隔开（如 1234 → <code>1 2 3 4</code>）。</p><p><b>练习 9-5</b>：上楼梯，每次可以走 1 级或 2 级，走到第 n 级有多少种走法？（n ≤ 40，想想和斐波那契的关系）</p><details class="ans"><summary>点击查看参考答案</summary><pre class="quiz-code"><code>// 9-3
+int gcd(int a, int b) {
+    if (b == 0) return a;
+    return gcd(b, a % b);
+}</code></pre><pre class="quiz-code"><code>// 9-4
+void printDigits(int n) {
+    if (n &gt;= 10) printDigits(n / 10);   // 先输出前面的高位
+    cout &lt;&lt; n % 10 &lt;&lt; &quot; &quot;;              // 再输出个位
+}</code></pre><p><b>9-5</b>：走到第 n 级，最后一步要么从 n−1 级走 1 步，要么从 n−2 级走 2 步，所以 f(n) = f(n−1) + f(n−2)，f(1)=1，f(2)=2。用记忆化或循环做。</p></details></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把 fact 敲一遍，在函数开头加一行 <code>cout &lt;&lt; "进入 " &lt;&lt; n &lt;&lt; "\n";</code>，看看输出顺序是不是和上面的调用栈一样。</li>
+      <li>把 mySwap 的参数加上 <code>&amp;</code>，再运行，看看输出怎么变。</li>
+    </ol>
+  </div>
+
+<div data-md><h2 id="sec-11">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P5735</td><td>【深基7.例1】距离函数</td><td>写函数</td><td>★核心</td></tr><tr><td>P5736</td><td>【深基7.例2】质数筛</td><td>函数 isPrime</td><td>★核心</td></tr><tr><td>P5737</td><td>【深基7.例3】闰年展示</td><td>函数 isLeap</td><td>巩固</td></tr><tr><td>P5739</td><td>【深基7.例7】计算阶乘</td><td>递归</td><td>★核心</td></tr><tr><td>P5743</td><td>【深基7.习8】猴子吃桃</td><td>逆推 / 递归</td><td>巩固</td></tr><tr><td>P1028</td><td>[NOIP 2001 普及组] 数的计算</td><td>递归 + 记忆化</td><td>巩固</td></tr><tr><td>P1255</td><td>数楼梯</td><td>先做 n 较小的部分；完整版要高精度</td><td>选做</td></tr><tr><td>P1464</td><td>[PacNW 1999] Function</td><td>记忆化搜索</td><td>挑战</td></tr><tr><td>P1036</td><td>[NOIP 2002 普及组] 选数</td><td>递归枚举 + 质数</td><td>挑战</td></tr></table><blockquote><p>洛谷题单：【入门6】函数与结构体（前半部分）</p></blockquote></div>
+<div data-md><h2 id="sec-12">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我会写带返回值的函数和 void 函数</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能说清楚值传递和引用传递的区别，并写出 swap</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道局部变量“挡住”全局变量的问题</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能写出阶乘、斐波那契、gcd 的递归版本</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能画出 fact(3) 的递归调用过程</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道普通递归斐波那契为什么慢、怎么用记忆化改进</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="08-string.html">← 第 8 课 字符与字符串</a><a href="10-sort.html">第 10 课 结构体与排序 →</a></nav>
+    </main>
+  </div>
+</div>
+
+<script src="../data/traces/func-09.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "预测输出：mySwap 的参数忘了写 &，交换成功吗？", "code": "void mySwap(int a, int b) {\n    int t = a; a = b; b = t;\n}\nint main() {\n    int x = 1, y = 2;\n    mySwap(x, y);\n    cout << x << \" \" << y;\n}", "options": ["1 2", "2 1", "2 2"], "answer": 0, "explain": "没有 & 的参数是复印件，交换的只是函数里的两份复印件，main 里的 x、y 纹丝不动，输出 1 2。写成 int &a, int &b 才能真正交换。"});
+  Q("q2", {"q": "预测输出：用引用“返回”多个结果：", "code": "void divide(int a, int b, int &q, int &r) {\n    q = a / b;\n    r = a % b;\n}\nint main() {\n    int q, r;\n    divide(17, 5, q, r);\n    cout << q << \" \" << r;\n}", "options": ["17 5", "2 3", "0 0", "3 2"], "answer": 3, "explain": "q 和 r 是引用，函数里给它们赋值，就是在改 main 里的 q 和 r。17 / 5 = 3 余 2，输出 3 2。"});
+  Q("q3", {"q": "预测输出：数组传进函数不是复印件。输出什么？", "code": "void fill(int a[], int n) {\n    for (int i = 1; i <= n; i++) a[i] = i * i;\n}\nint b[5];\nint main() {\n    fill(b, 3);\n    cout << b[1] << \" \" << b[2] << \" \" << b[3];\n}", "options": ["0 0 0", "1 4 9", "1 2 3"], "answer": 1, "explain": "数组传进函数时，函数里改的就是原数组（不是复印件），所以 main 里能看到修改。输出 1 4 9。"});
+  Q("q4", {"q": "预测输出：局部变量和全局变量同名，会“遮住”全局的。输出什么？", "code": "int n = 10;\nvoid show() { cout << n; }\nint main() {\n    int n = 5;\n    show();\n    cout << \" \" << n;\n}", "options": ["10 10", "10 5", "5 10", "5 5"], "answer": 1, "explain": "show() 里用的是全局的 n（10）；main 里又声明了一个局部的 n（5），把全局的遮住了。main 里的 n 和全局的 n 是两个不同的变量。输出 10 5。"});
+  Q("q5", {"q": "fact 函数没有写出口（去掉 if (n == 0) return 1;），调用 fact(3) 会怎样？", "options": ["正常算出 6", "无限递归，栈溢出，程序崩溃（RE）", "输出 0"], "answer": 1, "explain": "没有出口，函数会一直调用自己，栈帧越叠越多，直到栈用完程序崩溃。我们真实运行过这种写法，它确实会异常退出。出口写错也一样。"});
+  Q("q6", {"q": "一个返回 int 的普通函数（不是 main），某次调用走到了函数末尾，却没有执行 return，会怎样？", "options": ["自动返回 0，没问题", "这是程序错误，结果不可靠，甚至可能崩溃", "编译一定不通过"], "answer": 1, "explain": "不是“自动返回 0”或“返回一个随机数”那么简单：这是程序错误，后果不可预料。（main 是特例：走到末尾等于 return 0。）加 -Wall 编译，编译器会警告 control reaches end of non-void function。"});
+  Q("q7", {"q": "递归为什么慢？数一数：求 fib(5) 一共调用了几次 fib 函数？", "code": "int cnt = 0;\nint fib(int n) {\n    cnt++;\n    if (n <= 2) return 1;\n    return fib(n - 1) + fib(n - 2);\n}\nint main() {\n    fib(5);\n    cout << cnt;\n}", "options": ["15", "5", "6", "9"], "answer": 3, "explain": "fib(5) 要调用 fib(4) 和 fib(3)，它们又各自往下调用……同一个值被反复计算（fib(3) 就算了 2 次）。一共 9 次，n 一大次数暴增，所以要用“记忆化”。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>
