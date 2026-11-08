@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>附录 A：Python ↔ C++ 速查对照表</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="A" data-lesson-label="附录A">
+<div class="wrap">
+  <div class="topbar">
+    <a href="../index.html">← 目录</a>
+    <span class="badge">速查页，内容与 md 相同 · 完整内容见 <a href="../../附录A-Python与C++对照.md">附录A-Python与C++对照.md</a></span>
+    <button id="btn-present">投屏模式</button>
+  </div>
+
+  <h1>附录 A：Python ↔ C++ 速查对照表</h1>
+  
+  <div class="md-tools"><button id="btn-all">全部展开</button></div>
+  <blockquote><p>建议打印出来贴在桌边。前几周写 C++ 时“手比脑快”写出 Python 语法是正常的，对照这张表改过来。</p></blockquote>
+<details class="sec" open><summary>程序结构</summary><table class="calc-tbl"><tr><th>Python</th><th>C++</th></tr><tr><td>直接从第一行开始写</td><td><code>#include &lt;bits/stdc++.h&gt;</code> + <code>using namespace std;</code> + <code>int main() { ... return 0; }</code></td></tr><tr><td>缩进表示代码块</td><td><code>{ }</code> 表示代码块</td></tr><tr><td>换行结束语句</td><td><code>;</code> 结束语句</td></tr><tr><td><code># 注释</code></td><td><code>// 注释</code> 或 <code>/* 注释 */</code></td></tr></table></details>
+<details class="sec"><summary>变量与类型</summary><table class="calc-tbl"><tr><th>Python</th><th>C++</th></tr><tr><td><code>x = 5</code></td><td><code>int x = 5;</code></td></tr><tr><td><code>x = 10**12</code></td><td><code>long long x = 1000000000000LL;</code></td></tr><tr><td><code>x = 3.14</code></td><td><code>double x = 3.14;</code></td></tr><tr><td><code>c = &#x27;a&#x27;</code></td><td><code>char c = &#x27;a&#x27;;</code>（单引号）</td></tr><tr><td><code>s = &quot;abc&quot;</code></td><td><code>string s = &quot;abc&quot;;</code>（双引号）</td></tr><tr><td><code>ok = True</code></td><td><code>bool ok = true;</code></td></tr><tr><td><code>None</code></td><td>无对应</td></tr><tr><td>整数无限大</td><td><code>int</code> 约 ±21 亿，<code>long long</code> 约 ±9.2×10¹⁸，超了就<b>溢出</b>，运行时不会提醒，结果不可靠</td></tr></table></details>
+<details class="sec"><summary>运算</summary><table class="calc-tbl"><tr><th>Python</th><th>C++</th><th>注意</th></tr><tr><td><code>7 / 2</code> → 3.5</td><td><code>7 / 2</code> → <b>3</b></td><td>整数相除得整数</td></tr><tr><td><code>7 // 2</code> → 3</td><td><code>7 / 2</code> → 3</td><td></td></tr><tr><td><code>-7 // 2</code> → -4</td><td><code>-7 / 2</code> → <b>-3</b></td><td>C++ 向 0 取整</td></tr><tr><td><code>-7 % 2</code> → 1</td><td><code>-7 % 2</code> → <b>-1</b></td><td>余数符号随被除数</td></tr><tr><td><code>2 ** 10</code></td><td>循环相乘，或 <code>pow(2,10)</code>（返回 double）</td><td><code>^</code> 是异或！</td></tr><tr><td><code>and</code> <code>or</code> <code>not</code></td><td><code>&amp;&amp;</code> <code>||</code> <code>!</code></td><td></td></tr><tr><td><code>1 &lt; x &lt; 10</code></td><td><code>1 &lt; x &amp;&amp; x &lt; 10</code></td><td>C++ 连写能编译但结果错</td></tr><tr><td><code>x += 1</code></td><td><code>x += 1;</code> 或 <code>x++;</code></td><td></td></tr><tr><td><code>a, b = b, a</code></td><td><code>swap(a, b);</code></td><td></td></tr><tr><td><code>abs(x)</code></td><td><code>abs(x)</code>（整数）/ <code>fabs(x)</code>（小数）</td><td></td></tr><tr><td><code>max(a, b, c)</code></td><td><code>max(max(a, b), c)</code> 或 <code>max({a, b, c})</code></td><td>参数类型必须相同</td></tr><tr><td><code>int(3.9)</code> → 3</td><td><code>(int)3.9</code> → 3</td><td></td></tr><tr><td><code>float(7)</code></td><td><code>(double)7</code> 或 <code>7 * 1.0</code></td><td></td></tr></table></details>
+<details class="sec"><summary>输入输出</summary><table class="calc-tbl"><tr><th>Python</th><th>C++</th></tr><tr><td><code>n = int(input())</code></td><td><code>int n; cin &gt;&gt; n;</code></td></tr><tr><td><code>a, b = map(int, input().split())</code></td><td><code>int a, b; cin &gt;&gt; a &gt;&gt; b;</code></td></tr><tr><td><code>s = input()</code>（整行）</td><td><code>string s; getline(cin, s);</code></td></tr><tr><td><code>print(x)</code></td><td><code>cout &lt;&lt; x &lt;&lt; &quot;\n&quot;;</code></td></tr><tr><td><code>print(a, b)</code></td><td><code>cout &lt;&lt; a &lt;&lt; &quot; &quot; &lt;&lt; b &lt;&lt; &quot;\n&quot;;</code></td></tr><tr><td><code>print(x, end=&quot;&quot;)</code></td><td><code>cout &lt;&lt; x;</code></td></tr><tr><td><code>print(f&quot;{x:.2f}&quot;)</code></td><td><code>printf(&quot;%.2f\n&quot;, x);</code></td></tr><tr><td><code>print(f&quot;{x:05d}&quot;)</code></td><td><code>printf(&quot;%05d\n&quot;, x);</code></td></tr></table></details>
+<details class="sec"><summary>分支与循环</summary><table class="calc-tbl"><tr><th>Python</th><th>C++</th></tr><tr><td><code>if x &gt; 0:</code></td><td><code>if (x &gt; 0) {</code></td></tr><tr><td><code>elif x == 0:</code></td><td><code>} else if (x == 0) {</code></td></tr><tr><td><code>else:</code></td><td><code>} else {</code></td></tr><tr><td><code>a if cond else b</code></td><td><code>cond ? a : b</code></td></tr><tr><td><code>for i in range(n):</code></td><td><code>for (int i = 0; i &lt; n; i++) {</code></td></tr><tr><td><code>for i in range(1, n+1):</code></td><td><code>for (int i = 1; i &lt;= n; i++) {</code></td></tr><tr><td><code>for i in range(n, 0, -1):</code></td><td><code>for (int i = n; i &gt;= 1; i--) {</code></td></tr><tr><td><code>for c in s:</code></td><td><code>for (char c : s) {</code></td></tr><tr><td><code>while cond:</code></td><td><code>while (cond) {</code></td></tr><tr><td><code>pass</code></td><td><code>;</code> 或空的 <code>{ }</code></td></tr></table></details>
+<details class="sec"><summary>容器</summary><table class="calc-tbl"><tr><th>Python</th><th>C++</th></tr><tr><td><code>a = [0] * 100</code></td><td><code>int a[100] = {0};</code> 或全局 <code>int a[100];</code> 或 <code>vector&lt;int&gt; a(100);</code></td></tr><tr><td><code>a.append(x)</code></td><td><code>v.push_back(x);</code></td></tr><tr><td><code>a.pop()</code></td><td><code>v.pop_back();</code></td></tr><tr><td><code>len(a)</code></td><td><code>v.size()</code>；数组自己记 n</td></tr><tr><td><code>a[-1]</code></td><td><code>v.back()</code>（v 不能为空）；数组：存在 <code>a[0]~a[n-1]</code> 时是 <code>a[n-1]</code>，存在 <code>a[1]~a[n]</code>（本课程习惯）时是 <code>a[n]</code></td></tr><tr><td><code>a.sort()</code></td><td><code>sort(a + 1, a + n + 1);</code> / <code>sort(v.begin(), v.end());</code></td></tr><tr><td><code>a.sort(reverse=True)</code></td><td><code>sort(..., greater&lt;int&gt;());</code></td></tr><tr><td><code>a.reverse()</code></td><td><code>reverse(a + 1, a + n + 1);</code></td></tr><tr><td><code>x in a</code></td><td><code>find(...)</code> 或用 <code>set</code>/<code>map</code> 的 <code>count</code></td></tr><tr><td><code>d = {}</code></td><td><code>map&lt;string, int&gt; d;</code></td></tr><tr><td><code>d[k] = v</code></td><td><code>d[k] = v;</code></td></tr><tr><td><code>k in d</code></td><td><code>d.count(k)</code></td></tr><tr><td><code>s = set()</code></td><td><code>set&lt;int&gt; s;</code></td></tr><tr><td><code>s.add(x)</code></td><td><code>s.insert(x);</code></td></tr><tr><td><code>(a, b)</code></td><td><code>pair&lt;int,int&gt; p = {a, b};</code> → <code>p.first</code>, <code>p.second</code></td></tr></table></details>
+<details class="sec"><summary>字符串</summary><table class="calc-tbl"><tr><th>Python</th><th>C++</th></tr><tr><td><code>len(s)</code></td><td><code>s.size()</code></td></tr><tr><td><code>s[1:4]</code></td><td><code>s.substr(1, 3)</code>（起点，长度）</td></tr><tr><td><code>s.find(&quot;ab&quot;)</code> → 找不到 -1</td><td><code>s.find(&quot;ab&quot;)</code> → 找不到 <code>string::npos</code></td></tr><tr><td><code>s.upper()</code></td><td>逐个字符 <code>toupper(c)</code></td></tr><tr><td><code>s[::-1]</code></td><td><code>reverse(s.begin(), s.end());</code></td></tr><tr><td><code>str(123)</code></td><td><code>to_string(123)</code></td></tr><tr><td><code>int(&quot;123&quot;)</code></td><td><code>stoi(&quot;123&quot;)</code></td></tr><tr><td><code>ord(&#x27;a&#x27;)</code></td><td><code>(int)&#x27;a&#x27;</code> 或直接 <code>&#x27;a&#x27;</code> 参与运算</td></tr><tr><td><code>chr(97)</code></td><td><code>(char)97</code></td></tr><tr><td>字符串不可修改</td><td><code>s[0] = &#x27;X&#x27;;</code> 可以</td></tr></table></details>
+<details class="sec"><summary>函数</summary><table class="calc-tbl"><tr><th>Python</th><th>C++</th></tr><tr><td><code>def f(a, b):</code></td><td><code>int f(int a, int b) {</code></td></tr><tr><td>无返回值</td><td><code>void f(...) {</code></td></tr><tr><td><code>return a, b</code></td><td>用引用参数 <code>void f(int &amp;a, int &amp;b)</code> 或返回 <code>pair</code> / 结构体</td></tr><tr><td>改列表参数会影响外面</td><td>默认都是复制；要改外面的用 <code>&amp;</code> 引用；数组除外</td></tr><tr><td><code>global x</code></td><td>变量直接定义在函数外面即可</td></tr></table></details>
+
+
+  <div id="ask-box" class="card ask-box" style="display:none">
+    <b>🙋 我的问题清单</b>（复制后发给老师）
+    <textarea readonly></textarea>
+    <div class="warn"></div>
+    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+  </div>
+</div>
+
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

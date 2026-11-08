@@ -38,6 +38,22 @@
       box.style.display = qs.length ? "" : "none";
     },
 
+    // 自查清单的勾选状态（读写失败时只是不保存，页面照常使用）
+    initChecks: function () {
+      var boxes = document.querySelectorAll("input.chk");
+      if (!boxes.length) return;
+      var saved = [];
+      try { saved = JSON.parse(load("chk:" + lessonKey()) || "[]"); } catch (e) { saved = []; }
+      for (var i = 0; i < boxes.length; i++) {
+        boxes[i].checked = !!saved[i];
+        boxes[i].addEventListener("change", function () {
+          var st = [];
+          for (var j = 0; j < boxes.length; j++) st.push(boxes[j].checked);
+          save("chk:" + lessonKey(), JSON.stringify(st));
+        });
+      }
+    },
+
     init: function () {
       var self = this;
       var raw = load("q:" + lessonKey());
@@ -53,6 +69,14 @@
         });
         box.querySelector("[data-a=clear]").addEventListener("click", function () { self.clearQuestions(); });
       }
+      this.initChecks();
+      var allBtn = document.getElementById("btn-all");
+      if (allBtn) allBtn.addEventListener("click", function () {
+        var ds = document.querySelectorAll("details.sec"), anyClosed = false, i;
+        for (i = 0; i < ds.length; i++) if (!ds[i].open) anyClosed = true;
+        for (i = 0; i < ds.length; i++) ds[i].open = anyClosed;
+        allBtn.textContent = anyClosed ? "全部收起" : "全部展开";
+      });
       this.renderQuestions();
       if (!storageOk) this.renderQuestions();
     }

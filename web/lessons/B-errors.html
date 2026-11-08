@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>附录 B：常见编译错误与调试方法</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="B" data-lesson-label="附录B">
+<div class="wrap">
+  <div class="topbar">
+    <a href="../index.html">← 目录</a>
+    <span class="badge">速查页，内容与 md 相同 · 完整内容见 <a href="../../附录B-常见错误与调试.md">附录B-常见错误与调试.md</a></span>
+    <button id="btn-present">投屏模式</button>
+  </div>
+
+  <h1>附录 B：常见编译错误与调试方法</h1>
+  
+  <div class="md-tools"><button id="btn-all">全部展开</button></div>
+  <blockquote><p>遇到报错不要慌，<b>先看第一条错误</b>（后面的经常是第一条引起的连锁反应），看它报在<b>哪一行</b>、说了<b>什么</b>。</p></blockquote>
+<details class="sec" open><summary>1. 怎么读编译错误</summary><p>g++ 报错的格式：</p><pre class="quiz-code"><code>文件名:行号:列号: error: 错误描述</code></pre><p>例如：</p><pre class="quiz-code"><code>a.cpp:6:5: error: expected &#x27;;&#x27; before &#x27;return&#x27;</code></pre><p>意思是：第 6 行第 5 列，在 <code>return</code> 前面缺了一个 <code>;</code>。<b>注意：缺分号的其实是第 5 行</b>，编译器读到第 6 行才发现。</p></details>
+<details class="sec"><summary>2. 常见编译错误对照表</summary><table class="calc-tbl"><tr><th>报错原文（关键部分）</th><th>意思</th><th>常见原因</th></tr><tr><td><code>expected &#x27;;&#x27; before ...</code></td><td>缺少分号</td><td>上一行末尾漏了 <code>;</code></td></tr><tr><td><code>expected &#x27;}&#x27; at end of input</code></td><td>缺少右花括号</td><td>花括号不配对</td></tr><tr><td><code>&#x27;xxx&#x27; was not declared in this scope</code></td><td>xxx 没有定义</td><td>① 变量名拼错 ② 忘了声明 ③ 变量在 for 里声明、在外面用 ④ 忘了 <code>#include</code> 或 <code>using namespace std</code></td></tr><tr><td><code>stray &#x27;\357&#x27; in program</code> / <code>stray &#x27;\243&#x27; in program</code></td><td>程序里有奇怪的字符</td><td><b>用了中文标点</b>（；，（）“”）</td></tr><tr><td><code>redeclaration of &#x27;int x&#x27;</code> / <code>conflicting declaration</code></td><td>重复定义</td><td>同一作用域里声明了两次</td></tr><tr><td><code>invalid operands of types ... to binary &#x27;operator&lt;&lt;&#x27;</code></td><td>运算符两边类型不对</td><td>常见于 <code>cout &lt;&lt; a ^ b</code>，忘记加括号</td></tr><tr><td><code>no matching function for call to &#x27;max(int&amp;, long long&amp;)&#x27;</code></td><td>函数参数类型不匹配</td><td><code>max</code> 两个参数类型不同</td></tr><tr><td><code>lvalue required as left operand of assignment</code></td><td>赋值号左边不能赋值</td><td>把 <code>==</code> 写反成 <code>5 = x</code>，或 <code>a + b = c</code></td></tr><tr><td><code>cannot convert &#x27;std::string&#x27; to &#x27;const char*&#x27;</code></td><td>类型不能转换</td><td>把 string 传给 <code>strlen</code> 等要求 C 字符串的函数（要用 <code>s.c_str()</code>）</td></tr><tr><td><code>format &#x27;%s&#x27; expects argument of type &#x27;char*&#x27;, but argument 2 has type &#x27;std::string&#x27;</code>（警告）</td><td>printf 格式和参数不符</td><td><code>printf(&quot;%s&quot;, s)</code> 里的 s 是 string。GCC 4.9.2（Dev-C++ 5.11 自带的版本）会直接报错 <code>cannot pass objects of non-trivially-copyable type</code>；较新的 GCC 可能接受并给格式警告（开了 <code>-Werror</code> 时警告也算错误），但运行结果不可靠。改成 <code>s.c_str()</code> 或用 <code>cout</code></td></tr><tr><td><code>control reaches end of non-void function</code>（警告）</td><td>函数可能没有返回值</td><td>某条路径漏写 <code>return</code></td></tr><tr><td><code>suggest parentheses around assignment used as truth value</code>（警告）</td><td>条件里用了赋值</td><td><code>if (x = 5)</code> 应为 <code>if (x == 5)</code></td></tr><tr><td><code>comparison of integer expressions of different signedness</code>（警告）</td><td>有符号和无符号比较</td><td><code>i &lt; s.size()</code>，改为 <code>i &lt; (int)s.size()</code></td></tr></table><blockquote><p>🎯 <b>警告（warning）也要重视！</b> 编译时加 <code>-Wall</code>，很多逻辑错误编译器会用警告提醒你。</p></blockquote></details>
+<details class="sec"><summary>3. 运行时错误与错误答案</summary><p>能编译、能运行，但结果不对或评测不过：</p><table class="calc-tbl"><tr><th>现象</th><th>可能原因</th><th>检查</th></tr><tr><td>输出一个很奇怪的大数或负数</td><td>溢出 / 变量未初始化</td><td>改 <code>long long</code>；变量赋初值</td></tr><tr><td>输出的平均数是整数</td><td>整数除法</td><td>写成 <code>sum * 1.0 / n</code></td></tr><tr><td>程序卡住不动</td><td>死循环 / 在等待输入</td><td>检查循环变量有没有变化、条件对不对</td></tr><tr><td>程序直接崩溃 / RE</td><td>数组越界、除以 0、递归太深、对空栈 pop</td><td>检查下标范围、数组大小</td></tr><tr><td>样例对，提交 WA</td><td>边界情况、溢出、格式</td><td>测 n=1、最大值、负数、0；检查空格换行</td></tr><tr><td>样例对，提交 TLE</td><td>算法太慢 / 输入太多</td><td>估算复杂度；加 <code>ios::sync_with_stdio(false)</code></td></tr><tr><td>本地对，洛谷 CE</td><td>用了 Windows 专有的东西 / 语言选错</td><td>去掉 <code>conio.h</code>、<code>system(&quot;pause&quot;)</code>；选 C++14</td></tr></table></details>
+<details class="sec"><summary>4. 调试方法</summary><h3>方法 1：输出中间变量（最常用）</h3><pre class="quiz-code"><code>for (int i = 1; i &lt;= n; i++) {
+    sum += a[i];
+    cerr &lt;&lt; &quot;i=&quot; &lt;&lt; i &lt;&lt; &quot; sum=&quot; &lt;&lt; sum &lt;&lt; &quot;\n&quot;;   // 用 cerr 输出调试信息
+}</code></pre><p>用 <code>cerr</code> 而不是 <code>cout</code> 的好处：<code>cerr</code> 不会写进 freopen 的输出文件，洛谷等 OJ 一般也只检查标准输出，不会因此判错。但输出很多时会拖慢程序，提交前仍然要删掉。</p><h3>方法 2：手动模拟</h3><p>拿一组<b>很小的数据</b>（比如 n=3），在纸上一步步模拟程序，把每个变量的值列成表格。这也是初赛“阅读程序”题的标准做法。</p><table class="calc-tbl"><tr><th>步骤</th><th>i</th><th>a[i]</th><th>sum</th></tr><tr><td>初始</td><td>-</td><td>-</td><td>0</td></tr><tr><td>1</td><td>1</td><td>5</td><td>5</td></tr><tr><td>2</td><td>2</td><td>3</td><td>8</td></tr><tr><td>...</td><td></td><td></td><td></td></tr></table><h3>方法 3：二分定位</h3><p>程序很长、不知道哪里错时：在中间某处输出结果，看那里对不对。对 → 错误多半在后半段；错 → 错误在前半段。不断缩小范围。前提是你能判断中间结果“应该是多少”；而且中间结果对，只说明这组数据走到这里没问题，换一组数据可能又不一样。</p><h3>方法 4：自己造数据</h3><p>样例通常很弱。提交前自己想几组：</p><ul><li><b>最小</b>：n = 1、n = 0（如果允许）</li><li><b>最大</b>：n 取题目上限，看会不会超时、溢出</li><li><b>特殊</b>：全部相同、全部为 0、有负数、已经排好序、倒序</li></ul><h3>方法 5：对拍（以后学）</h3><p>写一个“肯定对但很慢”的暴力程序，和你的程序用大量随机数据比较输出。学到算法阶段再掌握。</p><h3>方法 6：使用调试器（可选）</h3><p>小熊猫 Dev-C++ / VS Code 都支持“断点 + 单步执行 + 查看变量”。可以在熟悉基础后学一下，但<b>比赛中最可靠的还是输出调试</b>。</p></details>
+<details class="sec"><summary>5. 建立你自己的错题本</summary><p>每次 WA / RE / 卡了很久的题，记录下来：</p><pre class="quiz-code"><code>题号：P1307 数字反转
+错误：负数没处理，输入 -380 输出了 0（应该是 -83）
+原因：while (n &gt; 0) 对负数一次都不执行
+正确做法：先记录符号，转成正数处理，最后加回负号；或者 while (n != 0)
+教训：遇到整数题，测一下负数和 0</code></pre><p>比赛前翻一翻错题本，比再刷十道新题更有用。</p></details>
+
+
+  <div id="ask-box" class="card ask-box" style="display:none">
+    <b>🙋 我的问题清单</b>（复制后发给老师）
+    <textarea readonly></textarea>
+    <div class="warn"></div>
+    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+  </div>
+</div>
+
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

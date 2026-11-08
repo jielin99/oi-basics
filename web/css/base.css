@@ -119,3 +119,13 @@ button.primary:hover:not(:disabled) { background: #1d4ed8; }
 .flow .box small { display: block; color: var(--muted); font-size: .75rem; margin-top: 2px; }
 .flow .arrow { align-self: center; font-size: 1.4rem; color: var(--muted); }
 .flow .box.err { border-color: #f59e0b; background: #fffbeb; }
+
+/* md 转出的页面（第 0 课、附录） */
+details.sec { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px 16px; margin: 10px 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+details.sec > summary { cursor: pointer; font-weight: 700; padding: 8px 0; font-size: 1.1rem; }
+details.sec pre.quiz-code { margin: 8px 0; }
+blockquote { margin: 10px 0; padding: 4px 14px; border-left: 4px solid #f59e0b; background: #fffbeb; border-radius: 0 10px 10px 0; }
+blockquote p { margin: 4px 0; }
+li.task { list-style: none; margin-left: -1.2em; }
+li.task input { width: 1.1em; height: 1.1em; margin-right: .4em; }
+.md-tools { margin: 8px 0; }

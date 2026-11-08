@@ -5,7 +5,7 @@
    finish() 时把 harness 真实编译运行，推演出的输出必须与真实输出一致，否则当场报错。
 2. 页面/小测：predict_quiz 的正确答案由真实编译运行得出，不靠手写。
 """
-import copy, hashlib, html, json, os, subprocess, tempfile
+import copy, hashlib, html, json, os, re, subprocess, tempfile
 
 WEB = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 INC = "#include <iostream>\n#include <cstdio>\n#include <cmath>\n#include <string>\n#include <algorithm>\nusing namespace std;\n"
@@ -120,6 +120,151 @@ def crashes(code, pre=""):
         return subprocess.run([exe], capture_output=True, text=True, timeout=5).returncode != 0
 
 
+
+# ---------------- md → HTML（附录与第 0 课正文由 md 直接转出，保证内容一致） ----------------
+def _fix_href(u):
+    if re.match(r"^(https?:|#|mailto:)", u): return u
+    return "../../" + u
+
+
+def md_inline(s):
+    links = []
+    def grab(m):
+        links.append('<a href="%s">%s</a>' % (html.escape(_fix_href(m.group(2)), quote=True), md_inline(m.group(1))))
+        return "\x00%d\x00" % (len(links) - 1)
+    s = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", grab, s)
+    out = []
+    for part in re.split(r"(`[^`]+`)", s):
+        if len(part) > 1 and part.startswith("`") and part.endswith("`"):
+            out.append("<code>%s</code>" % html.escape(part[1:-1]))
+        else:
+            q = html.escape(part, quote=False)
+            q = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", q)
+            out.append(q)
+    r = "".join(out)
+    return re.sub(r"\x00(\d+)\x00", lambda m: links[int(m.group(1))], r)
+
+
+def _split_row(line):
+    cells = re.split(r"(?<!\\)\|", line.strip())
+    if cells and cells[0].strip() == "": cells = cells[1:]
+    if cells and cells[-1].strip() == "": cells = cells[:-1]
+    return [c.strip().replace("\\|", "|") for c in cells]
+
+
+_LI = re.compile(r"^(\s*)([-*]|\d+\.)\s+(.*)$")
+
+
+def _render_list(items):
+    """items: [(indent, ordered, text)] → 嵌套 ul/ol"""
+    out, stack = [], []          # stack: [(indent, tag)]
+    for ind, ordered, text in items:
+        tag = "ol" if ordered else "ul"
+        while stack and ind < stack[-1][0]:
+            out.append("</li></%s>" % stack.pop()[1])
+        if stack and ind == stack[-1][0]:
+            out.append("</li>")
+        elif not stack or ind > stack[-1][0]:
+            out.append("<%s>" % tag); stack.append((ind, tag))
+        m = re.match(r"^\[( |x)\]\s+(.*)$", text)
+        if m:
+            out.append('<li class="task"><label><input type="checkbox" class="chk"> %s</label>' % md_inline(m.group(2)))
+        else:
+            out.append("<li>%s" % md_inline(text))
+    while stack:
+        out.append("</li></%s>" % stack.pop()[1])
+    return "".join(out)
+
+
+def _blocks(lines):
+    """把一段 md 行转成 html（不含 ## 分节）"""
+    out, i, n = [], 0, len(lines)
+    while i < n:
+        ln = lines[i]
+        if not ln.strip() or re.match(r"^---+\s*$", ln):
+            i += 1; continue
+        if ln.startswith("```"):
+            lang = ln[3:].strip(); i += 1; buf = []
+            while i < n and not lines[i].startswith("```"): buf.append(lines[i]); i += 1
+            i += 1
+            out.append('<pre class="quiz-code"><code>%s</code></pre>' % html.escape("\n".join(buf)))
+        elif ln.startswith(">"):
+            buf = []
+            while i < n and lines[i].startswith(">"): buf.append(re.sub(r"^>\s?", "", lines[i])); i += 1
+            out.append("<blockquote>%s</blockquote>" % "".join(_blocks(buf)))
+        elif ln.startswith("|") and i + 1 < n and re.match(r"^\|[\s:\-|]+\|\s*$", lines[i + 1]):
+            head = _split_row(ln); i += 2; rows = []
+            while i < n and lines[i].startswith("|"): rows.append(_split_row(lines[i])); i += 1
+            t = '<table class="calc-tbl"><tr>%s</tr>' % "".join("<th>%s</th>" % md_inline(c) for c in head)
+            for r in rows: t += "<tr>%s</tr>" % "".join("<td>%s</td>" % md_inline(c) for c in r)
+            out.append(t + "</table>")
+        elif ln.startswith("### "):
+            out.append("<h3>%s</h3>" % md_inline(ln[4:].strip())); i += 1
+        elif _LI.match(ln):
+            items = []
+            while i < n:
+                m = _LI.match(lines[i])
+                if m:
+                    items.append([len(m.group(1)), m.group(2)[0].isdigit(), m.group(3)]); i += 1
+                elif lines[i].startswith((" ", "\t")) and lines[i].strip() and items:
+                    items[-1][2] += " " + lines[i].strip(); i += 1
+                elif not lines[i].strip() and i + 1 < n and _LI.match(lines[i + 1]) and items and _LI.match(lines[i + 1]).group(1):
+                    i += 1
+                else:
+                    break
+            out.append(_render_list(items))
+        else:
+            buf = []
+            while i < n and lines[i].strip() and not lines[i].startswith(("```", ">", "|", "### ")) and not _LI.match(lines[i]) and not re.match(r"^---+\s*$", lines[i]):
+                buf.append(lines[i].strip()); i += 1
+            if not buf: buf.append(lines[i].strip()); i += 1
+            out.append("<p>%s</p>" % md_inline(" ".join(buf)))
+    return out
+
+
+def md_sections(text):
+    """返回 (标题, 导语html, [(小节标题, 小节html)])。## 起分节，# 为页面标题。"""
+    lines = text.split("\n")
+    title = next((l[2:].strip() for l in lines if l.startswith("# ")), "")
+    body = [l for l in lines if not l.startswith("# ")]
+    intro, secs, cur = [], [], None
+    for l in body:
+        if l.startswith("## "):
+            cur = [l[3:].strip(), []]; secs.append(cur)
+        else:
+            (cur[1] if cur else intro).append(l)
+    return title, "".join(_blocks(intro)), [(h, "".join(_blocks(b))) for h, b in secs]
+
+
+def _norm_text(s):
+    return re.sub(r"[^\w\u4e00-\u9fff]", "", s)
+
+
+def assert_covers(md_text, html_text):
+    """md 的每一行文字都必须出现在转出的 HTML 里（去标签、去标点后比较），防止转换时丢内容。"""
+    plain = html.unescape(re.sub(r"<[^>]+>", "", html_text))
+    hn = _norm_text(plain)
+    miss = []
+    for ln in md_text.split("\n"):
+        if ln.startswith("# "): continue                     # 页面标题由模板单独放置
+        t = re.sub(r"\]\([^)]*\)", "]", ln)                  # 链接去掉 url
+        t = re.sub(r"^(\s*[-*]\s+\[[ x]\]|\s*[-*]|\s*\d+\.|>|#+)\s*", "", t)
+        t = t.replace("\\|", "|")
+        if t.strip().startswith("---") or t.strip().startswith("```") or re.match(r"^\|[\s:\-|]+\|\s*$", t.strip()): continue
+        if t.startswith("# "): continue
+        n = _norm_text(t)
+        if n and n not in hn: miss.append(ln)
+    assert not miss, "转换丢失了内容：\n" + "\n".join(miss[:8])
+
+
+def sections_html(secs, open_first=False, open_all=False):
+    h = ""
+    for k, (title, body) in enumerate(secs):
+        op = " open" if (open_all or (open_first and k == 0)) else ""
+        h += '<details class="sec"%s><summary>%s</summary>%s</details>\n' % (op, md_inline(title), body)
+    return h
+
+
 # ---------------- 页面 ----------------
 PAGE = """<!doctype html>
 <html lang="zh-CN">
@@ -138,7 +283,7 @@ PAGE = """<!doctype html>
   </div>
 
   <h1>{h1}</h1>
-  <p>{intro}</p>
+  {intro}
 {body}
   <div id="ask-box" class="card ask-box" style="display:none">
     <b>🙋 我的问题清单</b>（复制后发给老师）
@@ -191,7 +336,7 @@ def build_page(filename, lesson, label, title, h1, intro, md, blocks, tracefile=
     for s in ("page.js", "stepper.js", "quiz.js", "calc.js"):
         scripts += '<script src="../js/core/%s"></script>\n' % s
     out = PAGE.format(title=html.escape(title), lesson=lesson, label=html.escape(label), badge=badge, md=md,
-                      h1=h1, intro=intro, body=body, scripts=scripts.rstrip("\n"), quizjs="\n".join(quizzes))
+                      h1=h1, intro=("<p>%s</p>" % intro) if intro else "", body=body, scripts=scripts.rstrip("\n"), quizjs="\n".join(quizzes))
     path = os.path.join(WEB, "lessons", filename)
     open(path, "w", encoding="utf-8").write(out)
     return path, n
