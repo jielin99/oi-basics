@@ -42,7 +42,7 @@ inserts = {
     "2.6": [("trace", "ex-07-04"), ("quiz", Z["q-04a"])],
     "3.":  [("quiz", Z["q-04b"]), ("quiz", Z["q-04c"])],
 }
-tasks = (["把 1 号例子敲一遍，把 <code>a[0] = 10</code> 改成 <code>a[0] = 7</code>，<b>先猜</b> <code>a[4]</code> 再运行。",
-          "把 4 号例子改成 3 行 4 列，并自己用 <code>cin</code> 读入数据，看输出是不是 3 行。"], "")
+tasks = (["把 2.1 小节后“数组的下标”动画里的代码敲一遍，把 <code>a[0] = 10</code> 改成 <code>a[0] = 7</code>，<b>先猜</b> <code>a[4]</code> 再运行。",
+          "把 2.6 小节后“二维数组”动画里的代码改成 3 行 4 列，并自己用 <code>cin</code> 读入数据，看输出是不是 3 行。"], "")
 path, nq = build_lesson("07-数组.md", "07-array.html", "第7课｜数组", "07", inserts, ["array-07.js"], tasks)
 print("第7课: %d 道小测（正文全文 + 互动）" % nq)

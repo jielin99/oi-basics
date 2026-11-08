@@ -26,6 +26,7 @@ def split_sections(text):
     """只在代码围栏之外识别标题（围栏里的 `# Python` 是代码注释，不是标题）。"""
     h1, intro, secs, cur, cur3, inf = None, [], [], None, None, False
     for ln in text.split("\n"):
+        if ln.startswith("````") or ln.startswith("~~~"): raise ValueError("不支持的代码围栏（只支持 3 个反引号）：%r" % ln)
         if ln.startswith("```"): inf = not inf
         if not inf and not ln.startswith("```"):
             m = re.match(r"^(#{1,6})\s+(.*)$", ln)
@@ -163,52 +164,85 @@ LESSON_TPL = """<!doctype html>
 
 
 # ---------------- 独立的内容校验（不依赖渲染器的实现） ----------------
+# 把 md 和页面都化成同一种"有序序列"，逐项相等才算通过：
+#   ("h", 层级, 文字) ("c", 代码块原文) ("tbl", [[单元格文字…]…]) ("sum", 文字) ("details",) ("/details",) ("t", 一段正文)
+# 行内代码另外按出现顺序逐字比较（空白也不能动）。标题/代码块/表格/折叠块/正文的先后顺序因此也被检查。
 def _ws(s):
     return re.sub(r"\s+", "", s)
 
 
 def _md_inline_text(s):
+    """md 行内文字 → 页面上应显示的文字：代码里的内容原样保留，链接只留文字，粗体记号去掉。"""
+    codes = []
+    s = re.sub(r"`[^`]+`", lambda m: (codes.append(m.group(0)[1:-1]) or "\x01%d\x01" % (len(codes) - 1)), s)   # 先保护代码
     s = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", s)
-    out = []
-    for part in re.split(r"(`[^`]+`)", s):          # 粗体记号只在代码之外去掉：`10**12` 里的 ** 是代码本身
-        out.append(part[1:-1] if (len(part) > 1 and part.startswith("`") and part.endswith("`")) else part.replace("**", ""))
-    return "".join(out)
+    s = s.replace("**", "")
+    return re.sub(r"\x01(\d+)\x01", lambda m: codes[int(m.group(1))], s)
 
 
 def _md_line_text(l):
     t = l.strip()
     if not t or re.fullmatch(r"-{3,}", t): return ""
-    if re.fullmatch(r"\|[\s:\-|]+\|", t): return ""
     t = re.sub(r"^(>\s?)+", "", t).strip()
-    if t.startswith("|"):
-        cells = re.split(r"(?<!\\)\|", t)
-        t = "".join(c.strip().replace("\\|", "|") for c in cells)
     t = re.sub(r"^([-*]|\d+\.)\s+", "", t)
     t = re.sub(r"^\[[ xX]\]\s+", "", t)
-    if t.startswith("<details") or t.startswith("</details"): return ""
-    t = re.sub(r"</?summary>", "", t)
     return _ws(_md_inline_text(t))
 
 
+def _code_spans(line):
+    return re.findall(r"`([^`]+)`", line)
+
+
+class _Seq:
+    """顺序序列构造器：相邻正文合并成一段，遇到结构元素先把正文收尾。"""
+    def __init__(self): self.items, self.buf = [], []
+    def text(self, t):
+        if t: self.buf.append(t)
+    def flush(self):
+        t = "".join(self.buf); self.buf = []
+        if t: self.items.append(("t", t))
+    def add(self, item): self.flush(); self.items.append(item)
+
+
 def md_expect(text):
-    heads, codes, texts, inf, buf = [], [], [], False, []
-    for ln in text.split("\n"):
-        if ln.startswith(">"): ln = re.sub(r"^>\s?", "", ln)      # 引用块里也可以有代码围栏
+    seq, spans, inf, buf = _Seq(), [], False, []
+    lines = text.split("\n"); k = 0
+    while k < len(lines):
+        ln = re.sub(r"^(>\s?)+", "", lines[k]); raw = lines[k]; k += 1          # 引用（含嵌套）里也可以有代码围栏
         if ln.startswith("```"):
-            if inf: codes.append("\n".join(buf)); buf = []
+            if inf: seq.add(("c", "\n".join(buf))); buf = []
             inf = not inf; continue
         if inf: buf.append(ln); continue
         m = re.match(r"^(#{1,6})\s+(.*)$", ln)
-        if m: heads.append((len(m.group(1)), _ws(_md_inline_text(m.group(2))))); continue
-        texts.append(_md_line_text(ln))
-    return heads, codes, "".join(texts)
+        if m:
+            seq.add(("h", len(m.group(1)), _ws(_md_inline_text(m.group(2))))); spans += _code_spans(m.group(2)); continue
+        if ln.strip() == "<details>": seq.add(("details",)); continue
+        if ln.strip() == "</details>": seq.add(("/details",)); continue
+        ms = re.fullmatch(r"<summary>(.*)</summary>", ln.strip())
+        if ms: seq.add(("sum", _ws(_md_inline_text(ms.group(1))))); spans += _code_spans(ms.group(1)); continue
+        if raw.startswith("|") and k < len(lines) and re.fullmatch(r"\|[\s:\-|]+\|\s*", lines[k]):
+            rows = []; j = k - 1
+            while j < len(lines) and lines[j].startswith("|"):
+                if not re.fullmatch(r"\|[\s:\-|]+\|\s*", lines[j]):
+                    cells = re.split(r"(?<!\\)\|", lines[j].strip())
+                    cells = cells[1:] if cells and cells[0].strip() == "" else cells
+                    cells = cells[:-1] if cells and cells[-1].strip() == "" else cells
+                    cells = [c.strip().replace("\\|", "|") for c in cells]
+                    rows.append([_ws(_md_inline_text(c)) for c in cells])
+                    for c in cells: spans += _code_spans(c)
+                j += 1
+            seq.add(("tbl", rows)); k = j; continue
+        seq.text(_md_line_text(ln)); spans += _code_spans(ln)
+    seq.flush()
+    return seq.items, spans
 
 
 class _Collect(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
-        self.depth, self.heads, self.codes, self.text = 0, [], [], []
-        self.pre = self.head = None; self.buf = []; self.skip = 0
+        self.depth, self.seq, self.spans = 0, _Seq(), []
+        self.pre = self.head = self.summ = self.cell = None
+        self.buf = []; self.skip = 0; self.rows = None; self.row = None; self.incode = 0
 
     def handle_starttag(self, tag, attrs):
         if tag == "div":
@@ -218,35 +252,48 @@ class _Collect(HTMLParser):
         if not self.depth: return
         if tag == "pre": self.pre = True; self.buf = []
         elif re.fullmatch(r"h[1-6]", tag): self.head = int(tag[1]); self.buf = []
+        elif tag == "summary": self.summ = True; self.buf = []
+        elif tag == "details": self.seq.add(("details",))
+        elif tag == "table": self.seq.flush(); self.rows = []
+        elif tag == "tr" and self.rows is not None: self.row = []
+        elif tag in ("td", "th") and self.row is not None: self.cell = []
+        elif tag == "code" and not self.pre: self.incode += 1; self.cbuf = []
         elif tag in ("script", "style"): self.skip += 1
 
     def handle_endtag(self, tag):
         if tag == "div" and self.depth: self.depth -= 1; return
         if not self.depth: return
-        if tag == "pre" and self.pre: self.codes.append("".join(self.buf)); self.pre = None
-        elif re.fullmatch(r"h[1-6]", tag) and self.head: self.heads.append((self.head, _ws("".join(self.buf)))); self.head = None
+        if tag == "pre" and self.pre: self.seq.add(("c", "".join(self.buf))); self.pre = None
+        elif re.fullmatch(r"h[1-6]", tag) and self.head: self.seq.add(("h", self.head, _ws("".join(self.buf)))); self.head = None
+        elif tag == "summary" and self.summ: self.seq.add(("sum", _ws("".join(self.buf)))); self.summ = None
+        elif tag == "details": self.seq.add(("/details",))
+        elif tag in ("td", "th") and self.cell is not None: self.row.append(_ws("".join(self.cell))); self.cell = None
+        elif tag == "tr" and self.row is not None: self.rows.append(self.row); self.row = None
+        elif tag == "table" and self.rows is not None: self.seq.add(("tbl", self.rows)); self.rows = None
+        elif tag == "code" and self.incode: self.incode -= 1; self.spans.append("".join(self.cbuf))
         elif tag in ("script", "style"): self.skip -= 1
 
     def handle_data(self, d):
         if not self.depth or self.skip: return
-        if self.pre or self.head: self.buf.append(d)
-        else: self.text.append(d)
+        if self.incode: self.cbuf.append(d)
+        if self.pre or self.head or self.summ: self.buf.append(d)
+        elif self.cell is not None: self.cell.append(d)
+        elif self.rows is None: self.seq.text(_ws(d))
 
 
 def verify_md(md_text, page_html, name=""):
-    """md 正文必须在页面的 data-md 区域里完整、按序、逐字出现：标题(层级+文字)、代码块(逐字)、其余文字(规整后按序相等)。"""
-    eh, ec, et = md_expect(md_text)
-    c = _Collect(); c.feed(page_html)
-    ht = _ws("".join(c.text))
+    """md 正文必须在页面的 data-md 区域里完整、按序、逐字出现。比较统一的有序序列
+    （标题层级+文字、代码块逐字、表格行列与单元格、折叠块与 summary、正文），外加行内代码逐字比较。"""
+    ex, ex_spans = md_expect(md_text)
+    c = _Collect(); c.feed(page_html); c.seq.flush()
+    got, got_spans = c.seq.items, c.spans
     errs = []
-    if eh != c.heads:
-        i = next((k for k in range(min(len(eh), len(c.heads))) if eh[k] != c.heads[k]), min(len(eh), len(c.heads)))
-        errs.append("标题不一致（md %d 个 / 页面 %d 个），第 %d 处：md=%r 页面=%r" % (len(eh), len(c.heads), i + 1, eh[i:i + 1], c.heads[i:i + 1]))
-    if ec != c.codes:
-        i = next((k for k in range(min(len(ec), len(c.codes))) if ec[k] != c.codes[k]), min(len(ec), len(c.codes)))
-        errs.append("代码块不一致（md %d 个 / 页面 %d 个），第 %d 个：md=%r 页面=%r" % (len(ec), len(c.codes), i + 1, (ec[i:i + 1] or [""])[0][:80], (c.codes[i:i + 1] or [""])[0][:80]))
-    if et != ht:
-        i = next((k for k in range(min(len(et), len(ht))) if et[k] != ht[k]), min(len(et), len(ht)))
-        errs.append("正文不一致（md %d 字 / 页面 %d 字），首个差异位置 %d：md「…%s」页面「…%s」" % (len(et), len(ht), i, et[max(0, i - 15):i + 25], ht[max(0, i - 15):i + 25]))
+    if ex != got:
+        i = next((k for k in range(min(len(ex), len(got))) if ex[k] != got[k]), min(len(ex), len(got)))
+        show = lambda x: repr(x)[:160]
+        errs.append("内容/顺序不一致（md %d 项 / 页面 %d 项），第 %d 项：\n    md  ：%s\n    页面：%s" % (len(ex), len(got), i + 1, show(ex[i:i + 1]), show(got[i:i + 1])))
+    if ex_spans != got_spans:
+        i = next((k for k in range(min(len(ex_spans), len(got_spans))) if ex_spans[k] != got_spans[k]), min(len(ex_spans), len(got_spans)))
+        errs.append("行内代码不一致（md %d 处 / 页面 %d 处），第 %d 处：md=%r 页面=%r" % (len(ex_spans), len(got_spans), i + 1, ex_spans[i:i + 1], got_spans[i:i + 1]))
     if re.search(r'href="[^"]*\.md[#"]', page_html): errs.append("页面里残留指向 .md 的链接")
     assert not errs, "%s 内容校验失败：\n  " % name + "\n  ".join(errs)

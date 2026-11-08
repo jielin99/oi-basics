@@ -13,7 +13,8 @@
     lessonLabel: function () { return document.body.getAttribute("data-lesson-label") || document.title; },
 
     setPresent: function (on) {
-      document.body.classList.toggle("present", !!on);
+      document.documentElement.classList.toggle("present", !!on);   // 字号变量在 html 上
+      document.body.classList.toggle("present", !!on);               // 布局规则（隐藏目录、加宽）用 body
       save("present", on ? "1" : "0");
       var b = document.getElementById("btn-present");
       if (b) b.textContent = on ? "退出投屏模式" : "投屏模式";
@@ -60,7 +61,7 @@
       if (raw) { try { qs = JSON.parse(raw) || []; } catch (e) { qs = []; } }
       if (load("present") === "1") this.setPresent(true);
       var btn = document.getElementById("btn-present");
-      if (btn) btn.addEventListener("click", function () { self.setPresent(!document.body.classList.contains("present")); });
+      if (btn) btn.addEventListener("click", function () { self.setPresent(!document.documentElement.classList.contains("present")); });
       var box = document.getElementById("ask-box");
       if (box) {
         box.querySelector("[data-a=copy]").addEventListener("click", function () {

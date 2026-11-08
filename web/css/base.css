@@ -5,7 +5,7 @@
   --code-bg: #111827; --code-ink: #e5e7eb; --code-hl: #1d4ed8;
   --fs: 18px;
 }
-body.present { --fs: 26px; }
+html.present { --fs: 26px; }          /* 根字号在 html 上取值，所以开关必须在 html 上 */
 * { box-sizing: border-box; }
 html { font-size: var(--fs); }
 body {

@@ -16,6 +16,24 @@ def inv(h):
     return dict(traces=sorted(re.findall(r'data-trace="([^"]+)"', h)),
                 pickers=sorted(pk), quizzes=sorted(qs), calcs=sorted(re.findall(r'data-calc="([^"]+)"', h)))
 
+def static_problems():
+    """静态检查：Q("qN") 必须有 <div id="qN">；页面引用的动画 id 必须在 data/traces/*.js 里存在，且该页已加载对应数据文件。"""
+    have = {}
+    for f in glob.glob(os.path.join(WEB, "data", "traces", "*.js")):
+        for i in re.findall(r'window\.TRACES\["([^"]+)"\]\s*=', open(f, encoding="utf-8").read()): have[i] = os.path.basename(f)
+    bad = []
+    for p in sorted(glob.glob(os.path.join(WEB, "lessons", "*.html"))):
+        h = open(p, encoding="utf-8").read(); n = os.path.basename(p)
+        for q in re.findall(r'^\s*Q\("(q\d+)"', h, re.M):
+            if 'id="%s"' % q not in h: bad.append("%s：Q(%s) 没有挂载节点" % (n, q))
+        loaded = set(re.findall(r'data/traces/([^"]+\.js)', h))
+        ids = re.findall(r'data-trace="([^"]+)"', h) + [i for x in re.findall(r'data-traces="([^"]*)"', h) for i in x.split(",")]
+        for i in ids:
+            if i not in have: bad.append("%s：动画 %s 在数据文件里不存在" % (n, i))
+            elif have[i] not in loaded: bad.append("%s：动画 %s 在 %s 里，但页面没加载它" % (n, i, have[i]))
+    return bad
+
+
 def collect():
     return {os.path.basename(p): inv(open(p, encoding="utf-8").read()) for p in sorted(glob.glob(os.path.join(WEB, "lessons", "*.html")))}
 
@@ -27,6 +45,7 @@ def main():
               sum(len(v["pickers"]) for v in cur.values()), sum(len(v["quizzes"]) for v in cur.values()), sum(len(v["calcs"]) for v in cur.values())))
         return 0
     base = json.load(open(BASE, encoding="utf-8")); bad = 0
+    for sp in static_problems(): print("FAIL", sp); bad += 1
     for page, b in base.items():
         c = cur.get(page)
         if c is None: print("FAIL 缺页面", page); bad += 1; continue

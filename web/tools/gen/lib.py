@@ -154,19 +154,22 @@ def _fix_href(u):
 
 
 def md_inline(s):
+    codes = []
+    s = re.sub(r"`[^`]+`", lambda m: (codes.append(m.group(0)) or "\x01%d\x01" % (len(codes) - 1)), s)   # 先保护行内代码
     links = []
     def grab(m):
-        links.append('<a href="%s">%s</a>' % (html.escape(_fix_href(m.group(2)), quote=True), md_inline(m.group(1))))
+        label = re.sub(r"\x01(\d+)\x01", lambda k: codes[int(k.group(1))], m.group(1))
+        links.append('<a href="%s">%s</a>' % (html.escape(_fix_href(m.group(2)), quote=True), md_inline(label)))
         return "\x00%d\x00" % (len(links) - 1)
     s = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", grab, s)
-    parts = re.split(r"(`[^`]+`)", s)
-    is_code = lambda p: len(p) > 1 and p.startswith("`") and p.endswith("`")
+    parts = re.split(r"(\x01\d+\x01)", s)
+    is_code = lambda p: len(p) > 2 and p.startswith("\x01") and p.endswith("\x01")
     # 粗体可以跨过行内代码（**数据量大时用 `"\n"`**），所以按整句配对，而不是在每段里单独找
     balanced = sum(p.count("**") for p in parts if not is_code(p)) % 2 == 0
     bold, out = False, []
     for part in parts:
         if is_code(part):
-            out.append("<code>%s</code>" % html.escape(part[1:-1]))
+            out.append("<code>%s</code>" % html.escape(codes[int(part[1:-1])][1:-1]))
         else:
             q = html.escape(part, quote=False)
             if balanced:
@@ -216,6 +219,8 @@ def _blocks(lines):
         ln = lines[i]
         if not ln.strip() or re.match(r"^---+\s*$", ln):
             i += 1; continue
+        if ln.startswith("````") or ln.startswith("~~~"):
+            raise ValueError("不支持的代码围栏（只支持 3 个反引号）：%r" % ln)
         if ln.startswith("```"):
             lang = ln[3:].strip(); i += 1; buf = []
             while i < n and not lines[i].startswith("```"): buf.append(lines[i]); i += 1
@@ -232,11 +237,15 @@ def _blocks(lines):
             for r in rows: t += "<tr>%s</tr>" % "".join("<td>%s</td>" % md_inline(c) for c in r)
             out.append(t + "</table>")
         elif ln.startswith("<details"):
+            if ln.strip() != "<details>": raise ValueError("不支持的 <details> 写法（必须独占一行）：%r" % ln)
             out.append('<details class="ans">'); i += 1
-        elif ln.startswith("</details>"):
+        elif ln.startswith("</details"):
+            if ln.strip() != "</details>": raise ValueError("不支持的 </details> 写法：%r" % ln)
             out.append("</details>"); i += 1
-        elif ln.startswith("<summary>"):
-            out.append("<summary>%s</summary>" % md_inline(re.sub(r"</?summary>", "", ln).strip())); i += 1
+        elif ln.startswith("<summary"):
+            m = re.fullmatch(r"<summary>(.*)</summary>", ln.strip())
+            if not m: raise ValueError("不支持的 <summary> 写法（必须是独占一行的 <summary>文字</summary>）：%r" % ln)
+            out.append("<summary>%s</summary>" % md_inline(m.group(1).strip())); i += 1
         elif ln.startswith("### "):
             out.append("<h3>%s</h3>" % md_inline(ln[4:].strip())); i += 1
         elif _LI.match(ln):

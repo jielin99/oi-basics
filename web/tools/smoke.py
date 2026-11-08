@@ -13,9 +13,8 @@ CHROME = os.environ.get("CHROME") or glob.glob(os.path.expanduser("~/.cache/ms-p
 
 TEST = r"""
 (function () {
-  var R = [], errs = [];
+  var R = [], errs = window.__errs || [];
   function ok(n, c, x) { R.push((c ? "PASS " : "FAIL ") + n + (c ? "" : "  <= " + x)); }
-  window.addEventListener("error", function (e) { errs.push(e.message); });
   function snap(el) {
     var q = function (s) { var n = el.querySelector(s); return n ? n.innerHTML : ""; };
     var on = el.querySelector(".stp-line.on");
@@ -57,6 +56,20 @@ TEST = r"""
   document.querySelectorAll("[data-calc]").forEach(function (c) {
     var o = c.querySelector(".calc-out"); ok("计算器有输出 " + c.getAttribute("data-calc"), !!o && o.textContent.length > 5, "empty");
   });
+  var E = window.__expect || {};
+  var mountedQ = 0; document.querySelectorAll(".card").forEach(function (c) { if (c._quiz) mountedQ++; });
+  var mountedT = 0; document.querySelectorAll("[data-trace],[data-traces]").forEach(function (c) { if (c._stepper) mountedT++; });
+  var mountedC = 0; document.querySelectorAll("[data-calc]").forEach(function (c) { if (c.querySelector(".calc-out")) mountedC++; });
+  ok("小测挂载数 = 页面声明数 (" + mountedQ + "/" + E.quizzes + ")", mountedQ === E.quizzes, mountedQ);
+  ok("动画挂载数 = 页面声明数 (" + mountedT + "/" + E.traces + ")", mountedT === E.traces, mountedT);
+  ok("计算器挂载数 = 页面声明数 (" + mountedC + "/" + E.calcs + ")", mountedC === E.calcs, mountedC);
+  // 投屏模式：点一下根字号必须变大，再点恢复
+  var pb = document.getElementById("btn-present");
+  if (pb) {
+    var fs = function () { return parseFloat(getComputedStyle(document.documentElement).fontSize); };
+    var f0 = fs(); pb.click(); var f1 = fs(); pb.click(); var f2 = fs();
+    ok("投屏模式放大根字号并可恢复 (" + f0 + " → " + f1 + " → " + f2 + ")", f1 > f0 && f2 === f0, f0 + "/" + f1 + "/" + f2);
+  }
   ok("页面本身不横向滚动 (scrollWidth " + document.documentElement.scrollWidth + " / innerWidth " + window.innerWidth + ")", document.documentElement.scrollWidth <= window.innerWidth + 1, "overflow");
   ok("无脚本错误", errs.length === 0, errs.join(" ; "));
   var pre = document.createElement("pre"); pre.id = "smoke"; pre.textContent = R.join("\n"); document.body.appendChild(pre);
@@ -66,7 +79,12 @@ TEST = r"""
 def run(page, width):
     html = open(page, encoding="utf-8").read()
     html = html.replace('"../', '"file://%s/' % WEB)
-    html = html.replace("<head>", "<head>", 1).replace("</body>", "<script>" + TEST + "</script></body>")
+    expect = {"quizzes": len(re.findall(r'^\s*Q\("q\d+"', html, re.M)),
+              "traces": len(re.findall(r'data-traces?="', html)),
+              "calcs": len(re.findall(r'data-calc="', html))}
+    early = ('<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(e.message)});'
+             'window.__expect=%s;</script>' % __import__("json").dumps(expect))
+    html = html.replace("<head>", "<head>" + early, 1).replace("</body>", "<script>" + TEST + "</script></body>")
     with tempfile.TemporaryDirectory() as d:
         f = os.path.join(d, "t.html"); open(f, "w", encoding="utf-8").write(html)
         out = subprocess.run([CHROME, "--headless=new", "--no-sandbox", "--disable-gpu", "--allow-file-access-from-files",

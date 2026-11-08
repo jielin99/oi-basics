@@ -23,8 +23,11 @@ python3 web/tools/gen/build_all.py    # 重新生成所有页面和动画数据�
 python3 web/tools/verify-traces.py    # 动画数据校验：真实编译运行，输出与动画最终输出一致
 python3 web/tools/test-calc.py        # 计算器与真实 C++ / Python 逐项对照
 python3 web/tools/inventory.py --check  # 对比“迁移前基线”，确认没有漏掉任何动画/小测/计算器
-python3 web/tools/smoke.py            # 无头浏览器冒烟测试所有页面（桌面 + 手机宽度）
-python3 web/tools/linkcheck.py        # 以 web/ 为根起 HTTP 服务，遍历全部链接/资源/锚点
+python3 web/tools/smoke.py            # 无头浏览器冒烟测试所有页面（桌面 + 手机宽度）：脚本错误、动画/小测/计算器挂载数、
+                                      # 逐步前进后退、投屏模式字号、不横向滚动等
+python3 web/tools/test-mdverify.py    # 内容校验器自测：16 个 md 无损转换，并对页面做 19 种破坏，必须全部被发现
+python3 web/tools/linkcheck.py        # 以 web/ 为根起 HTTP 服务，检查 index 与各课页里的全部链接/资源/锚点
+                                      # （只检查这些页面直接引用的内容，不继续深入 css/js 内部的引用）
 ```
 
 - 每个“预测输出”小测的正确答案由真实编译运行得出，不是手写的。
