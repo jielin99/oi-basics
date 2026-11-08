@@ -80,3 +80,34 @@ button.primary:hover:not(:disabled) { background: #1d4ed8; }
 .arr2 td.v.hl { background: var(--hl); border-color: #f59e0b; }
 
 .stp-main { align-items: start; }
+
+/* 输入流 / 调用栈 / 多输入切换 */
+.empty { color: #9ca3af; align-self: center; }
+.tape { display: flex; flex-wrap: wrap; gap: 2px; margin-bottom: 10px; font-family: ui-monospace, Consolas, monospace; }
+.tc { min-width: 1.4em; text-align: center; border-radius: 6px; padding: 1px 4px; background: #fff; border: 1px solid var(--line); }
+.tc.ws { color: #9ca3af; background: #f3f4f6; }
+.tc.used { opacity: .35; text-decoration: line-through; }
+.tc.next { border-color: #f59e0b; background: var(--hl); opacity: 1; text-decoration: none; }
+.cstack { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.frame { border: 2px solid var(--line); border-radius: 10px; padding: 4px 10px; background: #fff; font-family: ui-monospace, Consolas, monospace; }
+.frame.top { border-color: var(--accent); background: var(--accent-soft); }
+.frame .var { margin-left: 6px; padding: 0 8px; }
+.frame .at { font-family: inherit; font-size: .8rem; color: var(--muted); }
+.ret { color: var(--ok); font-weight: 700; }
+.pick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+.pick-t { color: var(--muted); font-size: .85rem; }
+.pick button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pick + .pick-body .stp { margin-top: 6px; }
+
+/* 计算器 */
+.calc-t { font-weight: 700; margin-bottom: 8px; }
+.calc-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.calc input, .calc select { font: inherit; font-family: ui-monospace, Consolas, monospace; border: 2px solid var(--line); border-radius: 8px; padding: 2px 8px; width: 7em; background: #fff; color: var(--ink); }
+.calc select { width: auto; }
+.calc-tbl { border-collapse: collapse; width: 100%; margin: 6px 0; }
+.calc-tbl th, .calc-tbl td { border: 1px solid var(--line); padding: 4px 10px; text-align: left; }
+.calc-tbl td.bin { font-family: ui-monospace, Consolas, monospace; letter-spacing: .08em; }
+.calc-ok { background: var(--ok-soft); border-radius: 10px; padding: 6px 12px; margin-top: 6px; }
+.calc-bad { background: var(--bad-soft); border-radius: 10px; padding: 6px 12px; margin-top: 6px; }
+.calc-tip { background: var(--accent-soft); border-radius: 10px; padding: 6px 12px; margin-top: 6px; font-size: .9rem; }
+@media (max-width: 720px) { .calc-tbl { display: block; overflow-x: auto; } }

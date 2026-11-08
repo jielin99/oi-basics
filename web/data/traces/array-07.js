@@ -88,6 +88,7 @@ window.TRACES["ex-07-02"] = {
  "input": "",
  "expectOutput": "",
  "kind": "illustrative",
+ "badge": "示意：真实 C++ 不会这样拦截",
  "steps": [
   {
    "line": 1,

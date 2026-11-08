@@ -25,10 +25,10 @@
     }).join("");
     this.root.classList.add("card", "stp");
     this.root.innerHTML =
-      '<div class="stp-title">' + esc(t.title) + (t.kind === "illustrative" ? ' <span class="badge">示意：真实 C++ 不会这样拦截</span>' : '') + '</div>' +
+      '<div class="stp-title">' + esc(t.title) + (t.kind === "illustrative" ? ' <span class="badge">' + esc(t.badge || "示意演示，不是真实运行结果") + '</span>' : '') + '</div>' +
       '<div class="stp-main"><div class="stp-code">' + codeHtml + '</div>' +
       '<div class="stp-side"><h3>变量</h3><div class="stp-vars"></div>' +
-      '<div class="stp-arrs"></div><h3>输出</h3><div class="stp-out"></div></div></div>' +
+      '<div class="stp-arrs"></div><div class="stp-tape-box"></div><div class="stp-stack-box"></div><h3>输出</h3><div class="stp-out"></div></div></div>' +
       '<div class="stp-note"></div>' +
       '<div class="stp-ctl">' +
       '<button data-a="reset">⟲ 重来</button><button data-a="prev">◀ 上一步</button>' +
@@ -39,6 +39,8 @@
       vars: this.root.querySelector(".stp-vars"),
       arrs: this.root.querySelector(".stp-arrs"),
       out: this.root.querySelector(".stp-out"),
+      tape: this.root.querySelector(".stp-tape-box"),
+      stack: this.root.querySelector(".stp-stack-box"),
       note: this.root.querySelector(".stp-note"),
       cnt: this.root.querySelector(".cnt"),
       prev: this.root.querySelector('[data-a="prev"]'),
@@ -89,6 +91,31 @@
     return i < 0 ? { vars: {}, arrays: {}, out: "", hl: {}, line: 0, note: "点「下一步」开始。" } : trace.steps[i];
   }
 
+  // 输入流：已读走的变灰，下一个要读的字符高亮；换行显示为 ⏎，空格显示为 ␣
+  function renderTape(tp) {
+    var chars = String(tp.text).split(""), h = '<h3>输入流（cin 从左往右读）</h3><div class="tape">';
+    chars.forEach(function (c, i) {
+      var shown = c === "\n" ? "⏎" : (c === " " ? "␣" : esc(c));
+      var cls = "tc" + (i < tp.pos ? " used" : "") + (i === tp.pos ? " next" : "") + ((c === "\n" || c === " ") ? " ws" : "");
+      h += '<span class="' + cls + '">' + shown + '</span>';
+    });
+    if (tp.pos >= chars.length) h += '<span class="tc next ws">∎</span>';
+    return h + '</div>';
+  }
+
+  // 调用栈：栈底在数组前面，页面上栈顶画在最上面
+  function renderStack(frames, ret) {
+    var h = '<h3>调用栈（上面是当前正在执行的）</h3><div class="cstack">';
+    for (var i = frames.length - 1; i >= 0; i--) {
+      var f = frames[i], vs = "";
+      for (var k in (f.vars || {})) vs += '<span class="var"><b>' + esc(k) + '</b> = ' + esc(f.vars[k]) + '</span>';
+      h += '<div class="frame' + (i === frames.length - 1 ? " top" : "") + '"><b>' + esc(f.fn) + '</b> ' + vs +
+        (f.at ? '<div class="at">' + esc(f.at) + '</div>' : '') + '</div>';
+    }
+    if (ret !== undefined && ret !== null) h += '<div class="ret">↩ 刚刚返回：' + esc(ret) + '</div>';
+    return h + '</div>';
+  }
+
   Stepper.prototype.render = function () {
     var t = this.trace, cur = stateAt(t, this.idx), prev = stateAt(t, this.idx - 1);
     var n = t.steps.length;
@@ -122,13 +149,15 @@
         continue;
       }
       var hls = hl === undefined ? [] : [].concat(hl);
-      ah += '<div class="arr"><span class="name">' + esc(name) + '</span>' +
+      ah += '<div class="arr"><span class="name">' + esc(name) + '</span>' + (data.length ? '' : '<span class="empty">（空）</span>') +
         data.map(function (v, j) {
           var cls = (hls.indexOf(j + base) >= 0 ? " hl" : "") + (v === "?" ? " bad" : "");   // "?" = 越界格，红色警示
           return '<div class="cell' + cls + '"><div class="v">' + esc(v) + '</div><div class="i">' + (j + base) + '</div></div>';
         }).join("") + '</div>';
     }
     this.els.arrs.innerHTML = ah;
+    this.els.tape.innerHTML = cur.tape ? renderTape(cur.tape) : "";
+    this.els.stack.innerHTML = cur.stack ? renderStack(cur.stack, cur.ret) : "";
     this.els.out.textContent = cur.out || "";
     this.els.note.textContent = cur.note || "";
     this.els.cnt.textContent = (this.idx + 1) + " / " + n;
@@ -137,8 +166,31 @@
   };
 
   window.Stepper = Stepper;
+  // data-trace="id"：单个演示；data-traces="id1,id2" data-labels="标签1|标签2"：同一段代码、换一组输入的切换
+  function mountPicker(root) {
+    var ids = root.getAttribute("data-traces").split(","), labels = (root.getAttribute("data-labels") || "").split("|");
+    root.innerHTML = '<div class="pick"><span class="pick-t">换一组输入看看：</span></div><div class="pick-body"></div>';
+    var bar = root.querySelector(".pick"), body = root.querySelector(".pick-body"), cur = null;
+    function show(k) {
+      if (cur) cur.stop();
+      cur = new Stepper(body, ids[k]);
+      root._stepper = cur;
+      var bs = bar.querySelectorAll("button");
+      for (var j = 0; j < bs.length; j++) bs[j].classList.toggle("on", j === k);
+    }
+    ids.forEach(function (id, k) {
+      var b = document.createElement("button");
+      b.textContent = labels[k] || id;
+      b.addEventListener("click", function () { show(k); });
+      bar.appendChild(b);
+    });
+    show(0);
+  }
   window.mountSteppers = function () {
-    var nodes = document.querySelectorAll("[data-trace]");
-    for (var i = 0; i < nodes.length; i++) new Stepper(nodes[i], nodes[i].getAttribute("data-trace"));
+    var nodes = document.querySelectorAll("[data-trace],[data-traces]");
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].hasAttribute("data-traces")) mountPicker(nodes[i]);
+      else new Stepper(nodes[i], nodes[i].getAttribute("data-trace"));
+    }
   };
 })();

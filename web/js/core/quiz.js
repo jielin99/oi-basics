@@ -5,6 +5,7 @@
 
   window.Quiz = {
     mount: function (el, d) {
+      el._quiz = d;                       // 便于冒烟测试读取答案
       el.classList.add("card");
       el.innerHTML =
         '<div class="quiz-q">🤔 ' + esc(d.q) + '</div>' +
