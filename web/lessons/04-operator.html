@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第4课 运算符与表达式（精选演示）</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="04" data-lesson-label="第4课｜运算符">
+<div class="wrap">
+  <div class="topbar">
+    <a href="../index.html">← 目录</a>
+    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../04-运算符与表达式.md">04-运算符与表达式.md</a></span>
+    <button id="btn-present">投屏模式</button>
+  </div>
+
+  <h1>运算符：自增、短路和几个容易写错的比较</h1>
+  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
+
+  <h2>1. 复合赋值：x += 3</h2>
+  <div data-trace="ex-04-01"></div>
+
+  <h2>2. 自增：i++ 和 ++i 到底差在哪？</h2>
+  <p>单独成一句时两者一样。区别只在“被用在表达式里”：<code>a++</code> 先用旧值再加 1，<code>++a</code> 先加 1 再用新值。初赛阅读程序题常考。</p>
+  <div data-trace="ex-04-02"></div>
+  <div id="q1"></div>
+
+  <h2>3. 逻辑运算与短路求值</h2>
+  <div data-trace="ex-04-03"></div>
+  <div id="q2"></div>
+  <div id="q3"></div>
+
+  <h2>4. 容易写错的比较</h2>
+  <div id="q4"></div>
+  <div id="q5"></div>
+  <div id="q6"></div>
+  <div id="q7"></div>
+  <div id="q8"></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把自增的例子敲一遍，再加一行 <code>int e = a-- + --c;</code>，<b>先猜</b> a、c、e 的值，再运行。</li>
+      <li>把 ex-04-03 里的 <code>b</code> 改成 2，再看输出；再把两个条件顺序对调、b 改回 0，亲眼看看会发生什么。</li>
+    </ol>
+    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（运算符优先级、数学函数、闰年判断等）请读第 4 课 md。</p>
+  </div>
+
+  <div id="ask-box" class="card ask-box" style="display:none">
+    <b>🙋 我的问题清单</b>（复制后发给老师）
+    <textarea readonly></textarea>
+    <div class="warn"></div>
+    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+  </div>
+</div>
+
+<script src="../data/traces/op-04.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "预测输出：a++ 和 ++b 用在表达式里，会输出什么？", "code": "int a = 3, b = 3;\nint x = a++ * 2;\nint y = ++b * 2;\ncout << x << \" \" << y << \" \" << a << \" \" << b;", "options": ["6 6 4 4", "6 8 3 4", "6 8 4 4", "8 8 4 4"], "answer": 2, "explain": "a++ 先用旧值 3：x = 3 * 2 = 6，之后 a 才变成 4；++b 先加到 4 再用：y = 4 * 2 = 8。输出 6 8 4 4。"});
+  Q("q2", {"q": "把条件的顺序调换：if (a / b > 2 && b != 0)，当 b = 0 时会怎样？", "options": ["输出 safe，和原来一样", "先算左边的 a / b，除以 0，程序运行出错", "编译不通过"], "answer": 1, "explain": "&& 从左往右算。顺序反了，左边的 a / b 会先被计算，b = 0 就是除以 0。（我们真实运行过这段代码：它会异常退出。）所以“保护条件”要写在前面。"});
+  Q("q3", {"q": "预测输出：短路求值会“吞掉”右边的副作用。输出什么？", "code": "int a = 0, b = 5;\nif (a != 0 && ++b > 0) { }\ncout << b;", "options": ["5", "1", "0", "6"], "answer": 0, "explain": "a != 0 为假，右边的 ++b > 0 根本不执行，所以 b 没被加 1，仍然是 5。"});
+  Q("q4", {"q": "预测输出：if (x = 5) 把判断写成了赋值，会输出什么？", "code": "int x = 3;\nif (x = 5) cout << \"five\";\ncout << x;", "options": ["3", "five", "five5", "five3"], "answer": 2, "explain": "x = 5 是赋值：x 变成 5，整个表达式的值是 5（非 0，当作真），所以会输出 five；而且 x 也被改成了 5。输出 five5。判断相等要写 ==。"});
+  Q("q5", {"q": "预测输出：想判断 x 在 1 到 10 之间，写成了 1 < x < 10，x = 20 时输出什么？", "code": "int x = 20;\nif (1 < x < 10) cout << \"yes\";\nelse cout << \"no\";", "options": ["no", "编译错误", "yes"], "answer": 2, "explain": "1 < x < 10 会被拆成 (1 < x) < 10：先算 1 < 20 得到 true（也就是 1），再算 1 < 10，成立，所以输出 yes。要写成 1 < x && x < 10。"});
+  Q("q6", {"q": "预测输出：把 && 写成 &，结果会一样吗？", "code": "int a = 1, b = 2;\nif (a & b) cout << \"yes\"; else cout << \"no\";\nif (a && b) cout << \"yes\"; else cout << \"no\";", "options": ["yesyes", "noyes", "yesno", "nono"], "answer": 1, "explain": "& 是按位与：1 & 2 的二进制 01 & 10 = 00 = 0（假）；&& 是逻辑与：两边都非零，为真。所以输出 noyes。有时碰巧对，有时错，别混用。"});
+  Q("q7", {"q": "预测输出：用 == 比较小数，会输出什么？", "code": "double a = 0.1 + 0.2;\nif (a == 0.3) cout << \"equal\";\nelse cout << \"not equal\";", "options": ["not equal", "equal"], "answer": 0, "explain": "小数在计算机里有微小的误差，0.1 + 0.2 并不恰好等于 0.3。要写 fabs(a - 0.3) < 1e-9。这里输出 not equal。"});
+  Q("q8", {"q": "要算整数的乘方（比如 3 的 5 次方）再放进 int，更稳妥的写法是？", "options": ["(int)pow(3, 5)，库函数肯定没问题", "用循环自己一个一个乘", "3 ^ 5"], "answer": 1, "explain": "pow 返回 double，用来算整数乘方可能有微小误差（偶尔会少 1）；^ 在 C++ 里是异或，不是乘方。整数乘方请用循环自己乘。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第6课 循环结构（精选演示）</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="06" data-lesson-label="第6课｜循环">
+<div class="wrap">
+  <div class="topbar">
+    <a href="../index.html">← 目录</a>
+    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../06-循环结构.md">06-循环结构.md</a></span>
+    <button id="btn-present">投屏模式</button>
+  </div>
+
+  <h1>循环：一圈一圈重复做事</h1>
+  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
+
+  <h2>1. for 循环：初始化 → 判断 → 循环体 → 更新</h2>
+  <p><code>for (int i = 1; i &lt;= 3; i++)</code> 的执行顺序：<b>先初始化一次</b>，然后反复“判断 → 循环体 → 更新”，直到判断不成立。注意最后一次判断失败时，循环体不会执行。</p>
+  <div data-trace="loop-sum"></div>
+  <div id="q1"></div>
+  <div id="q2"></div>
+  <div id="q3"></div>
+  <div id="q4"></div>
+  <div id="q5"></div>
+
+  <h2>2. break 和 continue</h2>
+  <p><code>continue</code>：跳过这一圈剩下的代码，去做更新、进入下一圈。<code>break</code>：整个循环马上结束。</p>
+  <div data-trace="ex-06-01"></div>
+  <div id="q6"></div>
+
+  <h2>3. 拆数位：while + % 10 + / 10</h2>
+  <p><code>n % 10</code> 取出个位，<code>n / 10</code> 去掉个位。重复到 n 变成 0，就把每一位都处理了。</p>
+  <div data-trace="ex-06-02"></div>
+  <div id="q7"></div>
+
+  <h2>4. 判断质数：只试到 √n</h2>
+  <p>如果 n = a × b 且 a ≤ b，那么 a ≤ √n，所以只需要试到 √n。写成 <code>i &lt;= n / i</code>，既避免浮点误差，也避免 <code>i * i</code> 溢出。点上面的按钮可以换一个 n 再看一遍。</p>
+  <div data-traces="ex-06-03a,ex-06-03b" data-labels="n = 7（质数）|n = 15（不是质数）"></div>
+
+  <h2>5. 嵌套循环：打印图形</h2>
+  <p><b>外层管“第几行”，内层管“这一行打印什么”</b>。先在纸上写出每一行的行号和星号数，找到它们的关系，再写代码。</p>
+  <div data-trace="ex-06-04"></div>
+  <div id="q8"></div>
+  <div id="q9"></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把拆数位的例子敲一遍，把 <code>n</code> 改成你的生日（如 20120315），<b>先猜</b>数位和与反转数，再运行。</li>
+      <li>把直角三角形改成 5 行；再试试改成“每行 <code>2*i-1</code> 个星”，看看图形怎么变。</li>
+      <li>做洛谷入门题单里“循环结构”那一组题（题号见 md）。</li>
+    </ol>
+    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（do-while、求最值、九九乘法表、死循环调试等）请读第 6 课 md。</p>
+  </div>
+
+  <div id="ask-box" class="card ask-box" style="display:none">
+    <b>🙋 我的问题清单</b>（复制后发给老师）
+    <textarea readonly></textarea>
+    <div class="warn"></div>
+    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+  </div>
+</div>
+
+<script src="../data/traces/loop-demo.js"></script>
+<script src="../data/traces/loop-06.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "上面的循环里，条件 i <= 3 一共被判断了几次？", "options": ["3 次", "4 次", "5 次"], "answer": 1, "explain": "i 为 1、2、3 时成立（3 次），i 变成 4 时还要判断一次才发现不成立，所以是 4 次。"});
+  Q("q2", {"q": "变一变：把步长改成 i += 2，会输出什么？", "code": "for (int i = 1; i <= 7; i += 2) {\n    cout << i << \" \";\n}", "options": ["1 3 5 7", "3 5 7", "1 2 3 4 5 6 7", "1 3 5"], "answer": 0, "explain": "i 从 1 开始，每圈加 2：1、3、5、7，7 <= 7 还成立，所以是 1 3 5 7。"});
+  Q("q3", {"q": "预测输出：for 括号后面多写了一个分号，会输出什么？", "code": "int s = 0, i;\nfor (i = 1; i <= 3; i++);\ns += i;\ncout << s;", "options": ["6", "0", "4", "3"], "answer": 2, "explain": "多出来的 ; 让循环体变成了空语句：循环空转到 i 变成 4 才结束，然后 s += i 只执行一次，s = 0 + 4 = 4。"});
+  Q("q4", {"q": "想输出累计和 1 3 6，但 sum 的初始化写在了循环里面，实际输出是什么？", "code": "for (int i = 1; i <= 3; i++) {\n    int sum = 0;\n    sum += i;\n    cout << sum << \" \";\n}", "options": ["6", "1 3 6", "1 2 3", "0 0 0"], "answer": 2, "explain": "每一圈都会重新执行 int sum = 0，上一圈的结果被清掉了，所以只能看到 1 2 3。累加变量要放在循环外面初始化。"});
+  Q("q5", {"q": "求 1 + 2 + … + 100000 的和（约 50 亿），累加变量 sum 应该用什么类型？", "options": ["int", "long long", "char"], "answer": 1, "explain": "1 到 100000 的和是 5000050000，超过 int 的最大值 2147483647（约 21 亿），要用 long long。"});
+  Q("q6", {"q": "预测输出：break 在内层循环里，跳出的是哪一层？", "code": "for (int i = 1; i <= 2; i++) {\n    for (int j = 1; j <= 3; j++) {\n        if (j == 2) break;\n        cout << i << j << \" \";\n    }\n}", "options": ["11", "11 21", "11 12", "11 12 13 21 22 23"], "answer": 1, "explain": "break 只跳出最内层的那个循环（j 的循环）。i = 1 时 j = 2 就跳出；外层 i 继续，i = 2 时再来一遍，所以是 11 21。"});
+  Q("q7", {"q": "变一变：如果 n 是 405，这段代码会输出什么？", "code": "int n = 405, digitSum = 0, rev = 0;\nwhile (n > 0) {\n    int d = n % 10;\n    digitSum += d;\n    rev = rev * 10 + d;\n    n /= 10;\n}\ncout << digitSum << \" \" << rev;", "options": ["9 54", "5 504", "9 405", "9 504"], "answer": 3, "explain": "5、0、4 依次取出：数位和 9；rev 依次是 5、50、504，所以反转数是 504（前导的 0 在末尾）。输出 9 504。"});
+  Q("q8", {"q": "for 括号里的三部分用逗号分隔：for (int i = 1, i <= 3, i++)，会怎样？", "options": ["正常运行，输出 1 2 3", "编译不通过：三部分必须用分号分隔", "死循环"], "answer": 1, "explain": "for 的三部分是用分号 ; 隔开的，写成逗号编译器会报错。（Python 程序员容易写错的地方。）"});
+  Q("q9", {"q": "在 for 里声明了 int i，循环结束后还想用 i：cout << i; 会怎样？", "options": ["输出 4", "输出 3", "编译不通过：出了循环，i 就不存在了"], "answer": 2, "explain": "在 for 里声明的变量只在这个 for 里面有效。如果循环结束后还要用 i，要把 int i 声明在 for 外面。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

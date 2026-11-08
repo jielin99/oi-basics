@@ -110,6 +110,16 @@ def compile_fails(code, pre=""):
         return subprocess.run(["g++", "-std=c++11", cpp, "-o", os.path.join(d, "a")], capture_output=True, text=True).returncode != 0
 
 
+def crashes(code, pre=""):
+    """能编译、但运行时非正常退出（如除以 0）。用来核实“这样写会出错”的断言。"""
+    with tempfile.TemporaryDirectory() as d:
+        cpp, exe = os.path.join(d, "a.cpp"), os.path.join(d, "a")
+        open(cpp, "w").write(INC + pre + "\n" + code)
+        c = subprocess.run(["g++", "-std=c++11", cpp, "-o", exe], capture_output=True, text=True)
+        assert c.returncode == 0, c.stderr
+        return subprocess.run([exe], capture_output=True, text=True, timeout=5).returncode != 0
+
+
 # ---------------- 页面 ----------------
 PAGE = """<!doctype html>
 <html lang="zh-CN">
