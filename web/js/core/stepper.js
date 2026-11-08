@@ -27,7 +27,7 @@
     this.root.innerHTML =
       '<div class="stp-title">' + esc(t.title) + (t.kind === "illustrative" ? ' <span class="badge">' + esc(t.badge || "示意演示，不是真实运行结果") + '</span>' : '') + '</div>' +
       '<div class="stp-main"><div class="stp-code">' + codeHtml + '</div>' +
-      '<div class="stp-side"><h3>变量</h3><div class="stp-vars"></div>' +
+      '<div class="stp-side"><h3 class="vh">变量</h3><div class="stp-vars"></div>' +
       '<div class="stp-arrs"></div><div class="stp-tape-box"></div><div class="stp-stack-box"></div><h3>输出</h3><div class="stp-out"></div></div></div>' +
       '<div class="stp-note"></div>' +
       '<div class="stp-ctl">' +
@@ -155,6 +155,10 @@
           return '<div class="cell' + cls + '"><div class="v">' + esc(v) + '</div><div class="i">' + (j + base) + '</div></div>';
         }).join("") + '</div>';
     }
+    // 演示里用了调用栈时，变量都画在各个栈帧里，隐藏单独的"变量"栏
+    var hasStack = !!(t.steps[0] && t.steps[0].stack);
+    this.els.vars.style.display = hasStack ? "none" : "";
+    this.root.querySelector(".vh").style.display = hasStack ? "none" : "";
     this.els.arrs.innerHTML = ah;
     this.els.tape.innerHTML = cur.tape ? renderTape(cur.tape) : "";
     this.els.stack.innerHTML = cur.stack ? renderStack(cur.stack, cur.ret) : "";
@@ -169,7 +173,7 @@
   // data-trace="id"：单个演示；data-traces="id1,id2" data-labels="标签1|标签2"：同一段代码、换一组输入的切换
   function mountPicker(root) {
     var ids = root.getAttribute("data-traces").split(","), labels = (root.getAttribute("data-labels") || "").split("|");
-    root.innerHTML = '<div class="pick"><span class="pick-t">换一组输入看看：</span></div><div class="pick-body"></div>';
+    root.innerHTML = '<div class="pick"><span class="pick-t">切换对比：</span></div><div class="pick-body"></div>';
     var bar = root.querySelector(".pick"), body = root.querySelector(".pick-body"), cur = null;
     function show(k) {
       if (cur) cur.stop();

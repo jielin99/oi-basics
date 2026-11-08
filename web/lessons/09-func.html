@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第9课 函数与递归（精选演示）</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="09" data-lesson-label="第9课｜函数与递归">
+<div class="wrap">
+  <div class="topbar">
+    <a href="../index.html">← 目录</a>
+    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../09-函数与递归.md">09-函数与递归.md</a></span>
+    <button id="btn-present">投屏模式</button>
+  </div>
+
+  <h1>函数与递归：复印件、原件和调用栈</h1>
+  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
+
+  <h2>1. 值传递和引用传递</h2>
+  <p>C++ 里函数的参数<b>默认都是“复印件”</b>。想让函数改动外面的变量，要在参数类型后面加 <code>&amp;</code>。点上面的按钮对比两种写法：</p>
+  <div data-traces="ex-09-01a,ex-09-01b" data-labels="值传递（复印件）|引用传递（int &x）"></div>
+  <div id="q1"></div>
+  <div id="q2"></div>
+  <div id="q3"></div>
+
+  <h2>2. 局部变量和全局变量</h2>
+  <div id="q4"></div>
+
+  <h2>3. 递归：函数调用自己</h2>
+  <p>先拿很小的 n 把过程一层一层展开：<b>谁在暂停等待、每一层的 n 是多少、结果按什么顺序返回</b>。右边的调用栈，最上面是当前正在执行的函数。</p>
+  <div data-trace="ex-09-02"></div>
+  <div id="q5"></div>
+  <div id="q6"></div>
+  <div id="q7"></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把 fact 敲一遍，在函数开头加一行 <code>cout &lt;&lt; "进入 " &lt;&lt; n &lt;&lt; "\n";</code>，看看输出顺序是不是和上面的调用栈一样。</li>
+      <li>把 mySwap 的参数加上 <code>&amp;</code>，再运行，看看输出怎么变。</li>
+    </ol>
+    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（记忆化、汉诺塔、全局变量等）请读第 9 课 md。</p>
+  </div>
+
+  <div id="ask-box" class="card ask-box" style="display:none">
+    <b>🙋 我的问题清单</b>（复制后发给老师）
+    <textarea readonly></textarea>
+    <div class="warn"></div>
+    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+  </div>
+</div>
+
+<script src="../data/traces/func-09.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "预测输出：mySwap 的参数忘了写 &，交换成功吗？", "code": "void mySwap(int a, int b) {\n    int t = a; a = b; b = t;\n}\nint main() {\n    int x = 1, y = 2;\n    mySwap(x, y);\n    cout << x << \" \" << y;\n}", "options": ["1 2", "2 1", "2 2"], "answer": 0, "explain": "没有 & 的参数是复印件，交换的只是函数里的两份复印件，main 里的 x、y 纹丝不动，输出 1 2。写成 int &a, int &b 才能真正交换。"});
+  Q("q2", {"q": "预测输出：用引用“返回”多个结果：", "code": "void divide(int a, int b, int &q, int &r) {\n    q = a / b;\n    r = a % b;\n}\nint main() {\n    int q, r;\n    divide(17, 5, q, r);\n    cout << q << \" \" << r;\n}", "options": ["17 5", "2 3", "0 0", "3 2"], "answer": 3, "explain": "q 和 r 是引用，函数里给它们赋值，就是在改 main 里的 q 和 r。17 / 5 = 3 余 2，输出 3 2。"});
+  Q("q3", {"q": "预测输出：数组传进函数不是复印件。输出什么？", "code": "void fill(int a[], int n) {\n    for (int i = 1; i <= n; i++) a[i] = i * i;\n}\nint b[5];\nint main() {\n    fill(b, 3);\n    cout << b[1] << \" \" << b[2] << \" \" << b[3];\n}", "options": ["0 0 0", "1 4 9", "1 2 3"], "answer": 1, "explain": "数组传进函数时，函数里改的就是原数组（不是复印件），所以 main 里能看到修改。输出 1 4 9。"});
+  Q("q4", {"q": "预测输出：局部变量和全局变量同名，会“遮住”全局的。输出什么？", "code": "int n = 10;\nvoid show() { cout << n; }\nint main() {\n    int n = 5;\n    show();\n    cout << \" \" << n;\n}", "options": ["10 10", "10 5", "5 10", "5 5"], "answer": 1, "explain": "show() 里用的是全局的 n（10）；main 里又声明了一个局部的 n（5），把全局的遮住了。main 里的 n 和全局的 n 是两个不同的变量。输出 10 5。"});
+  Q("q5", {"q": "fact 函数没有写出口（去掉 if (n == 0) return 1;），调用 fact(3) 会怎样？", "options": ["正常算出 6", "无限递归，栈溢出，程序崩溃（RE）", "输出 0"], "answer": 1, "explain": "没有出口，函数会一直调用自己，栈帧越叠越多，直到栈用完程序崩溃。我们真实运行过这种写法，它确实会异常退出。出口写错也一样。"});
+  Q("q6", {"q": "一个有返回值的函数，有的路径忘了写 return，会怎样？", "options": ["自动返回 0，没问题", "这是程序错误，结果不可靠，甚至可能崩溃", "编译一定不通过"], "answer": 1, "explain": "不是“返回一个随机数”那么简单，而是程序出错，后果不可预料。加 -Wall 编译，编译器会警告 control reaches end of non-void function。"});
+  Q("q7", {"q": "递归为什么慢？数一数：求 fib(5) 一共调用了几次 fib 函数？", "code": "int cnt = 0;\nint fib(int n) {\n    cnt++;\n    if (n <= 2) return 1;\n    return fib(n - 1) + fib(n - 2);\n}\nint main() {\n    fib(5);\n    cout << cnt;\n}", "options": ["15", "5", "6", "9"], "answer": 3, "explain": "fib(5) 要调用 fib(4) 和 fib(3)，它们又各自往下调用……同一个值被反复计算（fib(3) 就算了 2 次）。一共 9 次，n 一大次数暴增，所以要用“记忆化”。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>
