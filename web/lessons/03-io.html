@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第3课 输入输出（精选演示）</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="03" data-lesson-label="第3课｜输入输出">
+<div class="wrap">
+  <div class="topbar">
+    <a href="../index.html">← 目录</a>
+    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../03-输入输出.md">03-输入输出.md</a></span>
+    <button id="btn-present">投屏模式</button>
+  </div>
+
+  <h1>输入输出：cin 怎么读数据，printf 怎么排版</h1>
+  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
+
+  <h2>1. cin 是怎么读数据的</h2>
+  <p>输入的内容像一条“传送带”，<b>cin 从左往右一个一个读</b>：先跳过空白，再读一个和变量类型匹配的内容，读到空白就停。灰色划掉的是已经读走的，黄色是下一个要读的位置。</p>
+  <div data-traces="ex-03-01a,ex-03-01b" data-labels="数字用空格隔开|数字分两行输入"></div>
+  <div id="q1"></div>
+
+  <h2>2. 读到输入结束</h2>
+  <div data-trace="ex-03-02"></div>
+
+  <h2>3. 控制输出格式：printf</h2>
+  <p>下面的小工具可以试各种格式（和真实 C++ 的 printf 逐项对照过）。<b>%.2f</b> 保留两位小数，数字是宽度，<b>-</b> 左对齐，<b>0</b> 补零。</p>
+  <div data-calc="fmt"></div>
+  <div id="q2"></div>
+  <div id="q3"></div>
+
+  <h2>4. 几个容易错的地方</h2>
+  <div id="q4"></div>
+  <div id="q5"></div>
+  <div id="q6"></div>
+  <div id="q7"></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把 cin 的例子敲一遍，输入 <code>12 30</code> 和分两行输入各试一次，看看结果是不是一样。</li>
+      <li>把总分、平均分的例子用 scanf/printf 敲一遍：输入 <code>90 85 77</code>，看看保留两位小数的平均分。</li>
+    </ol>
+    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（scanf 完整用法、cout 保留小数、加速等）请读第 3 课 md。</p>
+  </div>
+
+  <div id="ask-box" class="card ask-box" style="display:none">
+    <b>🙋 我的问题清单</b>（复制后发给老师）
+    <textarea readonly></textarea>
+    <div class="warn"></div>
+    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+  </div>
+</div>
+
+<script src="../data/traces/io-03.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "预测输出：cin 读 char 会跳过空白。输入是“A B”：", "code": "char c1, c2;\ncin >> c1 >> c2;\ncout << c1 << c2;", "options": ["AB", "A", "A B", "BA"], "answer": 0, "explain": "cin 读 char 时会先跳过空格和换行，读一个非空白字符。第二个读到的是 B，不是空格。输出 AB。"});
+  Q("q2", {"q": "预测输出：宽度、对齐、补 0（方括号只是帮你看清空格）：", "code": "printf(\"[%5d][%-5d][%05d]\", 42, 42, 42);", "options": ["[00042][42   ][   42]", "[42][42][42]", "[   42][42   ][00042]"], "answer": 2, "explain": "%5d 宽度 5、右对齐，前面补空格；%-5d 左对齐，后面补空格；%05d 前面补 0。输出 [   42][42   ][00042]。"});
+  Q("q3", {"q": "预测输出：求平均数，3.0 不能写成 3：", "code": "double a = 7 / 2;\ndouble b = 7 / 2.0;\nprintf(\"%.2f %.2f\", a, b);", "options": ["3 3.5", "3.50 3.50", "3.00 3.50", "3.00 3.00"], "answer": 2, "explain": "7 / 2 两边都是整数，是整数除法，得 3，再变成 3.00；7 / 2.0 才是小数除法，得 3.50。%.2f 表示保留 2 位小数。输出 3.00 3.50。"});
+  Q("q4", {"q": "scanf 读普通 int 变量，写成 scanf(\"%d\", n); 忘了 & 会怎样？", "options": ["没问题，一样能读", "行为没有保证：常见是程序崩溃，也可能读出错误的值", "编译一定不通过"], "answer": 1, "explain": "scanf 要知道把读到的数放在哪，所以普通变量前要加 &（传地址，第 12 课解释原因）。忘了 & 编译常常能通过，但运行结果没有保证。"});
+  Q("q5", {"q": "用 scanf 读 double 变量应该用哪个格式符？", "options": ["%f", "%lf", "%d"], "answer": 1, "explain": "scanf 读 double 要用 %lf（printf 输出 double 用 %f 就行）。用 %f 读会读出错误的值。读 long long 要用 %lld，不能用 %d。"});
+  Q("q6", {"q": "比赛的程序里写了 cout << \"请输入 n：\"; 会怎样？", "options": ["没关系，只是提示", "输出多了文字，评测会判 WA（答案错误）", "评测会自动忽略"], "answer": 1, "explain": "评测是把你的输出和标准答案逐字比对的。比赛程序只输出题目要求的内容，不要有任何提示文字。"});
+  Q("q7", {"q": "加了 ios::sync_with_stdio(false); 加速以后，可以混用 cin 和 scanf 吗？", "options": ["可以，没有影响", "不可以，会导致输入输出顺序乱掉；要么全用 C++ 风格，要么全用 C 风格", "只有 cout 和 printf 不能混用"], "answer": 1, "explain": "加速以后，不能再混用 cin 和 scanf（或 cout 和 printf）。初学时一个程序里只选一种风格。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>

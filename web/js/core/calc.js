@@ -42,10 +42,10 @@
 
   // ---- printf 格式：%d %5d %-5d %05d %.2f %8.3f ----
   // 小数舍入按 C 的规则（精确二进制值，恰好一半时取偶数位），不用 toFixed 的"取较大"
-  C.toFixedC = function (x, p) {
+  C.fixedC = function (x, p) {
     var neg = x < 0 || (x === 0 && 1 / x < 0), s = Math.abs(x).toFixed(p + 30);
     var dot = s.indexOf("."), ip = s.slice(0, dot), fr = s.slice(dot + 1), keep = fr.slice(0, p), rest = fr.slice(p);
-    var up = false, c = rest.charCodeAt(0) - 48;
+    var up = false, c = rest.charCodeAt(0) - 48, tie = c === 5 && !/[1-9]/.test(rest.slice(1));
     if (c > 5) up = true;
     else if (c === 5) {
       var last = (keep.length ? keep : ip).slice(-1).charCodeAt(0) - 48;
@@ -54,12 +54,13 @@
     var digits = ip + keep, len = digits.length;
     if (up) { digits = (BigInt(digits) + 1n).toString(); while (digits.length < len) digits = "0" + digits; }
     var ilen = digits.length - p, res = digits.slice(0, ilen) + (p > 0 ? "." + digits.slice(ilen) : "");
-    return (neg ? "-" : "") + res;
+    return { text: (neg ? "-" : "") + res, tie: tie };
   };
+  C.toFixedC = function (x, p) { return C.fixedC(x, p).text; };
   C.format = function (spec, text) {
     var m = /^%([-0]?)(\d*)(?:\.(\d+))?([df])$/.exec(spec);
     if (!m) return { err: "不支持的格式" };
-    var left = m[1] === "-", zero = m[1] === "0", w = m[2] ? +m[2] : 0, conv = m[4], body;
+    var left = m[1] === "-", zero = m[1] === "0", w = m[2] ? +m[2] : 0, conv = m[4], body, tie = false;
     if (conv === "d") {
       if (!/^-?\d+$/.test(text)) return { err: "%d 只能配整数（给 %d 传小数是错误用法）" };
       var n = BigInt(text);
@@ -68,14 +69,15 @@
     } else {
       var x = Number(text);
       if (text.trim() === "" || !isFinite(x) || Math.abs(x) >= 1e15) return { err: "请输入一个不太大的数" };
-      body = C.toFixedC(x, m[3] === undefined ? 6 : +m[3]);
+      var fx = C.fixedC(x, m[3] === undefined ? 6 : +m[3]);
+      body = fx.text; tie = fx.tie;
     }
     if (body.length < w) {
       if (left) body = body + " ".repeat(w - body.length);
       else if (zero) { var sg = body[0] === "-" ? "-" : ""; body = sg + "0".repeat(w - body.length) + body.slice(sg.length); }
       else body = " ".repeat(w - body.length) + body;
     }
-    return { text: body };
+    return { text: body, tie: tie };
   };
 
   window.CalcCore = C;
@@ -175,12 +177,13 @@
 
   UI.fmt = function (root) {
     root.innerHTML = '<div class="card calc"><div class="calc-t">🖨️ printf 格式试一试</div>' +
-      '<div class="calc-row"><code>printf("</code><select id="f"><option>%d</option><option>%5d</option><option>%-5d</option><option>%05d</option><option>%.2f</option><option>%8.3f</option><option>%.0f</option><option>%5.1f</option></select><code>", </code>' +
+      '<div class="calc-row"><code>printf("</code><select id="f"><option>%d</option><option>%5d</option><option>%-5d</option><option>%05d</option><option>%.2f</option><option>%8.3f</option><option>%5.1f</option></select><code>", </code>' +
       '<input id="v" value="3.14159" inputmode="decimal" style="width:8em"><code>);</code></div><div class="calc-out"></div></div>';
     var g = function (i) { return root.querySelector(i); }, out = g(".calc-out");
     function run() {
       var r = C.format(g("#f").value, g("#v").value);
       out.innerHTML = r.err ? '<span class="warn">' + esc(r.err) + '</span>' :
+        (r.tie ? '<div class="calc-bad">⚠️ 这个数恰好落在“5”的边界上（比如 2.5、0.125）。舍入结果和运行环境有关，不同电脑可能不一样——本阶段不要背这类结果。这里显示的是 Linux 上的结果。</div>' : '') +
         '<div>屏幕上显示（两边的 | 只是帮你看清空格）：</div><div class="stp-out">|' + esc(r.text).replace(/ /g, "␣") + '|</div>' +
         '<div class="calc-tip"><code>%d</code> 是整数；<code>%.2f</code> 保留 2 位小数（四舍五入）；数字是宽度，<code>-</code> 左对齐，<code>0</code> 用 0 补位。' +
         ' 上面的 ␣ 表示一个空格。</div>';

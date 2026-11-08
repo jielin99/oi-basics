@@ -111,3 +111,11 @@ button.primary:hover:not(:disabled) { background: #1d4ed8; }
 .calc-bad { background: var(--bad-soft); border-radius: 10px; padding: 6px 12px; margin-top: 6px; }
 .calc-tip { background: var(--accent-soft); border-radius: 10px; padding: 6px 12px; margin-top: 6px; font-size: .9rem; }
 @media (max-width: 720px) { .calc-tbl { display: block; overflow-x: auto; } }
+.quiz-opts button { white-space: pre-wrap; }
+
+/* 编译运行流程卡 */
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+.flow .box { flex: 1 1 140px; border: 2px solid var(--line); border-radius: 12px; padding: 8px 12px; background: #fff; text-align: center; }
+.flow .box small { display: block; color: var(--muted); font-size: .75rem; margin-top: 2px; }
+.flow .arrow { align-self: center; font-size: 1.4rem; color: var(--muted); }
+.flow .box.err { border-color: #f59e0b; background: #fffbeb; }

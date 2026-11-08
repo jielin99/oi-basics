@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第8课 字符与字符串（精选演示）</title>
+<link rel="stylesheet" href="../css/base.css">
+</head>
+<body data-lesson="08" data-lesson-label="第8课｜字符与字符串">
+<div class="wrap">
+  <div class="topbar">
+    <a href="../index.html">← 目录</a>
+    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../08-字符与字符串.md">08-字符与字符串.md</a></span>
+    <button id="btn-present">投屏模式</button>
+  </div>
+
+  <h1>字符与字符串：ASCII、string 和 getline</h1>
+  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
+
+  <h2>1. char 和 ASCII 码</h2>
+  <p>每个字符在计算机里都对应一个整数。<b>必须记住三段</b>：<code>'0'~'9'</code> 是 48~57，<code>'A'~'Z'</code> 是 65~90，<code>'a'~'z'</code> 是 97~122；同类字符连续编号，小写 = 大写 + 32。</p>
+  <div data-calc="ascii"></div>
+  <div id="q1"></div>
+  <div id="q2"></div>
+  <div id="q3"></div>
+
+  <h2>2. string：一排字符</h2>
+  <div data-trace="ex-08-01"></div>
+  <div id="q4"></div>
+  <div id="q5"></div>
+  <div id="q6"></div>
+
+  <h2>3. 读一整行：cin 后面接 getline 的经典坑</h2>
+  <p><code>cin &gt;&gt; n</code> 读完数字，<b>换行符还留在输入里</b>。对比一下两种写法：</p>
+  <div data-traces="ex-08-02a,ex-08-02b" data-labels="直接 getline（读到空行）|先多读一次（正确）"></div>
+  <div id="q7"></div>
+
+  <h2>4. 统计字母：c - 'a' 当桶的下标</h2>
+  <div data-trace="ex-08-03"></div>
+
+  <div class="card">
+    <b>✍️ 回到 Dev-C++ 自己试一试</b>
+    <ol>
+      <li>把统计字母的例子敲一遍，输入你的英文名，看每个字母出现几次。</li>
+      <li>把“先 cin >> n 再 getline”的两种写法都敲一遍，输入 <code>3</code> 换行 <code>abc</code>，亲眼看看区别。</li>
+    </ol>
+    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（string 常用函数、char 数组等）请读第 8 课 md。</p>
+  </div>
+
+  <div id="ask-box" class="card ask-box" style="display:none">
+    <b>🙋 我的问题清单</b>（复制后发给老师）
+    <textarea readonly></textarea>
+    <div class="warn"></div>
+    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+  </div>
+</div>
+
+<script src="../data/traces/str-08.js"></script>
+<script src="../js/core/page.js"></script>
+<script src="../js/core/stepper.js"></script>
+<script src="../js/core/quiz.js"></script>
+<script src="../js/core/calc.js"></script>
+<script>
+  var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
+  Q("q1", {"q": "预测输出：char 参与运算会变成 int。输出什么？", "code": "char c = 'A';\ncout << c + 1 << \" \" << (char)(c + 1);", "options": ["A 66", "B B", "66 66", "66 B"], "answer": 3, "explain": "c + 1 里 char 先变成 int（65 + 1 = 66），所以输出数字；想要字符 B，要写 (char)(c + 1)。输出 66 B。"});
+  Q("q2", {"q": "预测输出：数字字符怎么变成数字？", "code": "char c = '7';\nint d = c - '0';\ncout << d + 1;", "options": ["55", "8", "56", "7"], "answer": 1, "explain": "'7' 的编码是 55，'0' 是 48，相减得到数字 7，再加 1 就是 8。直接把 '7' 当数字用会得到 55。输出 8。"});
+  Q("q3", {"q": "预测输出：小写变大写：", "code": "char c = 'q';\ncout << (char)(c - 'a' + 'A');", "options": ["Q", "81", "q", "113"], "answer": 0, "explain": "c - 'a' 是它在字母表里的位置，加上 'A' 就是对应的大写字母。（小写 = 大写 + 32）输出 Q。"});
+  Q("q4", {"q": "预测输出：cin >> s 读 string，遇到空格会怎样？输入是“hello world”：", "code": "string s;\ncin >> s;\ncout << s;", "options": ["hello world", "world", "hello", "hello w"], "answer": 2, "explain": "cin >> s 读“一个词”，遇到空格或换行就停，world 还在输入里没被读。要读整行用 getline(cin, s)。输出 hello。"});
+  Q("q5", {"q": "string s = 'a'; 这样写对吗？", "options": ["对，单引号双引号都行", "编译不通过：'a' 是一个字符，字符串要用双引号 \"a\"", "能编译，s 是空串"], "answer": 1, "explain": "单引号是一个字符（char），双引号是字符串。string s = \"a\"; 才得到一个 string。"});
+  Q("q6", {"q": "s 是空串，cout << s.size() - 1; 会输出什么？", "options": ["-1", "0", "一个巨大的正数"], "answer": 2, "explain": "size() 返回的是“无符号整数”，空串时 0 - 1 不会得到 -1，而是回绕成一个巨大的数。所以写 (int)s.size() - 1 更安全。（我们真实运行过：确实输出了一个十位以上的大数。）"});
+  Q("q7", {"q": "预测输出：先 cin >> n，再直接 getline，输入是“3 换行 abc”：", "code": "int n;\nstring line;\ncin >> n;\ngetline(cin, line);\ncout << \"[\" << line << \"]\";", "options": ["[]", "[abc]", "[3]", "[3abc]"], "answer": 0, "explain": "getline 读到的是 n 后面残留的换行，得到空字符串。要在中间多加一句 getline 把它吃掉。输出 []。"});
+  mountSteppers();
+  mountCalcs();
+  PageKit.init();
+</script>
+</body>
+</html>
