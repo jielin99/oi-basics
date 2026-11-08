@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 H = INC + "int main() {\n%SRC%\n    return 0;\n}\n"
 T = []
@@ -120,37 +120,18 @@ q_digit = predict_quiz("变一变：如果 n 是 405，这段代码会输出什�
     "int n = 405, digitSum = 0, rev = 0;\nwhile (n > 0) {\n    int d = n % 10;\n    digitSum += d;\n    rev = rev * 10 + d;\n    n /= 10;\n}\ncout << digitSum << \" \" << rev;",
     ["9 54", "5 504", "9 405"], "5、0、4 依次取出：数位和 9；rev 依次是 5、50、504，所以反转数是 504（中间的 0 也要参与计算）。输出 {real}。")
 
-blocks = [
-    ("h2", "1. for 循环：初始化 → 判断 → 循环体 → 更新"),
-    ("p", "<code>for (int i = 1; i &lt;= 3; i++)</code> 的执行顺序：<b>先初始化一次</b>，然后反复“判断 → 循环体 → 更新”，直到判断不成立。注意最后一次判断失败时，循环体不会执行。"),
-    ("trace", "loop-sum"),
-    ("quiz", quiz("上面的循环里，条件 i <= 3 一共被判断了几次？", ["3 次", "4 次", "5 次"], 1,
-                  "i 为 1、2、3 时成立（3 次），i 变成 4 时还要判断一次才发现不成立，所以是 4 次。")),
-    ("quiz", q_step),
-    ("quiz", q_semi),
-    ("quiz", q_init),
-    ("quiz", q_ll),
-    ("h2", "2. break 和 continue"),
-    ("p", "<code>continue</code>：跳过这一圈剩下的代码，去做更新、进入下一圈。<code>break</code>：整个循环马上结束。"),
-    ("trace", "ex-06-01"),
-    ("quiz", q_break),
-    ("h2", "3. 拆数位：while + % 10 + / 10"),
-    ("p", "<code>n % 10</code> 取出个位，<code>n / 10</code> 去掉个位。重复到 n 变成 0，就把每一位都处理了。"),
-    ("trace", "ex-06-02"),
-    ("quiz", q_digit),
-    ("h2", "4. 判断质数：只试到 √n"),
-    ("p", "如果 n = a × b 且 a ≤ b，那么 a ≤ √n，所以只需要试到 √n。写成 <code>i &lt;= n / i</code>，既避免浮点误差，也避免 <code>i * i</code> 溢出。点上面的按钮可以换一个 n 再看一遍。"),
-    ("picker", ["ex-06-03a", "ex-06-03b"], ["n = 7（质数）", "n = 15（不是质数）"]),
-    ("h2", "5. 嵌套循环：打印图形"),
-    ("p", "<b>外层管“第几行”，内层管“这一行打印什么”</b>。先在纸上写出每一行的行号和星号数，找到它们的关系，再写代码。"),
-    ("trace", "ex-06-04"),
-    ("quiz", q_comma),
-    ("quiz", q_scope),
-    ("task", ["把拆数位的例子敲一遍，把 <code>n</code> 改成你的生日（如 20120315），<b>先猜</b>数位和与反转数，再运行。",
+q_cond = quiz("上面的循环里，条件 i <= 3 一共被判断了几次？", ["3 次", "4 次", "5 次"], 1,
+    "i 为 1、2、3 时成立（3 次），i 变成 4 时还要判断一次才发现不成立，所以是 4 次。")
+
+inserts = {
+    "2.1": [("trace", "loop-sum"), ("quiz", q_cond), ("quiz", q_step)],
+    "2.2": [("trace", "ex-06-01"), ("quiz", q_break)],
+    "2.3": [("trace", "ex-06-02"), ("quiz", q_digit), ("picker", ["ex-06-03a", "ex-06-03b"], ["n = 7（质数）", "n = 15（不是质数）"])],
+    "2.4": [("trace", "ex-06-04")],
+    "3.":  [("quiz", q_semi), ("quiz", q_init), ("quiz", q_comma), ("quiz", q_scope), ("quiz", q_ll)],
+}
+tasks = (["把拆数位的例子敲一遍，把 <code>n</code> 改成你的生日（如 20120315），<b>先猜</b>数位和与反转数，再运行。",
               "把直角三角形改成 5 行；再试试改成“每行 <code>2*i-1</code> 个星”，看看图形怎么变。",
-              "做洛谷入门题单里“循环结构”那一组题（题号见 md）。"],
-     "本页是精选演示，其余内容（do-while、求最值、九九乘法表、死循环调试等）请读第 6 课 md。"),
-]
-path, nq = build_page("06-loop.html", "06", "第6课｜循环", "第6课 循环结构（精选演示）", "循环：一圈一圈重复做事",
-                      INTRO, "06-循环结构.md", blocks, tracefile=["loop-demo.js", "loop-06.js"])
-print("第6课: %d 个演示, %d 道小测" % (len(T) + 1, nq))
+              "做洛谷入门题单里“循环结构”那一组题（题号见 md）。"], "")
+path, nq = build_lesson('06-循环结构.md', '06-loop.html', '第6课｜循环', '06', inserts, ['loop-demo.js', 'loop-06.js'], tasks)
+print("第6课: %d 道小测（正文全文 + 互动）" % nq)

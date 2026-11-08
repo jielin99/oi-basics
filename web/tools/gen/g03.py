@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 H = INC + "int main() {\n%SRC%\n    return 0;\n}\n"
 T = []
@@ -56,26 +56,13 @@ q_mix = quiz("加了 ios::sync_with_stdio(false); 加速以后，可以混用 ci
     ["可以，没有影响", "不可以，会导致输入输出顺序乱掉；要么全用 C++ 风格，要么全用 C 风格", "只有 cout 和 printf 不能混用"], 1,
     "加速以后，不能再混用 cin 和 scanf（或 cout 和 printf）。初学时一个程序里只选一种风格。")
 
-blocks = [
-    ("h2", "1. cin 是怎么读数据的"),
-    ("p", "输入的内容像一条“传送带”，<b>cin 从左往右一个一个读</b>：先跳过空白，再按变量的类型读取（读整数就读数字，读 char 就读一个非空白字符）。灰色划掉的是已经读走的，黄色是下一个要读的位置。"),
-    ("picker", ["ex-03-01a", "ex-03-01b"], ["数字用空格隔开", "数字分两行输入"]),
-    ("quiz", q_char),
-    ("h2", "2. 读到输入结束"),
-    ("trace", "ex-03-02"),
-    ("h2", "3. 控制输出格式：printf"),
-    ("p", "下面的小工具可以试各种格式（和真实 C++ 的 printf 逐项对照过）。<b>%.2f</b> 保留两位小数，数字是宽度，<b>-</b> 左对齐，<b>0</b> 补零。"),
-    ("calc", "fmt"),
-    ("quiz", q_w),
-    ("quiz", q_avg),
-    ("h2", "4. 几个容易错的地方"),
-    ("quiz", q_amp),
-    ("quiz", q_lf),
-    ("quiz", q_prompt),
-    ("quiz", q_mix),
-    ("task", ["把 cin 的例子敲一遍，输入 <code>12 30</code> 和分两行输入各试一次，看看结果是不是一样。",
-              "把总分、平均分的例子用 scanf/printf 敲一遍：输入 <code>90 85 77</code>，看看保留两位小数的平均分。"],
-     "本页是精选演示，其余内容（scanf 完整用法、cout 保留小数、加速等）请读第 3 课 md。"),
-]
-path, nq = build_page("03-io.html", "03", "第3课｜输入输出", "第3课 输入输出（精选演示）", "输入输出：cin 怎么读数据，printf 怎么排版", INTRO, "03-输入输出.md", blocks, tracefile="io-03.js")
-print("第3课: %d 个演示, %d 道小测" % (len(T), nq))
+inserts = {
+    "2.1": [("picker", ["ex-03-01a", "ex-03-01b"], ["数字用空格隔开", "数字分两行输入"]), ("quiz", q_char)],
+    "2.3": [("calc", "fmt"), ("quiz", q_w), ("quiz", q_avg)],
+    "2.4": [("trace", "ex-03-02")],
+    "3.":  [("quiz", q_amp), ("quiz", q_lf), ("quiz", q_prompt), ("quiz", q_mix)],
+}
+tasks = (["把 cin 的例子敲一遍，输入 <code>12 30</code> 和分两行输入各试一次，看看结果是不是一样。",
+              "把总分、平均分的例子用 scanf/printf 敲一遍：输入 <code>90 85 77</code>，看看保留两位小数的平均分。"], "")
+path, nq = build_lesson('03-输入输出.md', '03-io.html', '第3课｜输入输出', '03', inserts, ['io-03.js'], tasks)
+print("第3课: %d 道小测（正文全文 + 互动）" % nq)

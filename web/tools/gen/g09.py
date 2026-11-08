@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 H = INC + "%SRC%\n"          # 本课例子都是完整程序（含函数和 main）
 T = []
@@ -80,25 +80,13 @@ q_fib = predict_quiz("递归为什么慢？数一数：求 fib(5) 一共调用�
     "int cnt = 0;\nint fib(int n) {\n    cnt++;\n    if (n <= 2) return 1;\n    return fib(n - 1) + fib(n - 2);\n}\nint main() {\n    fib(5);\n    cout << cnt;\n}",
     ["5", "6", "15"], "fib(5) 要调用 fib(4) 和 fib(3)，它们又各自往下调用……同一个值被反复计算（fib(3) 就算了 2 次）。一共 {real} 次，n 一大次数暴增，所以要用“记忆化”。", main=False)
 
-blocks = [
-    ("h2", "1. 值传递和引用传递"),
-    ("p", "C++ 里函数的参数<b>默认都是“复印件”</b>。想让函数改动调用者传进来的变量，可以在参数类型后面加 <code>&amp;</code>（引用）。点上面的按钮对比两种写法："),
-    ("picker", ["ex-09-01a", "ex-09-01b"], ["值传递（复印件）", "引用传递（int &x）"]),
-    ("quiz", q_swap),
-    ("quiz", q_div),
-    ("quiz", q_arr),
-    ("h2", "2. 局部变量和全局变量"),
-    ("quiz", q_glob),
-    ("h2", "3. 递归：函数调用自己"),
-    ("p", "先拿很小的 n 把过程一层一层展开：<b>谁在暂停等待、每一层的 n 是多少、结果按什么顺序返回</b>。右边的调用栈，最上面是当前正在执行的函数。"),
-    ("trace", "ex-09-02"),
-    ("quiz", q_exit),
-    ("quiz", q_ret),
-    ("quiz", q_fib),
-    ("task", ["把 fact 敲一遍，在函数开头加一行 <code>cout &lt;&lt; \"进入 \" &lt;&lt; n &lt;&lt; \"\\n\";</code>，看看输出顺序是不是和上面的调用栈一样。",
-              "把 mySwap 的参数加上 <code>&amp;</code>，再运行，看看输出怎么变。"],
-     "本页是精选演示，其余内容（记忆化、汉诺塔、全局变量等）请读第 9 课 md。"),
-]
-path, nq = build_page("09-func.html", "09", "第9课｜函数与递归", "第9课 函数与递归（精选演示）", "函数与递归：复印件、原件和调用栈",
-                      INTRO, "09-函数与递归.md", blocks, tracefile="func-09.js")
-print("第9课: %d 个演示, %d 道小测" % (len(T), nq))
+inserts = {
+    "2.3": [("picker", ["ex-09-01a", "ex-09-01b"], ["值传递（复印件）", "引用传递（int &x）"]), ("quiz", q_swap), ("quiz", q_div)],
+    "2.4": [("quiz", q_arr)],
+    "2.5": [("quiz", q_glob)],
+    "2.6": [("trace", "ex-09-02"), ("quiz", q_exit), ("quiz", q_ret), ("quiz", q_fib)],
+}
+tasks = (["把 fact 敲一遍，在函数开头加一行 <code>cout &lt;&lt; \"进入 \" &lt;&lt; n &lt;&lt; \"\\n\";</code>，看看输出顺序是不是和上面的调用栈一样。",
+              "把 mySwap 的参数加上 <code>&amp;</code>，再运行，看看输出怎么变。"], "")
+path, nq = build_lesson('09-函数与递归.md', '09-func.html', '第9课｜函数与递归', '09', inserts, ['func-09.js'], tasks)
+print("第9课: %d 道小测（正文全文 + 互动）" % nq)

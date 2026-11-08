@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 H = INC + "int main() {\n%SRC%\n    return 0;\n}\n"
 T = []
@@ -54,37 +54,14 @@ q_char = quiz("char grade = \"A\"; 这样写对吗？",
     ["对，字符用双引号", "编译不通过：字符用单引号 'A'，双引号是字符串", "能编译，但 grade 的值是 0"], 1,
     "单引号是一个字符 'A'；双引号是字符串 \"A\"。char 变量只能装一个字符，要用单引号。")
 
-blocks = [
-    ("h2", "1. 常用的数据类型"),
-    ("html", """  <div class="card"><table class="calc-tbl">
-    <tr><th>类型</th><th>存什么</th><th>范围（大约）</th><th>占用</th></tr>
-    <tr><td><code>int</code></td><td>整数</td><td>±2.1×10⁹（约 21 亿）</td><td>4 字节</td></tr>
-    <tr><td><code>long long</code></td><td>大整数</td><td>±9.2×10¹⁸</td><td>8 字节</td></tr>
-    <tr><td><code>double</code></td><td>小数</td><td>约 15~16 位有效数字</td><td>8 字节</td></tr>
-    <tr><td><code>char</code></td><td>一个字符 <code>'a'</code></td><td>—</td><td>1 字节</td></tr>
-    <tr><td><code>bool</code></td><td>真 / 假</td><td>—</td><td>1 字节</td></tr>
-  </table><p style="margin:8px 0 0">不要用 <code>float</code>（精度太低），小数一律用 <code>double</code>。</p></div>"""),
-    ("quiz", q_max),
-    ("h2", "2. 溢出：最隐蔽的错误"),
-    ("p", "先看两种写法的对照（点上面的按钮切换），再自己在计算器里试：把两个数都改成 <code>long long</code>，看结果会怎样。"),
-    ("picker", ["ex-02-01a", "ex-02-01b"], ["long long z = x * y（错）", "(long long)x * y（对）"]),
-    ("calc", "range"),
-    ("quiz", q_ll),
-    ("h2", "3. 整除和取模（和 Python 不一样）"),
-    ("p", "C++ 里两边都是整数的 <code>/</code> 是整除，向 0 取整；<code>%</code> 的符号跟着被除数。试几个负数，和 Python 对比："),
-    ("calc", "div"),
-    ("quiz", q_div),
-    ("h2", "4. 类型转换"),
-    ("trace", "ex-02-02"),
-    ("quiz", q_avg),
-    ("h2", "5. 其他容易错的地方"),
-    ("quiz", q_init),
-    ("quiz", q_char),
-    ("quiz", q_xor),
-    ("task", ["把类型转换的例子敲一遍，把 a、b 改成 <code>9</code> 和 <code>4</code>，<b>先猜</b>四个结果，再运行。",
-              "在 Dev-C++ 里亲自试一下 <code>cout &lt;&lt; 2147483647 + 1;</code>，看看你的电脑上显示什么——然后记住：<b>这不是规律，不要依赖它</b>。"],
-     "本页是精选演示，其余内容（声明变量、拆数位、常量等）请读第 2 课 md。"),
-]
-path, nq = build_page("02-types.html", "02", "第2课｜变量与类型", "第2课 变量与数据类型（精选演示）", "变量与类型：数的范围、整除和类型转换",
-                      INTRO, "02-变量与数据类型.md", blocks, tracefile="type-02.js")
-print("第2课: %d 个演示, %d 道小测, 2 个计算器" % (len(T), nq))
+inserts = {
+    "2.2": [("quiz", q_max)],
+    "2.3": [("picker", ["ex-02-01a", "ex-02-01b"], ["long long z = x * y（错）", "(long long)x * y（对）"]), ("calc", "range"), ("quiz", q_ll)],
+    "2.4": [("calc", "div"), ("quiz", q_div)],
+    "2.5": [("trace", "ex-02-02"), ("quiz", q_avg)],
+    "3.":  [("quiz", q_init), ("quiz", q_char), ("quiz", q_xor)],
+}
+tasks = (["把类型转换的例子敲一遍，把 a、b 改成 <code>9</code> 和 <code>4</code>，<b>先猜</b>四个结果，再运行。",
+              "在 Dev-C++ 里亲自试一下 <code>cout &lt;&lt; 2147483647 + 1;</code>，看看你的电脑上显示什么——然后记住：<b>这不是规律，不要依赖它</b>。"], "")
+path, nq = build_lesson('02-变量与数据类型.md', '02-types.html', '第2课｜变量与类型', '02', inserts, ['type-02.js'], tasks)
+print("第2课: %d 道小测（正文全文 + 互动）" % nq)

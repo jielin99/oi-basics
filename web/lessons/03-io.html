@@ -3,39 +3,104 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>第3课 输入输出（精选演示）</title>
+<title>第 3 课 输入输出：比赛里的 I/O 全套功夫</title>
 <link rel="stylesheet" href="../css/base.css">
 </head>
 <body data-lesson="03" data-lesson-label="第3课｜输入输出">
-<div class="wrap">
-  <div class="topbar">
-    <a href="../index.html">← 目录</a>
-    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../03-输入输出.md">03-输入输出.md</a></span>
-    <button id="btn-present">投屏模式</button>
-  </div>
-
-  <h1>输入输出：cin 怎么读数据，printf 怎么排版</h1>
-  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
-
-  <h2>1. cin 是怎么读数据的</h2>
-  <p>输入的内容像一条“传送带”，<b>cin 从左往右一个一个读</b>：先跳过空白，再按变量的类型读取（读整数就读数字，读 char 就读一个非空白字符）。灰色划掉的是已经读走的，黄色是下一个要读的位置。</p>
-  <div data-traces="ex-03-01a,ex-03-01b" data-labels="数字用空格隔开|数字分两行输入"></div>
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 cin 读入</a></li><li class="l3"><a href="#sec-4">2.2 scanf / printf（C 风格，比赛常用）</a></li><li class="l3"><a href="#sec-5">2.3 控制输出格式（重点）</a></li><li class="l3"><a href="#sec-6">2.4 读入不定数量的数据</a></li><li class="l3"><a href="#sec-7">2.5 加速：数据量大时必用</a></li><li class="l3"><a href="#sec-8">2.6 一个完整例子</a></li><li class="l2"><a href="#sec-9">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-10">4. 课堂练习</a></li><li class="l2"><a href="#sec-11">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-12">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 3 课 输入输出：比赛里的 I/O 全套功夫</h1></div>
+<div data-md><blockquote><p>预计用时：1 周 本课目标：<b>熟练编写</b>一套输入输出（<code>cin/cout</code> 或 <code>scanf/printf</code>），<b>能读懂</b>另一套；会保留指定位数小数；能认出并套用“读入不知道有多少个数据”的写法（第 6 课再要求独立写）；知道加速两行怎么用、加了之后有什么限制。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><pre class="quiz-code"><code># Python
+a, b = map(int, input().split())   # 读一行里的两个整数
+print(f&quot;{3.14159:.2f}&quot;)            # 保留两位小数：3.14</code></pre><pre class="quiz-code"><code>// C++
+int a, b;
+cin &gt;&gt; a &gt;&gt; b;                     // 不管两个数是在一行还是两行，都能读
+printf(&quot;%.2f\n&quot;, 3.14159);         // 3.14</code></pre><p>好消息：<b>C++ 的 <code>cin</code> 比 Python 的 <code>input()</code> 省心</b>——它自动跳过空格和换行，你不用关心数据是怎么分行的。</p></div>
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 <code>cin</code> 读入</h3><pre class="quiz-code"><code>int n;
+double x;
+char c;
+cin &gt;&gt; n &gt;&gt; x &gt;&gt; c;   // 输入 &quot;5 3.2 Q&quot; 或者分三行输入都可以</code></pre><p><code>cin</code> 按<b>变量类型</b>来读：读 <code>int</code> 就读一个整数，读 <code>char</code> 就读一个非空白字符。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-traces="ex-03-01a,ex-03-01b" data-labels="数字用空格隔开|数字分两行输入"></div>
   <div id="q1"></div>
+</div>
 
-  <h2>2. 读到输入结束</h2>
-  <div data-trace="ex-03-02"></div>
-
-  <h2>3. 控制输出格式：printf</h2>
-  <p>下面的小工具可以试各种格式（和真实 C++ 的 printf 逐项对照过）。<b>%.2f</b> 保留两位小数，数字是宽度，<b>-</b> 左对齐，<b>0</b> 补零。</p>
-  <div data-calc="fmt"></div>
+<div data-md><h3 id="sec-4">2.2 <code>scanf</code> / <code>printf</code>（C 风格，比赛常用）</h3><p><code>scanf</code> 和 <code>printf</code> 来自头文件 <code>&lt;cstdio&gt;</code>，需要用<b>格式符</b>告诉它类型：</p><table class="calc-tbl"><tr><th>类型</th><th>格式符</th><th>读入例子</th><th>输出例子</th></tr><tr><td><code>int</code></td><td><code>%d</code></td><td><code>scanf(&quot;%d&quot;, &amp;n);</code></td><td><code>printf(&quot;%d&quot;, n);</code></td></tr><tr><td><code>long long</code></td><td><code>%lld</code></td><td><code>scanf(&quot;%lld&quot;, &amp;x);</code></td><td><code>printf(&quot;%lld&quot;, x);</code></td></tr><tr><td><code>double</code></td><td>读 <code>%lf</code>，写 <code>%f</code></td><td><code>scanf(&quot;%lf&quot;, &amp;d);</code></td><td><code>printf(&quot;%f&quot;, d);</code></td></tr><tr><td><code>char</code></td><td><code>%c</code></td><td><code>scanf(&quot; %c&quot;, &amp;c);</code>（%c 前加空格跳过空白）</td><td><code>printf(&quot;%c&quot;, c);</code></td></tr><tr><td>字符串（char 数组）</td><td><code>%s</code></td><td><code>scanf(&quot;%s&quot;, s);</code>（不加 &amp;）</td><td><code>printf(&quot;%s&quot;, s);</code></td></tr></table><blockquote><p>⚠️ <code>scanf</code> 读入普通的 <code>int</code>、<code>long long</code>、<code>double</code>、<code>char</code> 变量时，要在变量前加 <code>&amp;</code>（传地址，第 12 课解释原因），例如 <code>&amp;n</code>。读入字符数组的 <code>%s</code> 写法不同，按上表示例不加 <code>&amp;</code>。参数写错时程序行为没有保证：可能崩溃，也可能读出错误的值。</p></blockquote></div>
+<div data-md><h3 id="sec-5">2.3 控制输出格式（重点）</h3><pre class="quiz-code"><code>#include &lt;cstdio&gt;
+int main() {
+    double pi = 3.1415926;
+    printf(&quot;%.2f\n&quot;, pi);      // 3.14       保留 2 位小数（四舍五入）
+    printf(&quot;%.0f\n&quot;, 2.5);     // 2 或 3     和运行库有关，不一定是你以为的四舍五入，见易错点
+    printf(&quot;%5d|\n&quot;, 42);      //    42|     宽度 5，右对齐
+    printf(&quot;%-5d|\n&quot;, 42);     // 42   |     宽度 5，左对齐
+    printf(&quot;%05d\n&quot;, 42);      // 00042      宽度 5，前面补 0
+    printf(&quot;%d+%d=%d\n&quot;, 1, 2, 3);   // 1+2=3   可以混在文字里
+    printf(&quot;100%%\n&quot;);         // 100%       输出百分号要写两个 %%
+    return 0;
+}</code></pre><p><code>cout</code> 也能保留小数，但写法啰嗦：</p><pre class="quiz-code"><code>#include &lt;iomanip&gt;
+cout &lt;&lt; fixed &lt;&lt; setprecision(2) &lt;&lt; pi &lt;&lt; &quot;\n&quot;;   // 3.14</code></pre><p><b>建议：初学时一个程序里只选一种风格。</b> 要保留小数、补 0，可以整个程序都用 <code>scanf/printf</code>；也可以全用 <code>cin/cout</code>，小数用上面的 <code>fixed &lt;&lt; setprecision(k)</code>。两种都要能看懂——初赛题和很多题解用的是 <code>scanf/printf</code>。</p><blockquote><p>如果用了 2.5 节的加速两行（模板里有），就只能全用 <code>cin/cout</code>。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-calc="fmt"></div>
   <div id="q2"></div>
   <div id="q3"></div>
+</div>
 
-  <h2>4. 几个容易错的地方</h2>
-  <div id="q4"></div>
+<div data-md><h3 id="sec-6">2.4 读入不定数量的数据</h3><p>题目说“输入若干个整数，直到文件结束”：</p><pre class="quiz-code"><code>int x, sum = 0;
+while (cin &gt;&gt; x) {        // 读成功返回 true，读到末尾返回 false
+    sum += x;
+}
+cout &lt;&lt; sum &lt;&lt; &quot;\n&quot;;</code></pre><p><code>scanf</code> 版本：<code>while (scanf(&quot;%d&quot;, &amp;x) == 1) { ... }</code>——返回值是“成功读到了几个数”，等于 1 才继续。（有的资料写 <code>!= EOF</code>，它只判断“文件结束”，遇到读不成数字的内容时会一直循环下去。）</p><blockquote><p>在本地测试时，输完数据后按 <code>Ctrl+Z</code> 再回车（Windows）表示“输入结束”。</p></blockquote><p>题目说“先输入 n，再输入 n 个数”（<b>最常见</b>）：</p><pre class="quiz-code"><code>int n;
+cin &gt;&gt; n;
+for (int i = 1; i &lt;= n; i++) {   // 循环第 6 课细讲，这里先照抄
+    int x;
+    cin &gt;&gt; x;
+    // 处理 x
+}</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-03-02"></div>
+</div>
+
+<div data-md><h3 id="sec-7">2.5 加速：数据量大时必用</h3><p><code>cin/cout</code> 默认比较慢。读入超过 10⁵ 个数时，在 <code>main</code> 开头加两行：</p><pre class="quiz-code"><code>ios::sync_with_stdio(false);
+cin.tie(nullptr);</code></pre><blockquote><p>⚠️ 加了这两行以后，<b>不能再混用 <code>cin</code> 和 <code>scanf</code></b>（或 <code>cout</code> 和 <code>printf</code>），否则输出顺序会乱。要么全用 C++ 风格，要么全用 C 风格。</p></blockquote></div>
+<div data-md><h3 id="sec-8">2.6 一个完整例子</h3><blockquote><p>输入一个学生的语文、数学、英语成绩（整数），输出总分和平均分（保留 2 位小数）。</p></blockquote><pre class="quiz-code"><code>#include &lt;cstdio&gt;
+
+int main() {
+    int a, b, c;
+    scanf(&quot;%d %d %d&quot;, &amp;a, &amp;b, &amp;c);
+    int total = a + b + c;
+    double avg = total / 3.0;        // 3.0 不是 3！
+    printf(&quot;%d %.2f\n&quot;, total, avg);
+    return 0;
+}</code></pre></div>
+<div data-md><h2 id="sec-9">3. ⚠️ 易错点</h2><ol><li><code>scanf</code> 读普通变量忘记 <code>&amp;</code> → 行为没有保证，常见是崩溃（RE），也可能读出错误的值。</li><li><code>double</code> 用 <code>scanf(&quot;%f&quot;)</code> 读 → 读出错误值，必须用 <code>%lf</code>。</li><li><code>long long</code> 用 <code>%d</code> → 结果错乱，必须用 <code>%lld</code>。</li><li>输出多了提示文字（<code>cout &lt;&lt; &quot;请输入n:&quot;</code>）→ WA。<b>比赛程序只输出题目要求的内容。</b></li><li>保留小数位和课本上的十进制四舍五入<b>不完全相同</b>：恰好在“5”的边界附近时，结果会受到浮点数表示和运行库的影响（比如 <code>printf(&quot;%.0f&quot;, 2.5)</code> 在有的环境输出 <code>2</code>，有的输出 <code>3</code>）。本阶段按题目要求用格式输出即可，不要背“2.5 一定输出几”。<code>(int)(x + 0.5)</code> 只是对正数、一般范围内够用的近似技巧，不是严格的通用方法。</li><li>加速后混用 <code>cin</code> 与 <code>scanf</code> → 顺序乱。</li></ol></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q4"></div>
   <div id="q5"></div>
   <div id="q6"></div>
   <div id="q7"></div>
+</div>
+
+<div data-md><h2 id="sec-10">4. 课堂练习</h2><p><b>练习 3-1</b>：输入一个圆的半径 r（小数），输出周长和面积，保留 3 位小数，π 取 3.14159。</p><p><b>练习 3-2</b>：输入 <code>hh mm</code>（如 <code>9 5</code>），以 <code>09:05</code> 的格式输出。</p><p><b>练习 3-3</b>（体验题）：输入若干个整数（个数未知），输出它们的个数和总和。要用到 2.4 节的 <code>while</code> 写法，照着套用即可，第 6 课会细讲循环；这题不要求现在就能默写。</p><details class="ans"><summary>点击查看参考答案</summary><pre class="quiz-code"><code>// 3-2
+#include &lt;cstdio&gt;
+int main() {
+    int h, m;
+    scanf(&quot;%d %d&quot;, &amp;h, &amp;m);
+    printf(&quot;%02d:%02d\n&quot;, h, m);
+    return 0;
+}</code></pre><pre class="quiz-code"><code>// 3-3
+#include &lt;iostream&gt;
+using namespace std;
+int main() {
+    int x, cnt = 0;
+    long long sum = 0;
+    while (cin &gt;&gt; x) {
+        cnt++;
+        sum += x;
+    }
+    cout &lt;&lt; cnt &lt;&lt; &quot; &quot; &lt;&lt; sum &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre></details></div>
 
   <div class="card">
     <b>✍️ 回到 Dev-C++ 自己试一试</b>
@@ -43,14 +108,18 @@
       <li>把 cin 的例子敲一遍，输入 <code>12 30</code> 和分两行输入各试一次，看看结果是不是一样。</li>
       <li>把总分、平均分的例子用 scanf/printf 敲一遍：输入 <code>90 85 77</code>，看看保留两位小数的平均分。</li>
     </ol>
-    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（scanf 完整用法、cout 保留小数、加速等）请读第 3 课 md。</p>
   </div>
 
-  <div id="ask-box" class="card ask-box" style="display:none">
-    <b>🙋 我的问题清单</b>（复制后发给老师）
-    <textarea readonly></textarea>
-    <div class="warn"></div>
-    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+<div data-md><h2 id="sec-11">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P5704</td><td>【深基2.例6】字母转换</td><td>读入字符 + 小写转大写：<code>c = c - &#x27;a&#x27; + &#x27;A&#x27;;</code> 先赋值回 <code>char</code> 再输出（直接 <code>cout &lt;&lt; c - &#x27;a&#x27; + &#x27;A&#x27;</code> 会输出数字；原理第 8 课讲）</td><td>★核心</td></tr><tr><td>P1909</td><td>[NOIP 2016 普及组] 买铅笔</td><td><b>第一道 NOIP 真题</b>，向上取整；三种包装取最便宜要用 <code>min</code> 或分支，第 5 课再做也可以</td><td>巩固</td></tr><tr><td>P2433</td><td>【深基1-2】小学数学 N 合一</td><td>能做的小问先做；有几问要用到分支，第 5 课后再回来补完</td><td>选做</td></tr><tr><td>P5706</td><td>【深基2.例8】再分肥宅水</td><td>保留小数（上一课没做的话现在做）</td><td>★核心</td></tr></table><p><b>向上取整技巧</b>（P1909 会用到）：正整数 a 除以 b 向上取整 = <code>(a + b - 1) / b</code>。</p></div>
+<div data-md><h2 id="sec-12">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我能默写 <code>%d %lld %lf %c %s</code> 分别对应什么类型</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会用 <code>printf</code> 保留任意位小数、补前导 0</label></li><li class="task"><label><input type="checkbox" class="chk"> 看到“读到文件末尾”的循环我能认出来，并能照着 2.4 节套用（独立写留到第 6 课检查）</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道什么时候要加 <code>ios::sync_with_stdio(false)</code>，以及加了之后的限制</label></li><li class="task"><label><input type="checkbox" class="chk"> 洛谷【入门1】顺序结构 题单已完成 80% 以上</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="02-types.html">← 第 2 课 变量与数据类型</a><a href="04-operator.html">第 4 课 运算符与表达式 →</a></nav>
+    </main>
   </div>
 </div>
 

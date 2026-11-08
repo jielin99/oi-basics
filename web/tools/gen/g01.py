@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 H = INC + "int main() {\n%SRC%\n    return 0;\n}\n"
 T = []
@@ -36,29 +36,21 @@ q_semi = quiz("编译器提示“缺少分号”，报错指着第 6 行，真�
     ["第 6 行或者它的上一行：要连同上一行一起检查", "一定是第 6 行", "第 6 行之后很远的地方"], 0,
     "编译器要读到下一行才发现上一行没结束，所以有的编译器（比如 Dev-C++ 自带的老版本）会把报错位置标在下一行。看到这类报错，先检查报错行和它的上一行。")
 
-blocks = [
-    ("h2", "1. 一个程序是怎么变成输出的？"),
-    ("html", """  <div class="card"><div class="flow">
+FLOW = """  <div class="card"><div class="flow">
     <div class="box">📝 源代码<small>a.cpp，你写的</small></div><div class="arrow">→</div>
     <div class="box err">🔧 编译<small>g++ 检查语法<br><b>语法错误在这里报</b></small></div><div class="arrow">→</div>
     <div class="box">⚙️ 可执行文件<small>a.exe</small></div><div class="arrow">→</div>
     <div class="box err">▶️ 运行<small><b>运行出错、答案不对在这里</b></small></div>
-  </div><p style="margin:10px 0 0">和 Python 不同：C++ 要<b>先编译、再运行</b>。编译没通过就不会有可执行文件；编译通过了，答案也不一定对。</p></div>"""),
-    ("h2", "2. cout：想输出什么，就自己写什么"),
-    ("trace", "ex-01-01"),
-    ("quiz", q_nospace),
-    ("quiz", q_quote),
-    ("quiz", q_esc),
-    ("h2", "3. 打印字符画"),
-    ("trace", "ex-01-02"),
-    ("h2", "4. 初学者最常见的 5 个错"),
-    ("quiz", q_semi),
-    ("quiz", q_cn),
-    ("quiz", q_case),
-    ("quiz", q_main),
-    ("task", ["把 ex-01-01 敲一遍，编译运行，看输出是不是 5 行。再故意删掉一个分号，读一读编译器的报错，找到它指的是第几行。",
-              "输出你的名字（拼音）、年级、最喜欢的数字，每项一行。不用计算器，让程序算出 <code>123 * 456 + 789</code> 并输出。"],
-     "本页是精选演示，其余内容（注释、完整的程序结构等）请读第 1 课 md。"),
-]
-path, nq = build_page("01-first.html", "01", "第1课｜第一个程序", "第1课 第一个程序（精选演示）", "第一个程序：编译、运行和 cout", INTRO, "01-第一个程序.md", blocks, tracefile="first-01.js")
-print("第1课: %d 个演示, %d 道小测" % (len(T), nq))
+  </div><p style="margin:10px 0 0">和 Python 不同：C++ 要<b>先编译、再运行</b>。编译没通过就不会有可执行文件；编译通过了，答案也不一定对。</p></div>"""
+
+inserts = {
+    "1.":  [("html", FLOW)],
+    "2.1": [("trace", "ex-01-01"), ("quiz", q_nospace), ("quiz", q_quote)],
+    "2.4": [("quiz", q_esc)],
+    "2.5": [("trace", "ex-01-02")],
+    "3.":  [("quiz", q_semi), ("quiz", q_cn), ("quiz", q_case), ("quiz", q_main)],
+}
+tasks = (["把 ex-01-01 敲一遍，编译运行，看输出是不是 5 行。再故意删掉一个分号，读一读编译器的报错，找到它指的是第几行。",
+              "输出你的名字（拼音）、年级、最喜欢的数字，每项一行。不用计算器，让程序算出 <code>123 * 456 + 789</code> 并输出。"], "")
+path, nq = build_lesson('01-第一个程序.md', '01-first.html', '第1课｜第一个程序', '01', inserts, ['first-01.js'], tasks)
+print("第1课: %d 道小测（正文全文 + 互动）" % nq)

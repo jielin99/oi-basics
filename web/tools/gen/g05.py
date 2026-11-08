@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 H = INC + "int main() {\n%SRC%\n    return 0;\n}\n"
 T = []
@@ -91,30 +91,16 @@ q_yes = quiz("题目要求输出 Yes，你写成了 cout << \"YES\"; 评测结�
     ["通过，大小写无所谓", "WA（答案错误）：输出和标准答案不一致", "编译错误"], 1,
     "评测是逐字比对的，Yes、YES、yes 是三个不同的答案。养成习惯：直接复制题目里的原文。")
 
-blocks = [
-    ("h2", "1. if / else if / else：一次只走一条路"),
-    ("p", "条件从上往下一个一个判断，<b>遇到第一个成立的就执行它，后面的全部跳过</b>。点下面的按钮，换成不同的分数再看一遍。"),
-    ("picker", ["ex-05-01a", "ex-05-01b", "ex-05-01c"], ["score = 95", "score = 70", "score = 30"]),
-    ("h2", "2. 三个常见的坑：分号、赋值、花括号"),
-    ("quiz", q_semi),
-    ("quiz", q_assign),
-    ("quiz", q_brace),
-    ("h2", "3. 悬空 else"),
-    ("p", "<b>缩进对 C++ 毫无意义</b>——Python 程序员最容易在这里被骗。"),
-    ("trace", "ex-05-03"),
-    ("quiz", q_dangle),
-    ("h2", "4. switch：每个 case 要写 break"),
-    ("p", "<code>switch</code> 先跳到匹配的 case，然后<b>一直往下执行，直到遇到 break</b>。对比一下有无 break 的区别："),
-    ("picker", ["ex-05-02a", "ex-05-02b"], ["每个 case 都有 break", "漏写 break（穿透）"]),
-    ("quiz", q_switch),
-    ("h2", "5. 分类讨论：三个数排序"),
-    ("p", "不用数组也不用 sort：连续三次“如果前面的比后面的大就交换”，就能把三个数排好。"),
-    ("trace", "ex-05-04"),
-    ("quiz", q_yes),
-    ("task", ["把三个数排序的例子敲一遍，把数据改成 <code>5 9 2</code>，<b>先猜</b>每一步后 a、b、c 的值，再用输出验证。",
+inserts = {
+    "1.":  [("picker", ["ex-05-01a", "ex-05-01b", "ex-05-01c"], ["score = 95", "score = 70", "score = 30"])],
+    "2.1": [("quiz", q_brace)],
+    "2.2": [("trace", "ex-05-03"), ("quiz", q_dangle)],
+    "2.3": [("picker", ["ex-05-02a", "ex-05-02b"], ["每个 case 都有 break", "漏写 break（穿透）"]), ("quiz", q_switch)],
+    "2.5": [("trace", "ex-05-04")],
+    "3.":  [("quiz", q_semi), ("quiz", q_assign), ("quiz", q_yes)],
+}
+tasks = (["把三个数排序的例子敲一遍，把数据改成 <code>5 9 2</code>，<b>先猜</b>每一步后 a、b、c 的值，再用输出验证。",
               "试试把悬空 else 的代码里每个 if 都加上花括号，看看输出会不会变。",
-              "做洛谷入门题单里“分支结构”那一组题（题号见 md）。"],
-     "本页是精选演示，其余内容（三目运算符、布尔标记、判断三角形等）请读第 5 课 md。"),
-]
-path, nq = build_page("05-branch.html", "05", "第5课｜分支", "第5课 分支结构（精选演示）", "分支：让程序做选择", INTRO, "05-分支结构.md", blocks, tracefile="branch-05.js")
-print("第5课: %d 个演示, %d 道小测" % (len(T), nq))
+              "做洛谷入门题单里“分支结构”那一组题（题号见 md）。"], "")
+path, nq = build_lesson('05-分支结构.md', '05-branch.html', '第5课｜分支', '05', inserts, ['branch-05.js'], tasks)
+print("第5课: %d 道小测（正文全文 + 互动）" % nq)

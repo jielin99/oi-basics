@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 PRE = "#include <vector>\n#include <stack>\n#include <queue>\n#include <map>\n#include <set>\n"
 H = INC + PRE + "int main() {\n%SRC%\n    return 0;\n}\n"
@@ -98,28 +98,16 @@ q_pq = predict_quiz("预测输出：priority_queue 每次取出的是最大的�
 q_pair = predict_quiz("预测输出：pair 排序，默认先比 first，再比 second：",
     "vector<pair<int,int>> p;\np.push_back({2, 1});\np.push_back({1, 5});\np.push_back({1, 2});\nsort(p.begin(), p.end());\nfor (int i = 0; i < 3; i++) cout << p[i].first << \"-\" << p[i].second << \" \";", ["2-1 1-2 1-5", "1-5 1-2 2-1", "1-5 2-1 1-2"], "先按 first 从小到大，first 相同再按 second 从小到大。输出 {real}。", pre=PRE)
 
-blocks = [
-    ("h2", "1. vector：会自己变长的数组"),
-    ("trace", "ex-11-01"),
-    ("quiz", q_vec),
-    ("h2", "2. stack：后进先出"),
-    ("trace", "ex-11-02"),
-    ("quiz", q_pop),
-    ("quiz", q_empty),
-    ("h2", "3. queue：先进先出"),
-    ("trace", "ex-11-03"),
-    ("h2", "4. map：键值对（访问不存在的 key 会自动创建）"),
-    ("trace", "ex-11-04"),
-    ("quiz", q_map),
-    ("quiz", q_auto),
-    ("h2", "5. set：自动排序、去重"),
-    ("trace", "ex-11-05"),
-    ("h2", "6. 再认识两个：priority_queue 和 pair"),
-    ("quiz", q_pq),
-    ("quiz", q_pair),
-    ("task", ["把 map 的例子敲一遍，把 <code>score[\"Bob\"]</code> 那一行换成 <code>score.count(\"Bob\")</code>，看最后 size 是几。",
-              "用 stack 实现括号匹配（md 里有完整代码）：输入 <code>(()())</code> 和 <code>(()</code>，看看输出。"],
-     "本页是精选演示，其余内容（二维 vector 邻接表、约瑟夫问题、复杂度速记、算法函数等）请读第 11 课 md。"),
-]
-path, nq = build_page("11-stl.html", "11", "第11课｜STL", "第11课 STL 入门（精选演示）", "STL：vector、stack、queue、map、set", INTRO, "11-STL入门.md", blocks, tracefile="stl-11.js")
-print("第11课: %d 个演示, %d 道小测" % (len(T), nq))
+inserts = {
+    "2.1": [("trace", "ex-11-01"), ("quiz", q_vec)],
+    "2.2": [("quiz", q_pair)],
+    "2.3": [("trace", "ex-11-02"), ("quiz", q_pop), ("quiz", q_empty)],
+    "2.4": [("trace", "ex-11-03")],
+    "2.5": [("quiz", q_pq)],
+    "2.6": [("trace", "ex-11-04"), ("quiz", q_map), ("quiz", q_auto)],
+    "2.7": [("trace", "ex-11-05")],
+}
+tasks = (["把 map 的例子敲一遍，把 <code>score[\"Bob\"]</code> 那一行换成 <code>score.count(\"Bob\")</code>，看最后 size 是几。",
+              "用 stack 实现括号匹配（md 里有完整代码）：输入 <code>(()())</code> 和 <code>(()</code>，看看输出。"], "")
+path, nq = build_lesson('11-STL入门.md', '11-stl.html', '第11课｜STL', '11', inserts, ['stl-11.js'], tasks)
+print("第11课: %d 道小测（正文全文 + 互动）" % nq)

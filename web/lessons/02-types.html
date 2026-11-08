@@ -3,50 +3,103 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>第2课 变量与数据类型（精选演示）</title>
+<title>第 2 课 变量与数据类型：C++ 和 Python 最大的不同</title>
 <link rel="stylesheet" href="../css/base.css">
 </head>
 <body data-lesson="02" data-lesson-label="第2课｜变量与类型">
-<div class="wrap">
-  <div class="topbar">
-    <a href="../index.html">← 目录</a>
-    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../02-变量与数据类型.md">02-变量与数据类型.md</a></span>
-    <button id="btn-present">投屏模式</button>
-  </div>
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 声明变量</a></li><li class="l3"><a href="#sec-4">2.2 常用数据类型（信奥只需要这几个）</a></li><li class="l3"><a href="#sec-5">2.3 溢出：最隐蔽的错误</a></li><li class="l3"><a href="#sec-6">2.4 算术运算：整除与取模</a></li><li class="l3"><a href="#sec-7">2.5 类型转换</a></li><li class="l3"><a href="#sec-8">2.6 常量</a></li><li class="l2"><a href="#sec-9">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-10">4. 课堂练习</a></li><li class="l2"><a href="#sec-11">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-12">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 2 课 变量与数据类型：C++ 和 Python 最大的不同</h1></div>
+<div data-md><blockquote><p>预计用时：1 周（<b>这一课最重要，宁可多花时间</b>） 本课目标：掌握 <code>int</code>、<code>long long</code>、<code>double</code>、<code>char</code>、<code>bool</code>；理解<b>溢出</b>；掌握 C++ 整数除法和取模；会做类型转换。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><pre class="quiz-code"><code># Python：变量不用声明类型，什么都能装，整数无限大
+x = 10
+x = &quot;hello&quot;     # 没问题
+big = 2 ** 100  # 没问题，Python 整数没有上限
+print(7 / 2)    # 3.5
+print(7 // 2)   # 3
+print(-7 // 2)  # -4
+print(-7 % 2)   # 1</code></pre><pre class="quiz-code"><code>// C++：变量必须先声明类型，类型定了就不能变
+int x = 10;
+x = &quot;hello&quot;;        // ❌ 编译错误！int 只能装整数
+int big = 1 &lt;&lt; 40;  // ❌ 错误！int 只有 32 位，移 40 位本身就不合法，结果不可靠
+cout &lt;&lt; 7 / 2;      // 3   ← 两个整数相除，结果还是整数！
+cout &lt;&lt; -7 / 2;     // -3  ← 和 Python 不一样！
+cout &lt;&lt; -7 % 2;     // -1  ← 和 Python 不一样！</code></pre><p><b>从 Python 换到 C++，这一课有三条规则要切换过来：</b></p><ol><li>Python：变量可以随时装别的类型 → C++：变量有固定类型</li><li>Python：整数没有上限 → C++：整数有范围，超了就<b>溢出</b>，程序运行时<b>不会提醒你</b>，结果也不能再信</li><li>Python：<code>/</code> 是普通除法 → C++：整数 <code>/</code> 整数 = 整数</li></ol></div>
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 声明变量</h3><pre class="quiz-code"><code>int a;            // 声明一个整数变量 a（局部变量此时的值不确定，不能读！）
+int b = 5;        // 声明并赋初值（推荐）
+int c = 1, d = 2; // 一次声明多个
+a = b + c;        // 之后可以随意赋值，但必须是同类型（或能自动转换的）</code></pre><blockquote><p>⚠️ 在 <code>main</code> 里面声明的变量<b>如果不赋初值，它的值是不确定的</b>，读它得到的结果不能依赖（这次看着正常，换台电脑、换个编译选项就可能变）。Python 里不赋值根本没法用，C++ 能编译通过，但结果不可靠。<b>养成声明时就赋初值的习惯</b>，尤其是 <code>sum = 0</code>、<code>cnt = 0</code>。</p></blockquote></div>
+<div data-md><h3 id="sec-4">2.2 常用数据类型（信奥只需要这几个）</h3><table class="calc-tbl"><tr><th>类型</th><th>存什么</th><th>范围（大约）</th><th>占用</th><th>用途</th></tr><tr><td><code>int</code></td><td>整数</td><td>±2.1×10⁹（约 21 亿）</td><td>4 字节</td><td><b>最常用</b></td></tr><tr><td><code>long long</code></td><td>大整数</td><td>±9.2×10¹⁸</td><td>8 字节</td><td>超过 21 亿时用</td></tr><tr><td><code>double</code></td><td>小数</td><td>约 15~16 位有效数字</td><td>8 字节</td><td>有小数时用</td></tr><tr><td><code>char</code></td><td>一个字符</td><td><code>&#x27;a&#x27;</code>、<code>&#x27;0&#x27;</code>、<code>&#x27;#&#x27;</code></td><td>1 字节</td><td>第 8 课细讲</td></tr><tr><td><code>bool</code></td><td>真/假</td><td><code>true</code> / <code>false</code></td><td>1 字节</td><td>标记状态</td></tr></table><ul><li><code>float</code> 精度太低（只有 6~7 位），<b>信奥里不要用</b>，一律用 <code>double</code>。</li><li>精确记住：<code>int</code> 最大值是 <b>2147483647</b>（2³¹−1），初赛常考。</li></ul><pre class="quiz-code"><code>int age = 13;
+long long population = 1400000000LL * 5;  // 字面量后加 LL 表示 long long
+double pi = 3.14159;
+char grade = &#x27;A&#x27;;      // 单引号！双引号是字符串
+bool passed = true;</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q1"></div>
+</div>
 
-  <h1>变量与类型：数的范围、整除和类型转换</h1>
-  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
+<div data-md><h3 id="sec-5">2.3 溢出：最隐蔽的错误</h3><pre class="quiz-code"><code>#include &lt;iostream&gt;
+using namespace std;
 
-  <h2>1. 常用的数据类型</h2>
-  <div class="card"><table class="calc-tbl">
-    <tr><th>类型</th><th>存什么</th><th>范围（大约）</th><th>占用</th></tr>
-    <tr><td><code>int</code></td><td>整数</td><td>±2.1×10⁹（约 21 亿）</td><td>4 字节</td></tr>
-    <tr><td><code>long long</code></td><td>大整数</td><td>±9.2×10¹⁸</td><td>8 字节</td></tr>
-    <tr><td><code>double</code></td><td>小数</td><td>约 15~16 位有效数字</td><td>8 字节</td></tr>
-    <tr><td><code>char</code></td><td>一个字符 <code>'a'</code></td><td>—</td><td>1 字节</td></tr>
-    <tr><td><code>bool</code></td><td>真 / 假</td><td>—</td><td>1 字节</td></tr>
-  </table><p style="margin:8px 0 0">不要用 <code>float</code>（精度太低），小数一律用 <code>double</code>。</p></div>
-  <div id="q1"></div>
+int main() {
+    int a = 2147483647;   // int 的最大值
+    a = a + 1;
+    cout &lt;&lt; a &lt;&lt; &quot;\n&quot;;    // ❌ 溢出！常见环境下会看到 -2147483648，但这不是规则，不能依赖
 
-  <h2>2. 溢出：最隐蔽的错误</h2>
-  <p>先看两种写法的对照（点上面的按钮切换），再自己在计算器里试：把两个数都改成 <code>long long</code>，看结果会怎样。</p>
-  <div data-traces="ex-02-01a,ex-02-01b" data-labels="long long z = x * y（错）|(long long)x * y（对）"></div>
+    int x = 100000, y = 100000;
+    cout &lt;&lt; x * y &lt;&lt; &quot;\n&quot;;            // ❌ 溢出！可能看到 1410065408 之类的怪数，不能依赖
+    long long z = x * y;
+    cout &lt;&lt; z &lt;&lt; &quot;\n&quot;;                // 仍然错误！因为 x*y 先按 int 算完溢出了，再装进 long long
+    long long w = (long long)x * y;
+    cout &lt;&lt; w &lt;&lt; &quot;\n&quot;;                // 正确：10000000000
+    return 0;
+}</code></pre><blockquote><p>💡 <b>溢出发生在“计算的那一刻”，而不是“存储的那一刻”。</b> 两个 <code>int</code> 相乘，结果就是 <code>int</code>，已经溢出了，再赋给 <code>long long</code> 也救不回来。必须先把其中一个转成 <code>long long</code> 再乘。</p><p><b>最简单的办法：只要可能超过 21 亿，所有相关变量一开始就声明成 <code>long long</code>。</b></p><p>⚠️ 上面两行错误输出只是“某次运行看到的样子”，<b>不要把这些数当成规律去背</b>。C++ 规定：有符号整数溢出以后，程序的结果就没有保证了（换编译器、加 <code>-O2</code> 都可能变）。要记住的只有一条：<b>在运算之前就用够大的类型</b>。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-traces="ex-02-01a,ex-02-01b" data-labels="long long z = x * y（错）|(long long)x * y（对）"></div>
   <div data-calc="range"></div>
   <div id="q2"></div>
+</div>
 
-  <h2>3. 整除和取模（和 Python 不一样）</h2>
-  <p>C++ 里两边都是整数的 <code>/</code> 是整除，向 0 取整；<code>%</code> 的符号跟着被除数。试几个负数，和 Python 对比：</p>
-  <div data-calc="div"></div>
+<div data-md><h3 id="sec-6">2.4 算术运算：整除与取模</h3><table class="calc-tbl"><tr><th>运算</th><th>C++ 写法</th><th>例子</th><th>结果</th></tr><tr><td>加减乘</td><td><code>+ - *</code></td><td><code>7 * 2</code></td><td>14</td></tr><tr><td>整数除法</td><td><code>/</code>（两边都是整数）</td><td><code>7 / 2</code></td><td><b>3</b>（直接砍掉小数部分）</td></tr><tr><td>小数除法</td><td><code>/</code>（至少一边是小数）</td><td><code>7.0 / 2</code></td><td>3.5</td></tr><tr><td>取余数</td><td><code>%</code>（只能用于整数）</td><td><code>7 % 2</code></td><td>1</td></tr><tr><td>乘方</td><td><b>没有 <code>**</code> 运算符！</b></td><td>用循环，或 <code>pow(2, 10)</code>（返回 double）</td><td>—</td></tr></table><p><b>负数的整除和取模——和 Python 不一样（初赛常考）：</b></p><table class="calc-tbl"><tr><th>表达式</th><th>Python</th><th>C++</th><th>C++ 的规则</th></tr><tr><td><code>-7 / 2</code></td><td><code>-7 // 2</code> = -4</td><td><b>-3</b></td><td>向 0 取整（直接砍掉小数）</td></tr><tr><td><code>-7 % 2</code></td><td>1</td><td><b>-1</b></td><td>余数的符号和<b>被除数</b>相同</td></tr><tr><td><code>7 % -2</code></td><td>-1</td><td><b>1</b></td><td>同上</td></tr></table><p><b>整除和取模的经典用法——拆数位：</b></p><pre class="quiz-code"><code>int n = 1234;
+int ge  = n % 10;         // 个位：4
+int shi = n / 10 % 10;    // 十位：3
+int bai = n / 100 % 10;   // 百位：2
+int qian = n / 1000;      // 千位：1</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-calc="div"></div>
   <div id="q3"></div>
+</div>
 
-  <h2>4. 类型转换</h2>
-  <div data-trace="ex-02-02"></div>
+<div data-md><h3 id="sec-7">2.5 类型转换</h3><pre class="quiz-code"><code>int a = 7, b = 2;
+double r1 = a / b;            // 3.0   ← 先算 a/b=3（整数除法），再转成 3.0
+double r2 = (double)a / b;    // 3.5   ← 先把 a 转成 7.0，再除
+double r3 = a * 1.0 / b;      // 3.5   ← 常用技巧：乘 1.0
+int c = 3.99;                 // 3     ← 小数转整数，直接砍掉小数部分（不是四舍五入！）
+int d = (int)(3.99 + 0.5);    // 4     ← 正数四舍五入的近似技巧（一般够用，不是严格方法，见第 3 课）</code></pre><p>规则：<b>运算时，“小”类型自动向“大”类型看齐</b>（<code>int</code> 和 <code>double</code> 运算 → <code>double</code>；<code>int</code> 和 <code>long long</code> 运算 → <code>long long</code>）。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-02-02"></div>
   <div id="q4"></div>
+</div>
 
-  <h2>5. 其他容易错的地方</h2>
-  <div id="q5"></div>
+<div data-md><h3 id="sec-8">2.6 常量</h3><pre class="quiz-code"><code>const double PI = 3.1415926;  // 加 const，以后不能修改
+const int MOD = 1000000007;
+PI = 3;   // ❌ 编译错误</code></pre></div>
+<div data-md><h2 id="sec-9">3. ⚠️ 易错点</h2><ol><li>求平均数写成 <code>sum / n</code>，<code>sum</code> 和 <code>n</code> 都是 <code>int</code> → 结果被截断。应写 <code>sum * 1.0 / n</code>。</li><li>两个大 <code>int</code> 相乘赋给 <code>long long</code> → 已经溢出。</li><li>局部变量没赋初值就用来累加 → 结果不可靠。</li><li><code>char</code> 用双引号 <code>&quot;A&quot;</code> → 那是字符串，不是字符。</li><li>想算 2¹⁰ 写成 <code>2^10</code> → <code>^</code> 在 C++ 里是<b>异或</b>，结果是 8。</li></ol></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q5"></div>
   <div id="q6"></div>
   <div id="q7"></div>
+</div>
+
+<div data-md><h2 id="sec-10">4. 课堂练习</h2><p><b>练习 2-1</b>：预测下面每行的输出，然后上机验证。错了的要搞懂为什么。</p><pre class="quiz-code"><code>cout &lt;&lt; 17 / 5 &lt;&lt; &quot;\n&quot;;
+cout &lt;&lt; 17 % 5 &lt;&lt; &quot;\n&quot;;
+cout &lt;&lt; 17.0 / 5 &lt;&lt; &quot;\n&quot;;
+cout &lt;&lt; -17 / 5 &lt;&lt; &quot;\n&quot;;
+cout &lt;&lt; -17 % 5 &lt;&lt; &quot;\n&quot;;
+cout &lt;&lt; (int)2.9 &lt;&lt; &quot;\n&quot;;
+cout &lt;&lt; 2 ^ 3 &lt;&lt; &quot;\n&quot;;     // 拓展·找错：这一行会编译报错，想想为什么（不用预测输出）</code></pre><p><b>练习 2-2</b>：一个三位数 <code>n = 358</code>，用程序输出它反过来的数 <code>853</code>。</p><p><b>练习 2-3</b>：小明有 <code>1000000</code> 元，每年翻 3 倍，3 年后有多少钱？用 <code>int</code> 和 <code>long long</code> 各写一次，比较结果。</p><p><b>练习 2-4</b>：输入秒数 <code>t = 3725</code>，输出它是几小时几分几秒（<code>1 2 5</code>）。</p><details class="ans"><summary>点击查看参考答案</summary><p><b>2-1</b>：<code>3</code>、<code>2</code>、<code>3.4</code>、<code>-3</code>、<code>-2</code>、<code>2</code>。最后一行：<code>&lt;&lt;</code> 优先级比 <code>^</code> 高，相当于 <code>(cout &lt;&lt; 2) ^ (3 &lt;&lt; &quot;\n&quot;)</code>，编译报错。应写 <code>cout &lt;&lt; (2 ^ 3)</code>，结果是 <code>1</code>（异或，第 12 课讲）。</p><p><b>2-2</b>：</p><pre class="quiz-code"><code>int n = 358;
+int r = n % 10 * 100 + n / 10 % 10 * 10 + n / 100;
+cout &lt;&lt; r &lt;&lt; &quot;\n&quot;;</code></pre><p><b>2-3</b>：<code>1000000 * 27 = 27000000</code>，int 也装得下。但若改成翻 3 倍 10 年（×59049）就会溢出——试试看。</p><p><b>2-4</b>：</p><pre class="quiz-code"><code>int t = 3725;
+cout &lt;&lt; t / 3600 &lt;&lt; &quot; &quot; &lt;&lt; t % 3600 / 60 &lt;&lt; &quot; &quot; &lt;&lt; t % 60 &lt;&lt; &quot;\n&quot;;</code></pre></details></div>
 
   <div class="card">
     <b>✍️ 回到 Dev-C++ 自己试一试</b>
@@ -54,14 +107,18 @@
       <li>把类型转换的例子敲一遍，把 a、b 改成 <code>9</code> 和 <code>4</code>，<b>先猜</b>四个结果，再运行。</li>
       <li>在 Dev-C++ 里亲自试一下 <code>cout &lt;&lt; 2147483647 + 1;</code>，看看你的电脑上显示什么——然后记住：<b>这不是规律，不要依赖它</b>。</li>
     </ol>
-    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（声明变量、拆数位、常量等）请读第 2 课 md。</p>
   </div>
 
-  <div id="ask-box" class="card ask-box" style="display:none">
-    <b>🙋 我的问题清单</b>（复制后发给老师）
-    <textarea readonly></textarea>
-    <div class="warn"></div>
-    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+<div data-md><h2 id="sec-11">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P5703</td><td>【深基2.例5】苹果采购</td><td>乘法</td><td>★核心</td></tr><tr><td>P5705</td><td>【深基2.例7】数字反转</td><td>小数输入，拆数位</td><td>巩固</td></tr><tr><td>P5706</td><td>【深基2.例8】再分肥宅水</td><td>小数除法、保留小数（要用下一课的输出格式，可留到第 3 课做）</td><td>选做</td></tr><tr><td>P1425</td><td>小鱼的游泳时间</td><td>时间换算，整除与取模</td><td>★核心</td></tr><tr><td>P1421</td><td>小玉买文具</td><td>单位换算（元→角）</td><td>★核心</td></tr><tr><td>P5708</td><td>【深基2.习2】三角形面积</td><td><code>sqrt</code>，double</td><td>选做</td></tr><tr><td>P5709</td><td>【深基2.习6】Apples Prologue</td><td>整除陷阱、边界</td><td>选做</td></tr></table><blockquote><p>有几题需要“保留几位小数”，可以先看下一课 3.3 节的 <code>printf</code>。</p></blockquote></div>
+<div data-md><h2 id="sec-12">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我能说出 <code>int</code> 大约能存多大的数，知道什么时候该换 <code>long long</code></label></li><li class="task"><label><input type="checkbox" class="chk"> 我能解释为什么 <code>long long z = x * y;</code>（x、y 都是 int）仍然可能溢出</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能正确算出 <code>7/2</code>、<code>7.0/2</code>、<code>-7/2</code>、<code>-7%2</code> 在 C++ 中的结果</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会用 <code>/</code> 和 <code>%</code> 把一个整数拆成各个数位</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会求平均数时避免整数除法</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="01-first.html">← 第 1 课 第一个程序</a><a href="03-io.html">第 3 课 输入输出 →</a></nav>
+    </main>
   </div>
 </div>
 

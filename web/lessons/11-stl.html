@@ -3,43 +3,183 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>第11课 STL 入门（精选演示）</title>
+<title>第 11 课 STL 入门：比赛工具箱</title>
 <link rel="stylesheet" href="../css/base.css">
 </head>
 <body data-lesson="11" data-lesson-label="第11课｜STL">
-<div class="wrap">
-  <div class="topbar">
-    <a href="../index.html">← 目录</a>
-    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../11-STL入门.md">11-STL入门.md</a></span>
-    <button id="btn-present">投屏模式</button>
-  </div>
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 vector：可变长数组</a></li><li class="l3"><a href="#sec-4">2.2 pair：把两个值打包</a></li><li class="l3"><a href="#sec-5">2.3 stack：栈（后进先出）</a></li><li class="l3"><a href="#sec-6">2.4 queue：队列（先进先出）</a></li><li class="l3"><a href="#sec-7">2.5 priority_queue：优先队列（堆）</a></li><li class="l3"><a href="#sec-8">2.6 map：键值对（字典）</a></li><li class="l3"><a href="#sec-9">2.7 set：集合（自动排序、去重）</a></li><li class="l3"><a href="#sec-10">2.8 复杂度速记</a></li><li class="l3"><a href="#sec-11">2.9 其他常用算法函数（&amp;lt;algorithm&amp;gt;）</a></li><li class="l2"><a href="#sec-12">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-13">4. 课堂练习</a></li><li class="l2"><a href="#sec-14">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-15">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 11 课 STL 入门：比赛工具箱</h1></div>
+<div data-md><blockquote><p>预计用时：1.5~2 周 本课目标：会用 <code>vector</code>、<code>pair</code>、<code>stack</code>、<code>queue</code>、<code>priority_queue</code>、<code>map</code>、<code>set</code>；知道每种容器适合解决什么问题。</p><p><b>分次学习</b>：第一次学 <code>vector</code>、<code>pair</code>（2.1~2.2）；第二次学 <code>stack</code>、<code>queue</code>（2.3~2.4）；第三次学 <code>map</code>、<code>set</code>（2.6~2.7）；<code>priority_queue</code> 和 2.9 的算法函数放在最后。不要求一次全部掌握。</p></blockquote><p>STL（Standard Template Library，标准模板库）是 C++ 自带的一套现成的数据结构和算法。学会它，很多题目能少写一大半代码。</p></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><table class="calc-tbl"><tr><th>需要的功能</th><th>Python</th><th>C++ STL</th></tr><tr><td>可变长度列表</td><td><code>list</code></td><td><code>vector</code></td></tr><tr><td>二元组</td><td><code>(a, b)</code></td><td><code>pair&lt;int,int&gt;</code></td></tr><tr><td>栈</td><td><code>list</code> 的 <code>append</code>/<code>pop</code></td><td><code>stack</code></td></tr><tr><td>队列</td><td><code>collections.deque</code></td><td><code>queue</code></td></tr><tr><td>优先队列（堆）</td><td><code>heapq</code></td><td><code>priority_queue</code></td></tr><tr><td>字典</td><td><code>dict</code></td><td><code>map</code>（<b>自动按 key 排序</b>）</td></tr><tr><td>集合</td><td><code>set</code></td><td><code>set</code>（<b>自动排序、去重</b>）</td></tr></table><blockquote><p>💡 Python 的 <code>dict</code> 遍历时按<b>插入顺序</b>（3.7 起），<code>set</code> 不保证顺序；而 C++ 的 <code>map</code> / <code>set</code> 遍历时<b>自动按 key 从小到大</b>——这是很大的优势。C++ 也有无序版本 <code>unordered_map</code> / <code>unordered_set</code>，速度更快但不排序。</p></blockquote></div>
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 <code>vector</code>：可变长数组</h3><pre class="quiz-code"><code>#include &lt;vector&gt;
+vector&lt;int&gt; v;              // 空的 int 数组
+vector&lt;int&gt; w(10);          // 10 个元素，全是 0
+vector&lt;int&gt; u(10, -1);      // 10 个元素，全是 -1
 
-  <h1>STL：vector、stack、queue、map、set</h1>
-  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
+v.push_back(3);             // 末尾追加，类似 append
+v.push_back(5);
+v.push_back(1);             // v = {3, 5, 1}
+cout &lt;&lt; v.size() &lt;&lt; &quot;\n&quot;;   // 3
+cout &lt;&lt; v[0] &lt;&lt; &quot;\n&quot;;       // 3，下标从 0 开始，同样不检查越界！
+v.pop_back();               // 删除末尾 → {3, 5}
+v.clear();                  // 清空
+bool e = v.empty();         // 是否为空
 
-  <h2>1. vector：会自己变长的数组</h2>
-  <div data-trace="ex-11-01"></div>
+sort(v.begin(), v.end());   // 排序
+for (int x : v) cout &lt;&lt; x &lt;&lt; &quot; &quot;;   // 遍历</code></pre><p><b>二维 vector / 邻接表</b>（以后学图论必用）：</p><pre class="quiz-code"><code>vector&lt;int&gt; g[100010];      // 10 万个 vector，g[u] 存和 u 相连的点
+g[1].push_back(2);
+g[1].push_back(3);
+for (int v : g[1]) ...      // 遍历 1 的所有邻居</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-11-01"></div>
   <div id="q1"></div>
+</div>
 
-  <h2>2. stack：后进先出</h2>
-  <div data-trace="ex-11-02"></div>
-  <div id="q2"></div>
+<div data-md><h3 id="sec-4">2.2 <code>pair</code>：把两个值打包</h3><pre class="quiz-code"><code>pair&lt;int, int&gt; p = {3, 5};          // 或 make_pair(3, 5)
+cout &lt;&lt; p.first &lt;&lt; &quot; &quot; &lt;&lt; p.second &lt;&lt; &quot;\n&quot;;
+
+vector&lt;pair&lt;int,int&gt;&gt; pts;
+pts.push_back({1, 2});
+sort(pts.begin(), pts.end());       // 默认先按 first 升序，再按 second 升序</code></pre><p>只有两个字段时，用 <code>pair</code> 比写结构体更省事。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q2"></div>
+</div>
+
+<div data-md><h3 id="sec-5">2.3 <code>stack</code>：栈（后进先出）</h3><p>像一摞盘子：只能从顶部放、从顶部拿。</p><pre class="quiz-code"><code>#include &lt;stack&gt;
+stack&lt;int&gt; st;
+st.push(1);  st.push(2);  st.push(3);   // 栈底 1 2 3 栈顶
+cout &lt;&lt; st.top() &lt;&lt; &quot;\n&quot;;               // 3（看栈顶）
+st.pop();                               // 弹出 3（pop 没有返回值！）
+cout &lt;&lt; st.size() &lt;&lt; &quot;\n&quot;;              // 2
+while (!st.empty()) {
+    cout &lt;&lt; st.top() &lt;&lt; &quot; &quot;;            // 2 1
+    st.pop();
+}</code></pre><p><b>典型应用：括号匹配</b></p><pre class="quiz-code"><code>bool check(string s) {
+    stack&lt;char&gt; st;
+    for (char c : s) {
+        if (c == &#x27;(&#x27;) st.push(c);
+        else if (c == &#x27;)&#x27;) {
+            if (st.empty()) return false;   // 右括号多了
+            st.pop();
+        }
+    }
+    return st.empty();                       // 左括号不能剩
+}</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-11-02"></div>
   <div id="q3"></div>
-
-  <h2>3. queue：先进先出</h2>
-  <div data-trace="ex-11-03"></div>
-
-  <h2>4. map：键值对（访问不存在的 key 会自动创建）</h2>
-  <div data-trace="ex-11-04"></div>
   <div id="q4"></div>
-  <div id="q5"></div>
+</div>
 
-  <h2>5. set：自动排序、去重</h2>
-  <div data-trace="ex-11-05"></div>
+<div data-md><h3 id="sec-6">2.4 <code>queue</code>：队列（先进先出）</h3><p>像排队：从队尾进，从队头出。</p><pre class="quiz-code"><code>#include &lt;queue&gt;
+queue&lt;int&gt; q;
+q.push(1);  q.push(2);  q.push(3);      // 队头 1 2 3 队尾
+cout &lt;&lt; q.front() &lt;&lt; &quot;\n&quot;;              // 1（看队头）
+q.pop();                                // 1 出队
+cout &lt;&lt; q.front() &lt;&lt; &quot; &quot; &lt;&lt; q.back() &lt;&lt; &quot;\n&quot;;   // 2 3</code></pre><p><b>典型应用：约瑟夫问题</b>（n 个人围成圈，报数到 m 的出列）</p><pre class="quiz-code"><code>queue&lt;int&gt; q;
+for (int i = 1; i &lt;= n; i++) q.push(i);
+while (!q.empty()) {
+    for (int k = 1; k &lt; m; k++) {       // 前 m-1 个人移到队尾
+        q.push(q.front());
+        q.pop();
+    }
+    cout &lt;&lt; q.front() &lt;&lt; &quot; &quot;;           // 第 m 个人出列
+    q.pop();
+}</code></pre><p>队列以后最重要的用途是 <b>BFS（广度优先搜索）</b>。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-11-03"></div>
+</div>
 
-  <h2>6. 再认识两个：priority_queue 和 pair</h2>
+<div data-md><h3 id="sec-7">2.5 <code>priority_queue</code>：优先队列（堆）</h3><p>每次取出的都是<b>最大</b>的元素。</p><pre class="quiz-code"><code>priority_queue&lt;int&gt; pq;                               // 大根堆
+pq.push(3); pq.push(10); pq.push(5);
+cout &lt;&lt; pq.top() &lt;&lt; &quot;\n&quot;;                             // 10
+pq.pop();
+
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; mq;    // 小根堆：每次取最小</code></pre><p><b>典型应用：合并果子</b>（每次取两个最小的合并，经典贪心）。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q5"></div>
+</div>
+
+<div data-md><h3 id="sec-8">2.6 <code>map</code>：键值对（字典）</h3><pre class="quiz-code"><code>#include &lt;map&gt;
+map&lt;string, int&gt; score;
+score[&quot;Tom&quot;] = 90;
+score[&quot;Amy&quot;] = 95;
+score[&quot;Tom&quot;] += 5;                       // Tom → 95
+
+cout &lt;&lt; score[&quot;Amy&quot;] &lt;&lt; &quot;\n&quot;;            // 95
+cout &lt;&lt; score[&quot;Bob&quot;] &lt;&lt; &quot;\n&quot;;            // 0 ⚠️ 访问不存在的 key 会自动创建它，值为 0
+if (score.count(&quot;Bob&quot;)) ...              // 判断 key 是否存在，不会创建
+
+for (auto it : score) {                  // 按 key 从小到大遍历
+    cout &lt;&lt; it.first &lt;&lt; &quot; &quot; &lt;&lt; it.second &lt;&lt; &quot;\n&quot;;
+}</code></pre><p><b>典型应用：统计每个单词出现的次数</b></p><pre class="quiz-code"><code>map&lt;string, int&gt; cnt;
+string w;
+while (cin &gt;&gt; w) cnt[w]++;</code></pre><p>当数值范围太大（比如 10⁹）没法开桶数组时，用 <code>map</code> 当“桶”。</p></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-11-04"></div>
   <div id="q6"></div>
   <div id="q7"></div>
+</div>
+
+<div data-md><h3 id="sec-9">2.7 <code>set</code>：集合（自动排序、去重）</h3><pre class="quiz-code"><code>#include &lt;set&gt;
+set&lt;int&gt; s;
+s.insert(5); s.insert(1); s.insert(5); s.insert(3);   // s = {1, 3, 5}
+cout &lt;&lt; s.size() &lt;&lt; &quot;\n&quot;;            // 3
+if (s.count(3)) cout &lt;&lt; &quot;has 3\n&quot;;
+s.erase(3);
+for (int x : s) cout &lt;&lt; x &lt;&lt; &quot; &quot;;    // 1 5（自动从小到大）</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-11-05"></div>
+</div>
+
+<div data-md><h3 id="sec-10">2.8 复杂度速记</h3><table class="calc-tbl"><tr><th>容器</th><th>插入</th><th>删除</th><th>查找</th><th>适合</th></tr><tr><td><code>vector</code></td><td>尾部均摊 O(1)（偶尔扩容那一次是 O(n)）</td><td>尾部 O(1)</td><td>按下标 O(1)</td><td>不定长数组</td></tr><tr><td><code>stack</code> / <code>queue</code></td><td>O(1)</td><td>O(1)</td><td>只能看顶/头</td><td>栈、队列、BFS</td></tr><tr><td><code>priority_queue</code></td><td>O(log n)</td><td>O(log n)</td><td>只能看最大</td><td>反复取最值</td></tr><tr><td><code>map</code> / <code>set</code></td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td><td>有序、去重、大范围计数</td></tr></table></div>
+<div data-md><h3 id="sec-11">2.9 其他常用算法函数（<code>&lt;algorithm&gt;</code>）</h3><pre class="quiz-code"><code>reverse(a + 1, a + n + 1);                 // 反转
+int mx = *max_element(a + 1, a + n + 1);   // 最大值
+int m = unique(a + 1, a + n + 1) - (a + 1);  // 排序后去重，返回去重后的个数
+// 二分查找（数组必须已排序）
+int pos = lower_bound(a + 1, a + n + 1, x) - a;   // 第一个 &gt;= x 的位置</code></pre></div>
+<div data-md><h2 id="sec-12">3. ⚠️ 易错点</h2><ol><li><code>st.pop()</code> / <code>q.pop()</code> 没有返回值，要先 <code>top()</code> / <code>front()</code> 取值再 <code>pop()</code>。</li><li>对空的栈/队列调用 <code>top()</code> / <code>front()</code> / <code>pop()</code> → 行为没有保证，常见是 RE，也可能读到错的值继续算下去。先判断 <code>empty()</code>。</li><li>用 <code>map[key]</code> 判断是否存在 → 会自动插入，用 <code>count</code>。</li><li><code>vector</code> 用 <code>[]</code> 访问同样不检查下标，越界后果和数组一样。</li><li>在 C++14 下不能写 <code>for (auto [k, v] : mp)</code>（这是 C++17 语法），用 <code>it.first</code> / <code>it.second</code>。</li></ol></div>
+<div data-md><h2 id="sec-13">4. 课堂练习</h2><p><b>练习 11-1</b>：输入若干个整数（个数未知），存入 vector，排序后输出。</p><p><b>练习 11-2</b>：输入一串只含 <code>()[]</code> 的括号，判断是否匹配。</p><p><b>练习 11-3</b>：输入 n 个整数（范围到 10⁹），输出出现次数最多的数（多个时输出最小的）。</p><p><b>练习 11-4</b>：用 set 实现：输入 n 个数，输出去重后的个数和去重后的序列。</p><details class="ans"><summary>点击查看参考答案</summary><pre class="quiz-code"><code>// 11-2
+#include &lt;iostream&gt;
+#include &lt;stack&gt;
+#include &lt;string&gt;
+using namespace std;
+int main() {
+    string s;
+    cin &gt;&gt; s;
+    stack&lt;char&gt; st;
+    bool ok = true;
+    for (char c : s) {
+        if (c == &#x27;(&#x27; || c == &#x27;[&#x27;) st.push(c);
+        else {
+            char need = (c == &#x27;)&#x27;) ? &#x27;(&#x27; : &#x27;[&#x27;;
+            if (st.empty() || st.top() != need) { ok = false; break; }
+            st.pop();
+        }
+    }
+    if (!st.empty()) ok = false;
+    cout &lt;&lt; (ok ? &quot;OK&quot; : &quot;Wrong&quot;) &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre><pre class="quiz-code"><code>// 11-3
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+using namespace std;
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    map&lt;int, int&gt; cnt;
+    for (int i = 1; i &lt;= n; i++) {
+        int x; cin &gt;&gt; x;
+        cnt[x]++;
+    }
+    int best = 0, bestCnt = 0;
+    for (auto it : cnt) {             // map 按 key 从小到大，所以 &gt; 而不是 &gt;=
+        if (it.second &gt; bestCnt) {
+            bestCnt = it.second;
+            best = it.first;
+        }
+    }
+    cout &lt;&lt; best &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre></details></div>
 
   <div class="card">
     <b>✍️ 回到 Dev-C++ 自己试一试</b>
@@ -47,14 +187,18 @@
       <li>把 map 的例子敲一遍，把 <code>score["Bob"]</code> 那一行换成 <code>score.count("Bob")</code>，看最后 size 是几。</li>
       <li>用 stack 实现括号匹配（md 里有完整代码）：输入 <code>(()())</code> 和 <code>(()</code>，看看输出。</li>
     </ol>
-    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（二维 vector 邻接表、约瑟夫问题、复杂度速记、算法函数等）请读第 11 课 md。</p>
   </div>
 
-  <div id="ask-box" class="card ask-box" style="display:none">
-    <b>🙋 我的问题清单</b>（复制后发给老师）
-    <textarea readonly></textarea>
-    <div class="warn"></div>
-    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+<div data-md><h2 id="sec-14">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P3156</td><td>【深基15.例1】询问学号</td><td>vector 基本</td><td>巩固</td></tr><tr><td>P1739</td><td>表达式括号匹配</td><td>stack</td><td>★核心</td></tr><tr><td>P1996</td><td>约瑟夫问题</td><td>queue</td><td>★核心</td></tr><tr><td>P1540</td><td>[NOIP 2010 提高组] 机器翻译</td><td>queue + 标记数组</td><td>巩固</td></tr><tr><td>P1090</td><td>[NOIP 2004 提高组] 合并果子</td><td>priority_queue 工具练习：策略已给定——每次取出最小的两堆合并再放回（为什么最优，算法阶段讲贪心时再证明）。注意小根堆、n=1、费用累加用 long long</td><td>巩固</td></tr><tr><td>P5250</td><td>【深基17.例5】木材仓库</td><td>set + <code>lower_bound</code> 找前驱/后继，注意首尾边界</td><td>挑战</td></tr><tr><td>P5266</td><td>【深基17.例6】学籍管理</td><td>map</td><td>★核心</td></tr><tr><td>P1918</td><td>保龄球</td><td>map</td><td>选做</td></tr><tr><td>P4387</td><td>【深基15.习9】验证栈序列</td><td>stack 模拟</td><td>挑战</td></tr><tr><td>P1449</td><td>后缀表达式</td><td>stack 应用</td><td>挑战</td></tr></table><blockquote><p>洛谷题单：【数据结构1-1】线性表、【数据结构1-2】二叉树（暂不做）、【数据结构1-3】集合</p></blockquote></div>
+<div data-md><h2 id="sec-15">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我会用 vector 的 push_back、size、下标、sort</label></li><li class="task"><label><input type="checkbox" class="chk"> 我会用 pair，知道它的默认排序规则</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能说出栈和队列的区别，并各举一个应用</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道 priority_queue 默认取最大，会写小根堆</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道 map[key] 会自动插入，判断存在用 count</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道 set 自动排序去重</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="10-sort.html">← 第 10 课 结构体与排序</a><a href="12-ptr-bit.html">第 12 课 指针、位运算与比赛规范 →</a></nav>
+    </main>
   </div>
 </div>
 
@@ -66,12 +210,12 @@
 <script>
   var Q = function (id, d) { Quiz.mount(document.getElementById(id), d); };
   Q("q1", {"q": "vector 用 [] 访问，下标越界会被自动检查吗？", "options": ["会，越界会报错", "不会，和普通数组一样不检查，后果也一样危险", "只有 push_back 之后才检查"], "answer": 1, "explain": "v[i] 不检查越界，和数组一样。size() 是多少，合法下标就是 0 到 size() - 1。"});
-  Q("q2", {"q": "想取出栈顶的值并弹出，st.pop() 会返回那个值吗？int x = st.pop(); 对吗？", "options": ["对，pop 返回被弹出的值", "不对：pop 没有返回值，要先 int x = st.top(); 再 st.pop();", "对，但只对 int 栈有效"], "answer": 1, "explain": "pop() 只负责弹出，不返回值（我们真实编译过 int x = st.pop();，会报错）。顺序是先 top() 取值，再 pop()。"});
-  Q("q3", {"q": "对空的栈调用 st.top() 会怎样？", "options": ["返回 0", "行为没有保证：常见是程序崩溃（RE），也可能读到错的值继续算下去", "编译不通过"], "answer": 1, "explain": "不要赌它会怎样：用 top()、front()、pop() 之前先判断 empty()。"});
-  Q("q4", {"q": "预测输出：用 m[key] 判断“是否存在”，会有什么副作用？", "code": "map<int, int> m;\nif (m[5] == 0) cout << \"no \";\ncout << m.size();", "options": ["no 0", "no 1", "0", "no"], "answer": 1, "explain": "m[5] 访问不存在的 key 时会自动创建它（值为 0），所以 size 变成 1。要判断是否存在，用 m.count(5)。输出 no 1。"});
-  Q("q5", {"q": "遍历 map 时，想写 for (auto [k, v] : mp)，在本课程约定的 C++ 标准下行吗？", "options": ["行，这是最简洁的写法", "不行：这是 C++17 的语法，本课程只用 C++11 就有的写法，要写 it.first / it.second", "只在 Dev-C++ 里不行"], "answer": 1, "explain": "考场环境不一定支持新标准。写 for (auto it : mp) 然后用 it.first、it.second。"});
-  Q("q6", {"q": "预测输出：priority_queue 每次取出的是最大的：", "code": "priority_queue<int> pq;\npq.push(3); pq.push(10); pq.push(5);\ncout << pq.top() << \" \";\npq.pop();\ncout << pq.top();", "options": ["10 5", "3 5", "5 10", "10 3"], "answer": 0, "explain": "优先队列每次取最大的，和放进去的顺序无关：先是 10，弹出后剩下 3 和 5，最大的是 5。输出 10 5。（想每次取最小的：priority_queue<int, vector<int>, greater<int>>。）"});
-  Q("q7", {"q": "预测输出：pair 排序，默认先比 first，再比 second：", "code": "vector<pair<int,int>> p;\np.push_back({2, 1});\np.push_back({1, 5});\np.push_back({1, 2});\nsort(p.begin(), p.end());\nfor (int i = 0; i < 3; i++) cout << p[i].first << \"-\" << p[i].second << \" \";", "options": ["2-1 1-2 1-5", "1-5 2-1 1-2", "1-2 1-5 2-1", "1-5 1-2 2-1"], "answer": 2, "explain": "先按 first 从小到大，first 相同再按 second 从小到大。输出 1-2 1-5 2-1。"});
+  Q("q2", {"q": "预测输出：pair 排序，默认先比 first，再比 second：", "code": "vector<pair<int,int>> p;\np.push_back({2, 1});\np.push_back({1, 5});\np.push_back({1, 2});\nsort(p.begin(), p.end());\nfor (int i = 0; i < 3; i++) cout << p[i].first << \"-\" << p[i].second << \" \";", "options": ["2-1 1-2 1-5", "1-5 2-1 1-2", "1-2 1-5 2-1", "1-5 1-2 2-1"], "answer": 2, "explain": "先按 first 从小到大，first 相同再按 second 从小到大。输出 1-2 1-5 2-1。"});
+  Q("q3", {"q": "想取出栈顶的值并弹出，st.pop() 会返回那个值吗？int x = st.pop(); 对吗？", "options": ["对，pop 返回被弹出的值", "不对：pop 没有返回值，要先 int x = st.top(); 再 st.pop();", "对，但只对 int 栈有效"], "answer": 1, "explain": "pop() 只负责弹出，不返回值（我们真实编译过 int x = st.pop();，会报错）。顺序是先 top() 取值，再 pop()。"});
+  Q("q4", {"q": "对空的栈调用 st.top() 会怎样？", "options": ["返回 0", "行为没有保证：常见是程序崩溃（RE），也可能读到错的值继续算下去", "编译不通过"], "answer": 1, "explain": "不要赌它会怎样：用 top()、front()、pop() 之前先判断 empty()。"});
+  Q("q5", {"q": "预测输出：priority_queue 每次取出的是最大的：", "code": "priority_queue<int> pq;\npq.push(3); pq.push(10); pq.push(5);\ncout << pq.top() << \" \";\npq.pop();\ncout << pq.top();", "options": ["10 5", "3 5", "5 10", "10 3"], "answer": 0, "explain": "优先队列每次取最大的，和放进去的顺序无关：先是 10，弹出后剩下 3 和 5，最大的是 5。输出 10 5。（想每次取最小的：priority_queue<int, vector<int>, greater<int>>。）"});
+  Q("q6", {"q": "预测输出：用 m[key] 判断“是否存在”，会有什么副作用？", "code": "map<int, int> m;\nif (m[5] == 0) cout << \"no \";\ncout << m.size();", "options": ["no 0", "no 1", "0", "no"], "answer": 1, "explain": "m[5] 访问不存在的 key 时会自动创建它（值为 0），所以 size 变成 1。要判断是否存在，用 m.count(5)。输出 no 1。"});
+  Q("q7", {"q": "遍历 map 时，想写 for (auto [k, v] : mp)，在本课程约定的 C++ 标准下行吗？", "options": ["行，这是最简洁的写法", "不行：这是 C++17 的语法，本课程只用 C++11 就有的写法，要写 it.first / it.second", "只在 Dev-C++ 里不行"], "answer": 1, "explain": "考场环境不一定支持新标准。写 for (auto it : mp) 然后用 it.first、it.second。"});
   mountSteppers();
   mountCalcs();
   PageKit.init();

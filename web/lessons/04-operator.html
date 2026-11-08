@@ -3,39 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>第4课 运算符与表达式（精选演示）</title>
+<title>第 4 课 运算符与表达式</title>
 <link rel="stylesheet" href="../css/base.css">
 </head>
 <body data-lesson="04" data-lesson-label="第4课｜运算符">
-<div class="wrap">
-  <div class="topbar">
-    <a href="../index.html">← 目录</a>
-    <span class="badge">精选演示，非整课 · 完整内容见 <a href="../../04-运算符与表达式.md">04-运算符与表达式.md</a></span>
-    <button id="btn-present">投屏模式</button>
-  </div>
+<div class="wrap lesson">
+  <div class="topbar"><a href="../index.html">← 目录</a><button id="btn-present">投屏模式</button></div>
+  <div class="layout">
+    <nav class="toc-box"><details class="toc"><summary>目录</summary><ol><li class="l2"><a href="#sec-1">1. 从 Python 说起</a></li><li class="l2"><a href="#sec-2">2. 知识点</a></li><li class="l3"><a href="#sec-3">2.1 赋值与复合赋值</a></li><li class="l3"><a href="#sec-4">2.2 自增 ++ 与自减 --</a></li><li class="l3"><a href="#sec-5">2.3 关系运算与逻辑运算</a></li><li class="l3"><a href="#sec-6">2.4 运算符优先级（够用版）</a></li><li class="l3"><a href="#sec-7">2.5 常用数学函数（&amp;lt;cmath&amp;gt;）</a></li><li class="l2"><a href="#sec-8">3. ⚠️ 易错点</a></li><li class="l2"><a href="#sec-9">4. 课堂练习</a></li><li class="l2"><a href="#sec-10">5. 课后刷题（洛谷）</a></li><li class="l2"><a href="#sec-11">✅ 自查清单</a></li></ol></details></nav>
+    <main>
+<div data-md><h1>第 4 课 运算符与表达式</h1></div>
+<div data-md><blockquote><p>预计用时：半周~1 周（Python 基础好可以较快） 本课目标：掌握赋值、复合赋值、自增自减、关系运算、逻辑运算；了解运算符优先级；会用数学函数。</p></blockquote></div>
+<div data-md><h2 id="sec-1">1. 从 Python 说起</h2><table class="calc-tbl"><tr><th>功能</th><th>Python</th><th>C++</th></tr><tr><td>且 / 或 / 非</td><td><code>and</code> <code>or</code> <code>not</code></td><td><b><code>&amp;&amp;</code> <code>||</code> <code>!</code></b></td></tr><tr><td>真 / 假</td><td><code>True</code> <code>False</code></td><td><code>true</code> <code>false</code>（小写）</td></tr><tr><td>自增 1</td><td><code>x += 1</code></td><td><code>x += 1</code> 或 <b><code>x++</code></b> 或 <b><code>++x</code></b></td></tr><tr><td>连续比较</td><td><code>1 &lt; x &lt; 10</code> ✅</td><td><code>1 &lt; x &lt; 10</code> ❌ <b>能编译但结果错！</b> 必须写 <code>1 &lt; x &amp;&amp; x &lt; 10</code></td></tr><tr><td>乘方</td><td><code>2 ** 10</code></td><td>没有，用 <code>pow(2, 10)</code> 或循环</td></tr><tr><td>整除</td><td><code>//</code></td><td><code>/</code>（整数之间）</td></tr></table><blockquote><p>💡 C++ 里 <code>1 &lt; x &lt; 10</code> 会先算 <code>1 &lt; x</code> 得到 <code>true</code>(1) 或 <code>false</code>(0)，再拿 0 或 1 去和 10 比较——<b>永远为真</b>。编译器不会报错，这种 bug 最难找。</p></blockquote></div>
+<div data-md><h2 id="sec-2">2. 知识点</h2></div>
+<div data-md><h3 id="sec-3">2.1 赋值与复合赋值</h3><pre class="quiz-code"><code>int x = 10;
+x += 3;    // x = x + 3   → 13
+x -= 2;    // x = x - 2   → 11
+x *= 2;    // x = x * 2   → 22
+x /= 5;    // x = x / 5   → 4（整除）
+x %= 3;    // x = x % 3   → 1</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-04-01"></div>
+</div>
 
-  <h1>运算符：自增、短路和几个容易写错的比较</h1>
-  <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
-
-  <h2>1. 复合赋值：x += 3</h2>
-  <div data-trace="ex-04-01"></div>
-
-  <h2>2. 自增：i++ 和 ++i 到底差在哪？</h2>
-  <p>单独成一句时两者一样。区别只在“被用在表达式里”：<code>a++</code> 先用旧值再加 1，<code>++a</code> 先加 1 再用新值。初赛阅读程序题常考。</p>
-  <div data-trace="ex-04-02"></div>
+<div data-md><h3 id="sec-4">2.2 自增 <code>++</code> 与自减 <code>--</code></h3><pre class="quiz-code"><code>int i = 5;
+i++;       // i 变成 6
+i--;       // i 变成 5
+++i;       // i 变成 6</code></pre><p><b>单独成一句时，<code>i++</code> 和 <code>++i</code> 完全一样。</b> 区别只在它们被“用在表达式里”时：</p><pre class="quiz-code"><code>int a = 5;
+int b = a++;   // 先把 a 的旧值 5 给 b，再把 a 加 1 → b=5, a=6
+int c = 5;
+int d = ++c;   // 先把 c 加 1，再把新值 6 给 d → d=6, c=6</code></pre><blockquote><p>🎯 <b>写代码时</b>：不要把 <code>++</code> 混在复杂表达式里（比如 <code>a[i++] = i++</code>），这种写法甚至是“未定义行为”。 🎯 <b>考初赛时</b>：<code>a++</code> 和 <code>++a</code> 的区别是阅读程序题的常客，一定要会。</p></blockquote></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-04-02"></div>
   <div id="q1"></div>
+</div>
 
-  <h2>3. 逻辑运算与短路求值</h2>
-  <div data-trace="ex-04-03"></div>
+<div data-md><h3 id="sec-5">2.3 关系运算与逻辑运算</h3><pre class="quiz-code"><code>// 关系运算：结果是 bool（true=1, false=0）
+5 &gt; 3     // true
+5 == 3    // false     ← 判断相等是两个等号！
+5 != 3    // true
+
+// 逻辑运算
+(a &gt; 0) &amp;&amp; (b &gt; 0)    // 两个都正
+(a &gt; 0) || (b &gt; 0)    // 至少一个正
+!(a &gt; 0)              // a 不是正数</code></pre><p><b>短路求值</b>（和 Python 一样）：</p><ul><li><code>A &amp;&amp; B</code>：A 为假时，B <b>根本不会计算</b>。</li><li><code>A || B</code>：A 为真时，B 不会计算。</li></ul><pre class="quiz-code"><code>if (b != 0 &amp;&amp; a / b &gt; 2) { ... }   // 安全：b 为 0 时不会去算 a/b</code></pre><p><b>闰年判断——逻辑运算的经典例子</b>（四年一闰，百年不闰，四百年再闰）：</p><pre class="quiz-code"><code>bool leap = (y % 4 == 0 &amp;&amp; y % 100 != 0) || (y % 400 == 0);</code></pre></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div data-trace="ex-04-03"></div>
   <div id="q2"></div>
   <div id="q3"></div>
+</div>
 
-  <h2>4. 容易写错的比较</h2>
-  <div id="q4"></div>
+<div data-md><h3 id="sec-6">2.4 运算符优先级（够用版）</h3><p>从高到低：</p><table class="calc-tbl"><tr><th>优先级</th><th>运算符</th><th>记忆</th></tr><tr><td>1（最高）</td><td><code>()</code> <code>[]</code></td><td>括号最优先</td></tr><tr><td>2</td><td><code>!</code> <code>++</code> <code>--</code> <code>(类型)</code></td><td>单目运算</td></tr><tr><td>3</td><td><code>*</code> <code>/</code> <code>%</code></td><td>乘除</td></tr><tr><td>4</td><td><code>+</code> <code>-</code></td><td>加减</td></tr><tr><td>5</td><td><code>&lt;&lt;</code> <code>&gt;&gt;</code></td><td>移位（也是 cout 的输出符号）</td></tr><tr><td>6</td><td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td><td>比较大小</td></tr><tr><td>7</td><td><code>==</code> <code>!=</code></td><td>判等</td></tr><tr><td>8</td><td><code>&amp;</code> → <code>^</code> → <code>|</code></td><td>位运算（第 12 课）</td></tr><tr><td>9</td><td><code>&amp;&amp;</code></td><td>且</td></tr><tr><td>10</td><td><code>||</code></td><td>或</td></tr><tr><td>11</td><td><code>?:</code></td><td>三目（第 5 课）</td></tr><tr><td>12（最低）</td><td><code>=</code> <code>+=</code> 等</td><td>赋值</td></tr></table><blockquote><p>🎯 记不住没关系：<b>拿不准就加括号</b>。括号多了不会错，少了会错。</p></blockquote></div>
+<div data-md><h3 id="sec-7">2.5 常用数学函数（<code>&lt;cmath&gt;</code>）</h3><pre class="quiz-code"><code>#include &lt;cmath&gt;
+abs(-5)          // 5       绝对值（整数）
+fabs(-2.5)       // 2.5     绝对值（小数）
+sqrt(16)         // 4       平方根，返回 double
+pow(2, 10)       // 1024    乘方，返回 double！大数会有精度问题
+ceil(2.1)        // 3       向上取整，返回 double
+floor(2.9)       // 2       向下取整，返回 double
+round(2.5)       // 3       四舍五入，返回 double
+max(3, 7)        // 7       需要 &lt;algorithm&gt;，两个参数类型必须相同
+min(3, 7)        // 3</code></pre><blockquote><p>⚠️ <code>pow</code> 返回 <code>double</code>，用来算整数的乘方可能有误差（如 <code>pow(10, 2)</code> 偶尔得到 99.9999…，转 int 变 99）。<b>整数乘方请用循环自己乘</b>。 ⚠️ <code>max(a, b)</code> 要求两个参数类型完全相同，<code>max(x, 0)</code>（x 是 long long）会编译错误，要写 <code>max(x, 0LL)</code>。</p></blockquote></div>
+<div data-md><h2 id="sec-8">3. ⚠️ 易错点</h2><ol><li><code>if (x = 5)</code> 写成了赋值 → 永远为真。判断相等用 <code>==</code>。</li><li><code>1 &lt; x &lt; 10</code> 连续比较 → 必须拆成 <code>&amp;&amp;</code>。</li><li>用 <code>pow</code> 算整数乘方再转 <code>int</code> → 可能少 1。</li><li><code>&amp;&amp;</code> 写成 <code>&amp;</code>、<code>||</code> 写成 <code>|</code> → 有时结果碰巧对，有时错，且优先级不同。</li><li>小数比较相等 <code>if (a == 0.3)</code> → 浮点数有误差，应写 <code>if (fabs(a - 0.3) &lt; 1e-9)</code>。</li></ol></div>
+<div class="lab"><div class="lab-t">🎮 动手看看</div>  <div id="q4"></div>
   <div id="q5"></div>
   <div id="q6"></div>
   <div id="q7"></div>
   <div id="q8"></div>
+</div>
+
+<div data-md><h2 id="sec-9">4. 课堂练习</h2><p><b>练习 4-1</b>：预测输出：</p><pre class="quiz-code"><code>int a = 3, b = 3;
+int x = a++ * 2;
+int y = ++b * 2;
+cout &lt;&lt; a &lt;&lt; &quot; &quot; &lt;&lt; b &lt;&lt; &quot; &quot; &lt;&lt; x &lt;&lt; &quot; &quot; &lt;&lt; y &lt;&lt; &quot;\n&quot;;</code></pre><p><b>练习 4-2</b>：输入一个年份，输出 1（是闰年）或 0（不是）。</p><p><b>练习 4-3</b>：输入三个整数，输出最大值（只能用 <code>max</code> 函数，不能用 <code>if</code>）。</p><p><b>练习 4-4</b>：输入一个整数 x，判断它是否“同时满足：是偶数，并且在 4 到 12 之间（含）”，输出 1 或 0。</p><details class="ans"><summary>点击查看参考答案</summary><p><b>4-1</b>：<code>4 4 6 8</code></p><p><b>4-3</b>：<code>cout &lt;&lt; max(max(a, b), c);</code></p><p><b>4-4</b>：<code>cout &lt;&lt; (x % 2 == 0 &amp;&amp; x &gt;= 4 &amp;&amp; x &lt;= 12);</code></p></details></div>
 
   <div class="card">
     <b>✍️ 回到 Dev-C++ 自己试一试</b>
@@ -43,14 +80,18 @@
       <li>把自增的例子敲一遍，再加一行 <code>int e = a-- + --c;</code>，<b>先猜</b> a、c、e 的值，再运行。</li>
       <li>把 ex-04-03 里的 <code>b</code> 改成 2，再看输出；再把两个条件顺序对调、b 改回 0，亲眼看看会发生什么。</li>
     </ol>
-    <p style="color:var(--muted);font-size:.85rem">本页是精选演示，其余内容（运算符优先级、数学函数、闰年判断等）请读第 4 课 md。</p>
   </div>
 
-  <div id="ask-box" class="card ask-box" style="display:none">
-    <b>🙋 我的问题清单</b>（复制后发给老师）
-    <textarea readonly></textarea>
-    <div class="warn"></div>
-    <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+<div data-md><h2 id="sec-10">5. 课后刷题（洛谷）</h2><table class="calc-tbl"><tr><th>题号</th><th>题名</th><th>要点</th><th>级别</th></tr><tr><td>P5710</td><td>【深基3.例2】数的性质</td><td>逻辑运算组合</td><td>★核心</td></tr><tr><td>P5711</td><td>【深基3.例3】闰年判断</td><td>闰年</td><td>★核心</td></tr><tr><td>P5708</td><td>【深基2.习2】三角形面积</td><td><code>sqrt</code>、海伦公式</td><td>巩固</td></tr><tr><td>P5714</td><td>【深基3.例7】肥胖问题</td><td>浮点运算与输出</td><td>选做</td></tr></table></div>
+<div data-md><h2 id="sec-11">✅ 自查清单</h2><ul><li class="task"><label><input type="checkbox" class="chk"> 我能写出 <code>a++</code> 和 <code>++a</code> 在表达式里的区别</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道 <code>1 &lt; x &lt; 10</code> 为什么错</label></li><li class="task"><label><input type="checkbox" class="chk"> 我能写出闰年判断表达式</label></li><li class="task"><label><input type="checkbox" class="chk"> 我知道 <code>pow</code> 不适合算整数乘方</label></li><li class="task"><label><input type="checkbox" class="chk"> 我理解“短路求值”</label></li></ul></div>
+      <div id="ask-box" class="card ask-box" style="display:none">
+        <b>🙋 我的问题清单</b>（复制后发给老师）
+        <textarea readonly></textarea>
+        <div class="warn"></div>
+        <button data-a="copy">复制</button> <button data-a="clear">清空</button>
+      </div>
+      <nav class="lnav"><a href="03-io.html">← 第 3 课 输入输出</a><a href="05-branch.html">第 5 课 分支结构 →</a></nav>
+    </main>
   </div>
 </div>
 

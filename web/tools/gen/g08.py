@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 H = INC + "int main() {\n%SRC%\n    return 0;\n}\n"
 T = []
@@ -68,27 +68,13 @@ assert len(out) >= 10 and out.isdigit()
 q_size = quiz("s 是空串，cout << s.size() - 1; 会输出什么？", ["-1", "0", "一个巨大的正数"], 2,
     "size() 返回的是“无符号整数”，空串时 0 - 1 不会得到 -1，而是回绕成一个巨大的数。所以写 (int)s.size() - 1 更安全。（我们真实运行过：确实输出了一个十位以上的大数。）")
 
-blocks = [
-    ("h2", "1. char 和 ASCII 码"),
-    ("p", "每个字符在计算机里都对应一个整数。<b>必须记住三段</b>：<code>'0'~'9'</code> 是 48~57，<code>'A'~'Z'</code> 是 65~90，<code>'a'~'z'</code> 是 97~122；同类字符连续编号，小写 = 大写 + 32。"),
-    ("calc", "ascii"),
-    ("quiz", q_plus),
-    ("quiz", q_digit),
-    ("quiz", q_up),
-    ("h2", "2. string：一排字符"),
-    ("trace", "ex-08-01"),
-    ("quiz", q_word),
-    ("quiz", q_quote),
-    ("quiz", q_size),
-    ("h2", "3. 读一整行：cin 后面接 getline 的经典坑"),
-    ("p", "<code>cin &gt;&gt; n</code> 读完数字，<b>换行符还留在输入里</b>。对比一下两种写法："),
-    ("picker", ["ex-08-02a", "ex-08-02b"], ["直接 getline（读到空行）", "先多读一次（正确）"]),
-    ("quiz", q_gl),
-    ("h2", "4. 统计字母：c - 'a' 当桶的下标"),
-    ("trace", "ex-08-03"),
-    ("task", ["把统计字母的例子敲一遍，输入一个全部由小写英文字母组成的单词（比如你名字的拼音），看每个字母出现几次。再试试输入带大写字母的，看看那个范围检查起什么作用。",
-              "把“先 cin >> n 再 getline”的两种写法都敲一遍，输入 <code>3</code> 换行 <code>abc</code>，亲眼看看区别。"],
-     "本页是精选演示，其余内容（string 常用函数、char 数组等）请读第 8 课 md。"),
-]
-path, nq = build_page("08-string.html", "08", "第8课｜字符与字符串", "第8课 字符与字符串（精选演示）", "字符与字符串：ASCII、string 和 getline", INTRO, "08-字符与字符串.md", blocks, tracefile="str-08.js")
-print("第8课: %d 个演示, %d 道小测" % (len(T), nq))
+inserts = {
+    "2.1": [("calc", "ascii"), ("quiz", q_plus), ("quiz", q_digit), ("quiz", q_up)],
+    "2.2": [("trace", "ex-08-01"), ("quiz", q_word), ("quiz", q_quote), ("quiz", q_size)],
+    "2.4": [("picker", ["ex-08-02a", "ex-08-02b"], ["直接 getline（读到空行）", "先多读一次（正确）"]), ("quiz", q_gl)],
+    "2.6": [("trace", "ex-08-03")],
+}
+tasks = (["把统计字母的例子敲一遍，输入一个全部由小写英文字母组成的单词（比如你名字的拼音），看每个字母出现几次。再试试输入带大写字母的，看看那个范围检查起什么作用。",
+              "把“先 cin >> n 再 getline”的两种写法都敲一遍，输入 <code>3</code> 换行 <code>abc</code>，亲眼看看区别。"], "")
+path, nq = build_lesson('08-字符与字符串.md', '08-string.html', '第8课｜字符与字符串', '08', inserts, ['str-08.js'], tasks)
+print("第8课: %d 道小测（正文全文 + 互动）" % nq)

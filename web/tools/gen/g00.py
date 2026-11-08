@@ -1,11 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
-
-MD = "00-环境搭建.md"
-text = open(os.path.join(WEB, "..", MD), encoding="utf-8").read()
-title, intro, secs = md_sections(text)
-assert_covers(text, intro + sections_html(secs))
+from mdpage import *
 
 q_old = quiz("你改了代码，但直接点“运行”，没有重新编译，运行的是什么？",
     ["新代码，因为文件已经保存了", "旧的 a.exe：没重新编译，可执行文件还是改动前生成的", "什么都不会运行"], 1,
@@ -26,15 +21,11 @@ q_tle = quiz("洛谷显示 TLE，说明什么？",
     ["答案错误", "超时：算法太慢、死循环、或者输入太多却用了慢速读入", "超内存"], 1,
     "超内存是 MLE（数组开得太大）。AC 才是通过。")
 
-def sec(k): return ("html", sections_html([secs[k]], open_all=True))
-blocks = [
-    ("html", '  <div class="md-tools"><button id="btn-all">全部收起</button></div>\n  ' + intro),
-    sec(0), ("quiz", q_old), ("quiz", q_err),
-    sec(1), ("quiz", q_env),
-    sec(2), ("quiz", q_path),
-    sec(3), ("quiz", q_re), ("quiz", q_tle),
-    sec(4),
-    sec(5),
-]
-path, nq = build_page("00-setup.html", "00", "第0课｜环境搭建", "第0课 环境搭建（完整内容）", title.replace("第 0 课 ", ""), "", MD, blocks, badge="内容与 md 相同，加了几道小测")
-print("第0课: %d 节, %d 道小测, 自查清单可勾选" % (len(secs), nq))
+inserts = {
+    "1.": [("quiz", q_old), ("quiz", q_err)],
+    "2.": [("quiz", q_env)],
+    "3.": [("quiz", q_path)],
+    "4.": [("quiz", q_re), ("quiz", q_tle)],
+}
+path, nq = build_lesson("00-环境搭建.md", "00-setup.html", "第0课｜环境搭建", "00", inserts, [])
+print("第0课: %d 道小测（正文全文 + 互动）" % nq)

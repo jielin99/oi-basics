@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 H = INC + "int main() {\n%SRC%\n    return 0;\n}\n"
 T = []
@@ -61,27 +61,13 @@ q_pow = quiz("要算整数的乘方（比如 3 的 5 次方）再放进 int，�
     ["(int)pow(3, 5)，库函数肯定没问题", "用循环自己一个一个乘", "3 ^ 5"], 1,
     "pow 返回 double，用来算整数乘方可能有微小误差（偶尔会少 1）；^ 在 C++ 里是异或，不是乘方。整数乘方请用循环自己乘。")
 
-blocks = [
-    ("h2", "1. 复合赋值：x += 3"),
-    ("trace", "ex-04-01"),
-    ("h2", "2. 自增：i++ 和 ++i 到底差在哪？"),
-    ("p", "单独成一句时两者一样。区别只在“被用在表达式里”：<code>a++</code> 先用旧值再加 1，<code>++a</code> 先加 1 再用新值。初赛阅读程序题常考。"),
-    ("trace", "ex-04-02"),
-    ("quiz", q_incr),
-    ("h2", "3. 逻辑运算与短路求值"),
-    ("trace", "ex-04-03"),
-    ("quiz", q_order),
-    ("quiz", q_short),
-    ("h2", "4. 容易写错的比较"),
-    ("quiz", q_assign),
-    ("quiz", q_chain),
-    ("quiz", q_and),
-    ("quiz", q_float),
-    ("quiz", q_pow),
-    ("task", ["把自增的例子敲一遍，再加一行 <code>int e = a-- + --c;</code>，<b>先猜</b> a、c、e 的值，再运行。",
-              "把 ex-04-03 里的 <code>b</code> 改成 2，再看输出；再把两个条件顺序对调、b 改回 0，亲眼看看会发生什么。"],
-     "本页是精选演示，其余内容（运算符优先级、数学函数、闰年判断等）请读第 4 课 md。"),
-]
-path, nq = build_page("04-operator.html", "04", "第4课｜运算符", "第4课 运算符与表达式（精选演示）", "运算符：自增、短路和几个容易写错的比较",
-                      INTRO, "04-运算符与表达式.md", blocks, tracefile="op-04.js")
-print("第4课: %d 个演示, %d 道小测" % (len(T), nq))
+inserts = {
+    "2.1": [("trace", "ex-04-01")],
+    "2.2": [("trace", "ex-04-02"), ("quiz", q_incr)],
+    "2.3": [("trace", "ex-04-03"), ("quiz", q_order), ("quiz", q_short)],
+    "3.":  [("quiz", q_assign), ("quiz", q_chain), ("quiz", q_and), ("quiz", q_float), ("quiz", q_pow)],
+}
+tasks = (["把自增的例子敲一遍，再加一行 <code>int e = a-- + --c;</code>，<b>先猜</b> a、c、e 的值，再运行。",
+              "把 ex-04-03 里的 <code>b</code> 改成 2，再看输出；再把两个条件顺序对调、b 改回 0，亲眼看看会发生什么。"], "")
+path, nq = build_lesson('04-运算符与表达式.md', '04-operator.html', '第4课｜运算符', '04', inserts, ['op-04.js'], tasks)
+print("第4课: %d 道小测（正文全文 + 互动）" % nq)

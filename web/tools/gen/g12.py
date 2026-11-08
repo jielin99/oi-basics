@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lib import *
+from mdpage import *
 
 H = INC + "int main() {\n%SRC%\n    return 0;\n}\n"
 T = []
@@ -72,48 +72,16 @@ q_file = quiz("比赛要求文件读写，freopen 里文件名写错了（比如
     ["没关系，大小写无所谓", "程序读不到数据，输出不对，通常是 0 分：题做对了也白做", "评测机会自动改"], 1,
     "“题做对了，文件名写错了，0 分”是考场上最惨的事。所以本地做题时就养成加 freopen 的习惯。")
 
-blocks = [
-    ("h2", "第一部分：指针（要求：能读懂初赛阅读程序题）"),
-    ("trace", "ex-12-01"),
-    ("quiz", q_scanf),
-    ("trace", "ex-12-02"),
-    ("quiz", q_ptr),
-    ("h2", "第二部分：位运算"),
-    ("p", "对两个数的<b>每一个二进制位</b>分别运算。在下面试试，看二进制是怎么对应的（输入范围 0~255，移位 0~20）："),
-    ("calc", "bits"),
-    ("quiz", q_bits),
-    ("trace", "ex-12-03"),
-    ("quiz", q_prec),
-    ("quiz", q_xor),
-    ("h2", "第三部分：比赛规范与复杂度"),
-    ("html", """  <div class="card"><b>📂 freopen：从文件读入、输出到文件</b>
-    <pre class="quiz-code">freopen("sum.in", "r", stdin);
-freopen("sum.out", "w", stdout);</pre>
-    <p style="margin:6px 0 0">练习方法：在代码所在文件夹新建 <code>sum.in</code>，写入 <code>3 5</code>，运行程序后打开 <code>sum.out</code> 应该看到 <code>8</code>。<b>从现在开始，所有在本地做的题，都尝试加上 freopen 来测试。</b></p></div>"""),
-    ("quiz", q_file),
-    ("html", """  <div class="card"><b>⏱ 时间复杂度：拿到题先看 n 的范围</b>
-    <p style="margin:6px 0">粗略估计：评测机 1 秒大约执行 10⁸ 次简单运算（只是数量级估算，接近上限时要留余量）。</p>
-    <table class="calc-tbl">
-      <tr><th>n 的最大值</th><th>可以接受</th><th>估算</th></tr>
-      <tr><td>20</td><td>O(2ⁿ)</td><td>2²⁰ ≈ 10⁶ ✅</td></tr>
-      <tr><td>500</td><td>O(n³)</td><td>1.25×10⁸ 勉强</td></tr>
-      <tr><td>5000</td><td>O(n²)</td><td>2.5×10⁷ ✅</td></tr>
-      <tr><td>10⁵</td><td>O(n log n)</td><td>≈ 1.7×10⁶ ✅；O(n²) = 10¹⁰ ❌</td></tr>
-      <tr><td>10⁶</td><td>O(n) 或 O(n log n)</td><td></td></tr>
-      <tr><td>10⁹ 以上</td><td>O(√n)、O(log n)、O(1)</td><td></td></tr>
-    </table></div>"""),
-    ("quiz", q_tle),
-    ("quiz", q_harm),
-    ("quiz", q_mem),
-    ("html", """  <div class="card"><b>🎯 部分分意识</b><ul style="margin:6px 0 0">
-    <li>比赛<b>按测试点给分</b>，不是全对才有分。</li>
-    <li>想不出满分做法时，<b>先写暴力</b>拿小数据的分。</li>
-    <li>题目里“对于 30% 的数据，n ≤ 100”这种说明，就是在提示你部分分。</li></ul></div>"""),
-    ("html", """  <div class="card"><b>🏁 结业测评</b>
-    <p style="margin:6px 0 0">结业分两部分：<b>A. 考场熟练度模拟</b>（计时 3.5 小时，全程用 freopen，不看资料）；<b>B. 新题迁移测评</b>（没见过的题，由老师/家长另选）。题目和要求请看第 12 课 md 的“结业：模拟测试”一节。</p></div>"""),
-    ("task", ["把指针的例子敲一遍，再试 <code>cout &lt;&lt; p;</code>，看看输出的地址长什么样（每台电脑都不同）。",
-              "用 <code>n &amp; 1</code> 和 <code>n &gt;&gt;= 1</code> 写一个“数二进制里有几个 1”的程序，用 freopen 从 <code>count.in</code> 读入。"],
-     "本页是精选演示，其余内容（指针与数组的关系、补码、进制转换、空间估算等）请读第 12 课 md。"),
-]
-path, nq = build_page("12-ptr-bit.html", "12", "第12课｜指针位运算与比赛规范", "第12课 指针、位运算与比赛规范（精选演示）", "指针、位运算和比赛规范", INTRO, "12-指针位运算与比赛规范.md", blocks, tracefile="ptr-bit-12.js")
-print("第12课: %d 个演示, %d 道小测, 1 个计算器" % (len(T), nq))
+inserts = {
+    "第一部分/2.": [("trace", "ex-12-01"), ("quiz", q_scanf)],
+    "第一部分/3.": [("trace", "ex-12-02"), ("quiz", q_ptr)],
+    "第二部分/2.": [("calc", "bits"), ("quiz", q_bits)],
+    "第二部分/3.": [("trace", "ex-12-03"), ("quiz", q_prec), ("quiz", q_xor)],
+    "第三部分/1.": [("quiz", q_file)],
+    "第三部分/2.": [("quiz", q_tle), ("quiz", q_harm)],
+    "第三部分/3.": [("quiz", q_mem)],
+}
+tasks = (["把指针的例子敲一遍，再试 <code>cout &lt;&lt; p;</code>，看看输出的地址长什么样（每台电脑都不同）。",
+              "用 <code>n &amp; 1</code> 和 <code>n &gt;&gt;= 1</code> 写一个“数二进制里有几个 1”的程序，用 freopen 从 <code>count.in</code> 读入。"], "")
+path, nq = build_lesson('12-指针位运算与比赛规范.md', '12-ptr-bit.html', '第12课｜指针位运算与比赛规范', '12', inserts, ['ptr-bit-12.js'], tasks)
+print("第12课: %d 道小测（正文全文 + 互动）" % nq)
