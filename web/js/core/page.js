@@ -70,6 +70,8 @@
         box.querySelector("[data-a=clear]").addEventListener("click", function () { self.clearQuestions(); });
       }
       this.initChecks();
+      var toc = document.querySelector("details.toc");
+      if (toc && window.innerWidth >= 1100) toc.open = true;     // 宽屏默认展开目录，手机默认收起
       var allBtn = document.getElementById("btn-all");
       if (allBtn) allBtn.addEventListener("click", function () {
         var ds = document.querySelectorAll("details.sec"), anyClosed = false, i;

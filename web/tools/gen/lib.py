@@ -8,6 +8,24 @@
 import copy, hashlib, html, json, os, re, subprocess, tempfile
 
 WEB = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# (课次, 主题, 页面文件, md 文件)；上下课导航、md 链接改写、目录页都用它
+LESSONS = [("第 0 课", "环境搭建", "00-setup.html", "00-环境搭建.md"),
+           ("第 1 课", "第一个程序", "01-first.html", "01-第一个程序.md"),
+           ("第 2 课", "变量与数据类型", "02-types.html", "02-变量与数据类型.md"),
+           ("第 3 课", "输入输出", "03-io.html", "03-输入输出.md"),
+           ("第 4 课", "运算符与表达式", "04-operator.html", "04-运算符与表达式.md"),
+           ("第 5 课", "分支结构", "05-branch.html", "05-分支结构.md"),
+           ("第 6 课", "循环结构", "06-loop.html", "06-循环结构.md"),
+           ("第 7 课", "数组", "07-array.html", "07-数组.md"),
+           ("第 8 课", "字符与字符串", "08-string.html", "08-字符与字符串.md"),
+           ("第 9 课", "函数与递归", "09-func.html", "09-函数与递归.md"),
+           ("第 10 课", "结构体与排序", "10-sort.html", "10-结构体与排序.md"),
+           ("第 11 课", "STL 入门", "11-stl.html", "11-STL入门.md"),
+           ("第 12 课", "指针、位运算与比赛规范", "12-ptr-bit.html", "12-指针位运算与比赛规范.md"),
+           ("附录 A", "Python 与 C++ 对照", "A-python-cpp.html", "附录A-Python与C++对照.md"),
+           ("附录 B", "常见错误与调试", "B-errors.html", "附录B-常见错误与调试.md"),
+           ("附录 C", "考场模板与规范", "C-template.html", "附录C-考场模板与规范.md")]
+MD2PAGE = {m: p for _, _, p, m in LESSONS}
 INC = "#include <iostream>\n#include <cstdio>\n#include <cmath>\n#include <string>\n#include <algorithm>\nusing namespace std;\n"
 
 
@@ -123,8 +141,16 @@ def crashes(code, pre=""):
 
 # ---------------- md → HTML（附录与第 0 课正文由 md 直接转出，保证内容一致） ----------------
 def _fix_href(u):
+    """页面都在 lessons/ 下，只发布 web/ 目录：md 链接改成课页，code/ 下的文件用 web/code/ 里的复制件。"""
     if re.match(r"^(https?:|#|mailto:)", u): return u
-    return "../../" + u
+    base = os.path.basename(u)
+    if base in MD2PAGE: return MD2PAGE[base]
+    if u.startswith("code/"):
+        import shutil                                   # 局域网/静态服务只发布 web/，把源文件复制过来
+        os.makedirs(os.path.join(WEB, "code"), exist_ok=True)
+        shutil.copyfile(os.path.join(WEB, "..", u), os.path.join(WEB, u))
+        return "../" + u
+    raise ValueError("无法改写的相对链接：%s" % u)
 
 
 def md_inline(s):
@@ -133,13 +159,20 @@ def md_inline(s):
         links.append('<a href="%s">%s</a>' % (html.escape(_fix_href(m.group(2)), quote=True), md_inline(m.group(1))))
         return "\x00%d\x00" % (len(links) - 1)
     s = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", grab, s)
-    out = []
-    for part in re.split(r"(`[^`]+`)", s):
-        if len(part) > 1 and part.startswith("`") and part.endswith("`"):
+    parts = re.split(r"(`[^`]+`)", s)
+    is_code = lambda p: len(p) > 1 and p.startswith("`") and p.endswith("`")
+    # 粗体可以跨过行内代码（**数据量大时用 `"\n"`**），所以按整句配对，而不是在每段里单独找
+    balanced = sum(p.count("**") for p in parts if not is_code(p)) % 2 == 0
+    bold, out = False, []
+    for part in parts:
+        if is_code(part):
             out.append("<code>%s</code>" % html.escape(part[1:-1]))
         else:
             q = html.escape(part, quote=False)
-            q = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", q)
+            if balanced:
+                pieces = q.split("**"); q = pieces[0]
+                for piece in pieces[1:]:
+                    bold = not bold; q += ("<b>" if bold else "</b>") + piece
             out.append(q)
     r = "".join(out)
     return re.sub(r"\x00(\d+)\x00", lambda m: links[int(m.group(1))], r)
@@ -156,16 +189,16 @@ _LI = re.compile(r"^(\s*)([-*]|\d+\.)\s+(.*)$")
 
 
 def _render_list(items):
-    """items: [(indent, ordered, text)] → 嵌套 ul/ol"""
+    """items: [(indent, ordered, text, 序号)] → 嵌套 ul/ol；有序列表按第一项的序号起算（被代码块打断后从 4 继续）"""
     out, stack = [], []          # stack: [(indent, tag)]
-    for ind, ordered, text in items:
+    for ind, ordered, text, num in items:
         tag = "ol" if ordered else "ul"
         while stack and ind < stack[-1][0]:
             out.append("</li></%s>" % stack.pop()[1])
         if stack and ind == stack[-1][0]:
             out.append("</li>")
         elif not stack or ind > stack[-1][0]:
-            out.append("<%s>" % tag); stack.append((ind, tag))
+            out.append(('<ol start="%d">' % num) if (ordered and num != 1) else "<%s>" % tag); stack.append((ind, tag))
         m = re.match(r"^\[( |x)\]\s+(.*)$", text)
         if m:
             out.append('<li class="task"><label><input type="checkbox" class="chk"> %s</label>' % md_inline(m.group(2)))
@@ -198,6 +231,12 @@ def _blocks(lines):
             t = '<table class="calc-tbl"><tr>%s</tr>' % "".join("<th>%s</th>" % md_inline(c) for c in head)
             for r in rows: t += "<tr>%s</tr>" % "".join("<td>%s</td>" % md_inline(c) for c in r)
             out.append(t + "</table>")
+        elif ln.startswith("<details"):
+            out.append('<details class="ans">'); i += 1
+        elif ln.startswith("</details>"):
+            out.append("</details>"); i += 1
+        elif ln.startswith("<summary>"):
+            out.append("<summary>%s</summary>" % md_inline(re.sub(r"</?summary>", "", ln).strip())); i += 1
         elif ln.startswith("### "):
             out.append("<h3>%s</h3>" % md_inline(ln[4:].strip())); i += 1
         elif _LI.match(ln):
@@ -205,7 +244,7 @@ def _blocks(lines):
             while i < n:
                 m = _LI.match(lines[i])
                 if m:
-                    items.append([len(m.group(1)), m.group(2)[0].isdigit(), m.group(3)]); i += 1
+                    items.append([len(m.group(1)), m.group(2)[0].isdigit(), m.group(3), int(m.group(2)[:-1]) if m.group(2)[0].isdigit() else 0]); i += 1
                 elif lines[i].startswith((" ", "\t")) and lines[i].strip() and items:
                     items[-1][2] += " " + lines[i].strip(); i += 1
                 elif not lines[i].strip() and i + 1 < n and _LI.match(lines[i + 1]) and items and _LI.match(lines[i + 1]).group(1):
@@ -215,7 +254,7 @@ def _blocks(lines):
             out.append(_render_list(items))
         else:
             buf = []
-            while i < n and lines[i].strip() and not lines[i].startswith(("```", ">", "|", "### ")) and not _LI.match(lines[i]) and not re.match(r"^---+\s*$", lines[i]):
+            while i < n and lines[i].strip() and not lines[i].startswith(("```", ">", "|", "### ", "<details", "</details>", "<summary>")) and not _LI.match(lines[i]) and not re.match(r"^---+\s*$", lines[i]):
                 buf.append(lines[i].strip()); i += 1
             if not buf: buf.append(lines[i].strip()); i += 1
             out.append("<p>%s</p>" % md_inline(" ".join(buf)))
@@ -309,11 +348,12 @@ PAGE = """<!doctype html>
 INTRO = "先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。"
 
 
-def build_page(filename, lesson, label, title, h1, intro, md, blocks, tracefile=None, badge="精选演示，非整课"):
-    """blocks 元素：
-      ("h2", "文字") ("p", "html") ("trace", id) ("picker", [ids], [labels]) ("quiz", dict)
-      ("calc", 名字) ("html", 原始html) ("task", [li html, ...], "后记 html")"""
-    body, quizzes, n = "", [], 0
+def render_blocks(blocks, counter=None):
+    """blocks 元素：("h2", 文字) ("p", html) ("trace", id) ("picker", [ids], [labels]) ("quiz", dict)
+      ("calc", 名字) ("html", 原始html) ("task", [li html, ...], "后记 html")
+    返回 (html, [小测挂载js], 小测数)。counter 是小测编号计数器（整页共用，保证 id 不重复）。"""
+    counter = counter if counter is not None else [0]
+    body, quizzes = "", []
     for b in blocks:
         k = b[0]
         if k == "h2": body += "\n  <h2>%s</h2>\n" % b[1]
@@ -323,13 +363,22 @@ def build_page(filename, lesson, label, title, h1, intro, md, blocks, tracefile=
         elif k == "picker": body += '  <div data-traces="%s" data-labels="%s"></div>\n' % (",".join(b[1]), "|".join(b[2]))
         elif k == "calc": body += '  <div data-calc="%s"></div>\n' % b[1]
         elif k == "quiz":
-            n += 1
-            body += '  <div id="q%d"></div>\n' % n
-            quizzes.append("  Q(\"q%d\", %s);" % (n, json.dumps(b[1], ensure_ascii=False)))
+            counter[0] += 1
+            body += '  <div id="q%d"></div>\n' % counter[0]
+            quizzes.append("  Q(\"q%d\", %s);" % (counter[0], json.dumps(b[1], ensure_ascii=False)))
         elif k == "task":
-            body += ('\n  <div class="card">\n    <b>✍️ 回到 Dev-C++ 自己试一试</b>\n    <ol>\n%s\n    </ol>\n    <p style="color:var(--muted);font-size:.85rem">%s</p>\n  </div>\n'
-                     % ("\n".join("      <li>%s</li>" % x for x in b[1]), b[2]))
+            body += ('\n  <div class="card">\n    <b>✍️ 回到 Dev-C++ 自己试一试</b>\n    <ol>\n%s\n    </ol>\n%s  </div>\n'
+                     % ("\n".join("      <li>%s</li>" % x for x in b[1]),
+                        ('    <p style="color:var(--muted);font-size:.85rem">%s</p>\n' % b[2]) if b[2] else ""))
         else: raise ValueError(k)
+    return body, quizzes, len(quizzes)
+
+
+def build_page(filename, lesson, label, title, h1, intro, md, blocks, tracefile=None, badge="精选演示，非整课"):
+    """blocks 元素：
+      ("h2", "文字") ("p", "html") ("trace", id) ("picker", [ids], [labels]) ("quiz", dict)
+      ("calc", 名字) ("html", 原始html) ("task", [li html, ...], "后记 html")"""
+    body, quizzes, n = render_blocks(blocks)
     scripts = ""
     for tf in ([tracefile] if isinstance(tracefile, str) else (tracefile or [])):
         scripts += '<script src="../data/traces/%s"></script>\n' % tf
