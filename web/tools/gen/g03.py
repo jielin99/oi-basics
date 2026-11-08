@@ -12,7 +12,7 @@ for tag, inp, how in (("a", "12 30\n", "用空格隔开"), ("b", "12\n30\n", "�
     t.step(1, "声明两个整数盒子 a、b，还没有值。下面是键盘输入的内容，cin 从左往右一个字符一个字符地读。", tape=tp(0))
     # 读 a：从 0 开始读到第一个空白前
     i = 0; j = inp.index(inp.split()[0]) + len(inp.split()[0]); a = int(inp.split()[0])
-    t.step(2, "cin >> a：跳过前面的空白，读一个整数，读到空白（空格或换行）就停。读到 %d，放进 a。" % a, vars={"a": a}, tape=tp(j))
+    t.step(2, "cin >> a：先跳过前面的空白，再按 a 的类型（整数）往后读，读到不属于数字的字符（这里是空格或换行）就停。读到 %d，放进 a。" % a, vars={"a": a}, tape=tp(j))
     k = j
     while inp[k] in " \n": k += 1
     b = int(inp.split()[1]); k += len(inp.split()[1])
@@ -28,7 +28,7 @@ tp = lambda pos: {"text": inp, "pos": pos}
 t.step(1, "sum 先清 0。x 还没有值。", vars={"sum": 0}, tape=tp(0))
 sum_ = 0
 for tok, pos in ((3, 1), (5, 3), (4, 5)):
-    t.step(2, "cin >> x 读成功（读到 %d），条件为真（cin >> x 本身的值是“读成功没有”），进入循环体。" % tok, vars={"sum": sum_, "x": tok}, tape=tp(pos))
+    t.step(2, "cin >> x 读成功（读到 %d）：while 会检查 cin 的状态，没有出错，条件为真，进入循环体。" % tok, vars={"sum": sum_, "x": tok}, tape=tp(pos))
     sum_ += tok
     t.step(3, "sum += x，sum 变成 %d。" % sum_, vars={"sum": sum_, "x": tok}, tape=tp(pos))
 t.step(2, "再读：跳过换行后，输入已经到头了（EOF），读失败，条件为假，循环结束。本地测试时输完数据按 Ctrl+Z 再回车就是告诉程序“输入结束”。", vars={"sum": sum_, "x": 4}, tape=tp(len(inp)))
@@ -58,7 +58,7 @@ q_mix = quiz("加了 ios::sync_with_stdio(false); 加速以后，可以混用 ci
 
 blocks = [
     ("h2", "1. cin 是怎么读数据的"),
-    ("p", "输入的内容像一条“传送带”，<b>cin 从左往右一个一个读</b>：先跳过空白，再读一个和变量类型匹配的内容，读到空白就停。灰色划掉的是已经读走的，黄色是下一个要读的位置。"),
+    ("p", "输入的内容像一条“传送带”，<b>cin 从左往右一个一个读</b>：先跳过空白，再按变量的类型读取（读整数就读数字，读 char 就读一个非空白字符）。灰色划掉的是已经读走的，黄色是下一个要读的位置。"),
     ("picker", ["ex-03-01a", "ex-03-01b"], ["数字用空格隔开", "数字分两行输入"]),
     ("quiz", q_char),
     ("h2", "2. 读到输入结束"),

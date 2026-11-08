@@ -18,7 +18,7 @@
   <p>先看动画，再做小测，最后一定要在 Dev-C++ 里自己敲一遍。黄色高亮是「这一步刚变的地方」。看不懂就点「🙋 我不懂这里」，页面底部会生成一行文字，发给老师就行。</p>
 
   <h2>1. 值传递和引用传递</h2>
-  <p>C++ 里函数的参数<b>默认都是“复印件”</b>。想让函数改动外面的变量，要在参数类型后面加 <code>&amp;</code>。点上面的按钮对比两种写法：</p>
+  <p>C++ 里函数的参数<b>默认都是“复印件”</b>。想让函数改动调用者传进来的变量，可以在参数类型后面加 <code>&amp;</code>（引用）。点上面的按钮对比两种写法：</p>
   <div data-traces="ex-09-01a,ex-09-01b" data-labels="值传递（复印件）|引用传递（int &x）"></div>
   <div id="q1"></div>
   <div id="q2"></div>
@@ -63,7 +63,7 @@
   Q("q3", {"q": "预测输出：数组传进函数不是复印件。输出什么？", "code": "void fill(int a[], int n) {\n    for (int i = 1; i <= n; i++) a[i] = i * i;\n}\nint b[5];\nint main() {\n    fill(b, 3);\n    cout << b[1] << \" \" << b[2] << \" \" << b[3];\n}", "options": ["0 0 0", "1 4 9", "1 2 3"], "answer": 1, "explain": "数组传进函数时，函数里改的就是原数组（不是复印件），所以 main 里能看到修改。输出 1 4 9。"});
   Q("q4", {"q": "预测输出：局部变量和全局变量同名，会“遮住”全局的。输出什么？", "code": "int n = 10;\nvoid show() { cout << n; }\nint main() {\n    int n = 5;\n    show();\n    cout << \" \" << n;\n}", "options": ["10 10", "10 5", "5 10", "5 5"], "answer": 1, "explain": "show() 里用的是全局的 n（10）；main 里又声明了一个局部的 n（5），把全局的遮住了。main 里的 n 和全局的 n 是两个不同的变量。输出 10 5。"});
   Q("q5", {"q": "fact 函数没有写出口（去掉 if (n == 0) return 1;），调用 fact(3) 会怎样？", "options": ["正常算出 6", "无限递归，栈溢出，程序崩溃（RE）", "输出 0"], "answer": 1, "explain": "没有出口，函数会一直调用自己，栈帧越叠越多，直到栈用完程序崩溃。我们真实运行过这种写法，它确实会异常退出。出口写错也一样。"});
-  Q("q6", {"q": "一个有返回值的函数，有的路径忘了写 return，会怎样？", "options": ["自动返回 0，没问题", "这是程序错误，结果不可靠，甚至可能崩溃", "编译一定不通过"], "answer": 1, "explain": "不是“返回一个随机数”那么简单，而是程序出错，后果不可预料。加 -Wall 编译，编译器会警告 control reaches end of non-void function。"});
+  Q("q6", {"q": "一个返回 int 的普通函数（不是 main），某次调用走到了函数末尾，却没有执行 return，会怎样？", "options": ["自动返回 0，没问题", "这是程序错误，结果不可靠，甚至可能崩溃", "编译一定不通过"], "answer": 1, "explain": "不是“自动返回 0”或“返回一个随机数”那么简单：这是程序错误，后果不可预料。（main 是特例：走到末尾等于 return 0。）加 -Wall 编译，编译器会警告 control reaches end of non-void function。"});
   Q("q7", {"q": "递归为什么慢？数一数：求 fib(5) 一共调用了几次 fib 函数？", "code": "int cnt = 0;\nint fib(int n) {\n    cnt++;\n    if (n <= 2) return 1;\n    return fib(n - 1) + fib(n - 2);\n}\nint main() {\n    fib(5);\n    cout << cnt;\n}", "options": ["15", "5", "6", "9"], "answer": 3, "explain": "fib(5) 要调用 fib(4) 和 fib(3)，它们又各自往下调用……同一个值被反复计算（fib(3) 就算了 2 次）。一共 9 次，n 一大次数暴增，所以要用“记忆化”。"});
   mountSteppers();
   mountCalcs();

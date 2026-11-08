@@ -164,12 +164,13 @@ window.TRACES["ex-06-02"] = {
    "vars": {
     "n": 12,
     "digitSum": 3,
-    "rev": 3
+    "rev": 3,
+    "d": 3
    },
    "arrays": {},
    "hl": {},
    "out": "",
-   "note": "n /= 10：去掉个位，n 变成 12。"
+   "note": "n /= 10：去掉个位，n 变成 12。（d 还在：它在循环体的花括号结束时才消失，下一圈会重新生成一个。）"
   },
   {
    "line": 3,
@@ -215,12 +216,13 @@ window.TRACES["ex-06-02"] = {
    "vars": {
     "n": 1,
     "digitSum": 5,
-    "rev": 32
+    "rev": 32,
+    "d": 2
    },
    "arrays": {},
    "hl": {},
    "out": "",
-   "note": "n /= 10：去掉个位，n 变成 1。"
+   "note": "n /= 10：去掉个位，n 变成 1。（d 还在：它在循环体的花括号结束时才消失，下一圈会重新生成一个。）"
   },
   {
    "line": 3,
@@ -266,12 +268,13 @@ window.TRACES["ex-06-02"] = {
    "vars": {
     "n": 0,
     "digitSum": 6,
-    "rev": 321
+    "rev": 321,
+    "d": 1
    },
    "arrays": {},
    "hl": {},
    "out": "",
-   "note": "n /= 10：去掉个位，n 变成 0。"
+   "note": "n /= 10：去掉个位，n 变成 0。（d 还在：它在循环体的花括号结束时才消失，下一圈会重新生成一个。）"
   },
   {
    "line": 2,
@@ -301,7 +304,7 @@ window.TRACES["ex-06-02"] = {
 };
 window.TRACES["ex-06-03a"] = {
  "title": "判断质数：只试到 √n（n = 7）",
- "source": "int n = 7;\nbool isPrime = true;\nfor (int i = 2; i <= n / i; i++) {\n    if (n % i == 0) {\n        isPrime = false;\n        break;\n    }\n}\ncout << (isPrime ? \"prime\" : \"not prime\");\n",
+ "source": "int n = 7;\nbool isPrime = true;\nif (n < 2) isPrime = false;\nfor (int i = 2; i <= n / i; i++) {\n    if (n % i == 0) {\n        isPrime = false;\n        break;\n    }\n}\ncout << (isPrime ? \"prime\" : \"not prime\");\n",
  "harness": "#include <iostream>\n#include <cstdio>\n#include <cmath>\n#include <string>\n#include <algorithm>\nusing namespace std;\nint main() {\n%SRC%\n    return 0;\n}\n",
  "input": "",
  "expectOutput": "prime",
@@ -332,13 +335,12 @@ window.TRACES["ex-06-03a"] = {
    "line": 3,
    "vars": {
     "n": 7,
-    "isPrime": "true",
-    "i": 2
+    "isPrime": "true"
    },
    "arrays": {},
    "hl": {},
    "out": "",
-   "note": "i = 2，n / i = 3，2 <= 3 成立，进入循环体。（i <= n / i 就是 i×i <= n：只试到 √n）"
+   "note": "n < 2 吗？7 < 2 不成立。（0、1 和负数都不是质数，所以必须单独处理；否则它们会因为“没找到因数”被当成质数。）"
   },
   {
    "line": 4,
@@ -350,10 +352,22 @@ window.TRACES["ex-06-03a"] = {
    "arrays": {},
    "hl": {},
    "out": "",
+   "note": "i = 2，n / i = 3，2 <= 3 成立，进入循环体。（i <= n / i 就是 i×i <= n：只试到 √n）"
+  },
+  {
+   "line": 5,
+   "vars": {
+    "n": 7,
+    "isPrime": "true",
+    "i": 2
+   },
+   "arrays": {},
+   "hl": {},
+   "out": "",
    "note": "7 % 2 = 1，不等于 0，不能整除，继续试下一个。"
   },
   {
-   "line": 3,
+   "line": 4,
    "vars": {
     "n": 7,
     "isPrime": "true",
@@ -362,10 +376,10 @@ window.TRACES["ex-06-03a"] = {
    "arrays": {},
    "hl": {},
    "out": "",
-   "note": "i = 3，n / i = 2，3 <= 2 不成立，循环结束：√n 以内没有因数。"
+   "note": "i = 3，n / i = 2，3 <= 2 不成立，循环结束：2 到 √n 之间没有找到因数，而且 n ≥ 2，所以 n 是质数。"
   },
   {
-   "line": 9,
+   "line": 10,
    "vars": {
     "n": 7,
     "isPrime": "true"
@@ -379,7 +393,7 @@ window.TRACES["ex-06-03a"] = {
 };
 window.TRACES["ex-06-03b"] = {
  "title": "判断质数：只试到 √n（n = 15）",
- "source": "int n = 15;\nbool isPrime = true;\nfor (int i = 2; i <= n / i; i++) {\n    if (n % i == 0) {\n        isPrime = false;\n        break;\n    }\n}\ncout << (isPrime ? \"prime\" : \"not prime\");\n",
+ "source": "int n = 15;\nbool isPrime = true;\nif (n < 2) isPrime = false;\nfor (int i = 2; i <= n / i; i++) {\n    if (n % i == 0) {\n        isPrime = false;\n        break;\n    }\n}\ncout << (isPrime ? \"prime\" : \"not prime\");\n",
  "harness": "#include <iostream>\n#include <cstdio>\n#include <cmath>\n#include <string>\n#include <algorithm>\nusing namespace std;\nint main() {\n%SRC%\n    return 0;\n}\n",
  "input": "",
  "expectOutput": "not prime",
@@ -410,6 +424,17 @@ window.TRACES["ex-06-03b"] = {
    "line": 3,
    "vars": {
     "n": 15,
+    "isPrime": "true"
+   },
+   "arrays": {},
+   "hl": {},
+   "out": "",
+   "note": "n < 2 吗？15 < 2 不成立。（0、1 和负数都不是质数，所以必须单独处理；否则它们会因为“没找到因数”被当成质数。）"
+  },
+  {
+   "line": 4,
+   "vars": {
+    "n": 15,
     "isPrime": "true",
     "i": 2
    },
@@ -419,7 +444,7 @@ window.TRACES["ex-06-03b"] = {
    "note": "i = 2，n / i = 7，2 <= 7 成立，进入循环体。（i <= n / i 就是 i×i <= n：只试到 √n）"
   },
   {
-   "line": 4,
+   "line": 5,
    "vars": {
     "n": 15,
     "isPrime": "true",
@@ -431,7 +456,7 @@ window.TRACES["ex-06-03b"] = {
    "note": "15 % 2 = 1，不等于 0，不能整除，继续试下一个。"
   },
   {
-   "line": 3,
+   "line": 4,
    "vars": {
     "n": 15,
     "isPrime": "true",
@@ -443,7 +468,7 @@ window.TRACES["ex-06-03b"] = {
    "note": "i = 3，n / i = 5，3 <= 5 成立，进入循环体。（i <= n / i 就是 i×i <= n：只试到 √n）"
   },
   {
-   "line": 4,
+   "line": 5,
    "vars": {
     "n": 15,
     "isPrime": "true",
@@ -455,7 +480,7 @@ window.TRACES["ex-06-03b"] = {
    "note": "15 % 3 == 0 成立：15 能被 3 整除！"
   },
   {
-   "line": 5,
+   "line": 6,
    "vars": {
     "n": 15,
     "isPrime": "false",
@@ -467,7 +492,7 @@ window.TRACES["ex-06-03b"] = {
    "note": "isPrime = false：它不是质数。"
   },
   {
-   "line": 6,
+   "line": 7,
    "vars": {
     "n": 15,
     "isPrime": "false",
@@ -479,7 +504,7 @@ window.TRACES["ex-06-03b"] = {
    "note": "break：已经找到因数，没必要再试了，直接跳出循环。"
   },
   {
-   "line": 9,
+   "line": 10,
    "vars": {
     "n": 15,
     "isPrime": "false"

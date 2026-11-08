@@ -146,7 +146,21 @@ window.TRACES["ex-08-02a"] = {
    "arrays": {},
    "hl": {},
    "out": "",
-   "note": "n 和 line 都先声明。输入是两行：3 和 hello。",
+   "note": "声明 n。它还没有值。输入是两行：3 和 hello，cin 从头开始读。",
+   "tape": {
+    "text": "3\nhello\n",
+    "pos": 0
+   }
+  },
+  {
+   "line": 2,
+   "vars": {
+    "line": "\"\""
+   },
+   "arrays": {},
+   "hl": {},
+   "out": "",
+   "note": "声明 line：string 一出生就是空字符串，所以 line 里现在是 \"\"。",
    "tape": {
     "text": "3\nhello\n",
     "pos": 0
@@ -212,7 +226,21 @@ window.TRACES["ex-08-02b"] = {
    "arrays": {},
    "hl": {},
    "out": "",
-   "note": "n 和 line 都先声明。输入是两行：3 和 hello。",
+   "note": "声明 n。它还没有值。输入是两行：3 和 hello，cin 从头开始读。",
+   "tape": {
+    "text": "3\nhello\n",
+    "pos": 0
+   }
+  },
+  {
+   "line": 2,
+   "vars": {
+    "line": "\"\""
+   },
+   "arrays": {},
+   "hl": {},
+   "out": "",
+   "note": "声明 line：string 一出生就是空字符串，所以 line 里现在是 \"\"。",
    "tape": {
     "text": "3\nhello\n",
     "pos": 0
@@ -281,7 +309,7 @@ window.TRACES["ex-08-02b"] = {
 };
 window.TRACES["ex-08-03"] = {
  "title": "统计字母：用 c - 'a' 当桶的下标（cnt 是全局的 26 个桶）",
- "source": "string s = \"abca\";\nfor (char c : s) {\n    cnt[c - 'a']++;\n}\nfor (int i = 0; i < 3; i++) {\n    cout << (char)('a' + i) << \":\" << cnt[i] << \" \";\n}\n",
+ "source": "string s = \"abca\";\nfor (char c : s) {\n    if (c >= 'a' && c <= 'z') cnt[c - 'a']++;\n}\nfor (int i = 0; i < 3; i++) {\n    cout << (char)('a' + i) << \":\" << cnt[i] << \" \";\n}\n",
  "harness": "#include <iostream>\n#include <cstdio>\n#include <cmath>\n#include <string>\n#include <algorithm>\nusing namespace std;\nint cnt[26];\nint main() {\n%SRC%\n    return 0;\n}\n",
  "input": "",
  "expectOutput": "a:2 b:1 c:1",
@@ -376,7 +404,7 @@ window.TRACES["ex-08-03"] = {
     "cnt": 0
    },
    "out": "",
-   "note": "c = 'a'：c - 'a' = 0（'a'→0，'b'→1……），所以 cnt[0]++，变成 1。字符连续编号，减去 'a' 就得到 0~25 的下标。"
+   "note": "c = 'a'：先检查它是小写字母（不检查的话，大写字母或符号减去 'a' 会得到负数或太大的下标，数组就越界了）。c - 'a' = 0（'a'→0，'b'→1……），所以 cnt[0]++，变成 1。"
   },
   {
    "line": 3,
@@ -424,7 +452,7 @@ window.TRACES["ex-08-03"] = {
     "cnt": 1
    },
    "out": "",
-   "note": "c = 'b'：c - 'a' = 1（'a'→0，'b'→1……），所以 cnt[1]++，变成 1。字符连续编号，减去 'a' 就得到 0~25 的下标。"
+   "note": "c = 'b'：先检查它是小写字母（不检查的话，大写字母或符号减去 'a' 会得到负数或太大的下标，数组就越界了）。c - 'a' = 1（'a'→0，'b'→1……），所以 cnt[1]++，变成 1。"
   },
   {
    "line": 3,
@@ -472,7 +500,7 @@ window.TRACES["ex-08-03"] = {
     "cnt": 2
    },
    "out": "",
-   "note": "c = 'c'：c - 'a' = 2（'a'→0，'b'→1……），所以 cnt[2]++，变成 1。字符连续编号，减去 'a' 就得到 0~25 的下标。"
+   "note": "c = 'c'：先检查它是小写字母（不检查的话，大写字母或符号减去 'a' 会得到负数或太大的下标，数组就越界了）。c - 'a' = 2（'a'→0，'b'→1……），所以 cnt[2]++，变成 1。"
   },
   {
    "line": 3,
@@ -520,7 +548,7 @@ window.TRACES["ex-08-03"] = {
     "cnt": 0
    },
    "out": "",
-   "note": "c = 'a'：c - 'a' = 0（'a'→0，'b'→1……），所以 cnt[0]++，变成 2。字符连续编号，减去 'a' 就得到 0~25 的下标。"
+   "note": "c = 'a'：先检查它是小写字母（不检查的话，大写字母或符号减去 'a' 会得到负数或太大的下标，数组就越界了）。c - 'a' = 0（'a'→0，'b'→1……），所以 cnt[0]++，变成 2。"
   },
   {
    "line": 6,

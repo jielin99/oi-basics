@@ -24,7 +24,7 @@ for tag, amp in (("a", ""), ("b", "&")):
         t.step(2, "x = 100：改 x 就是改 a！",
                stack=[main(100, "等待 change 结束"), {"fn": "change", "vars": {"x": "（就是 a）100"}, "at": "改的是原件"}])
         t.step(3, "change 结束。", stack=[main(100)])
-        t.say("100"); t.step(7, "输出 a：变成了 100。想在函数里改外面的变量，参数类型后面要加 &。", stack=[main(100)])
+        t.say("100"); t.step(7, "输出 a：变成了 100。想让函数改动调用者传进来的 int 变量，可以把参数写成引用 int &x。", stack=[main(100)])
     T.append(t)
 
 # ---- ex-09-02 fact(3) 的调用栈 ----
@@ -73,16 +73,16 @@ assert crashes("long long f(int n) { return n * f(n - 1); }\nint main() { cout <
 q_exit = quiz("fact 函数没有写出口（去掉 if (n == 0) return 1;），调用 fact(3) 会怎样？",
     ["正常算出 6", "无限递归，栈溢出，程序崩溃（RE）", "输出 0"], 1,
     "没有出口，函数会一直调用自己，栈帧越叠越多，直到栈用完程序崩溃。我们真实运行过这种写法，它确实会异常退出。出口写错也一样。")
-q_ret = quiz("一个有返回值的函数，有的路径忘了写 return，会怎样？",
+q_ret = quiz("一个返回 int 的普通函数（不是 main），某次调用走到了函数末尾，却没有执行 return，会怎样？",
     ["自动返回 0，没问题", "这是程序错误，结果不可靠，甚至可能崩溃", "编译一定不通过"], 1,
-    "不是“返回一个随机数”那么简单，而是程序出错，后果不可预料。加 -Wall 编译，编译器会警告 control reaches end of non-void function。")
+    "不是“自动返回 0”或“返回一个随机数”那么简单：这是程序错误，后果不可预料。（main 是特例：走到末尾等于 return 0。）加 -Wall 编译，编译器会警告 control reaches end of non-void function。")
 q_fib = predict_quiz("递归为什么慢？数一数：求 fib(5) 一共调用了几次 fib 函数？",
     "int cnt = 0;\nint fib(int n) {\n    cnt++;\n    if (n <= 2) return 1;\n    return fib(n - 1) + fib(n - 2);\n}\nint main() {\n    fib(5);\n    cout << cnt;\n}",
     ["5", "6", "15"], "fib(5) 要调用 fib(4) 和 fib(3)，它们又各自往下调用……同一个值被反复计算（fib(3) 就算了 2 次）。一共 {real} 次，n 一大次数暴增，所以要用“记忆化”。", main=False)
 
 blocks = [
     ("h2", "1. 值传递和引用传递"),
-    ("p", "C++ 里函数的参数<b>默认都是“复印件”</b>。想让函数改动外面的变量，要在参数类型后面加 <code>&amp;</code>。点上面的按钮对比两种写法："),
+    ("p", "C++ 里函数的参数<b>默认都是“复印件”</b>。想让函数改动调用者传进来的变量，可以在参数类型后面加 <code>&amp;</code>（引用）。点上面的按钮对比两种写法："),
     ("picker", ["ex-09-01a", "ex-09-01b"], ["值传递（复印件）", "引用传递（int &x）"]),
     ("quiz", q_swap),
     ("quiz", q_div),

@@ -33,7 +33,7 @@ while n > 0:
     rev = rev * 10 + d
     t.step(5, "rev = rev * 10 + d：把 rev 左移一位再接上 d，变成 %d。" % rev, {"n": n, "digitSum": ds, "rev": rev, "d": d})
     n = cdiv(n, 10)
-    t.step(6, "n /= 10：去掉个位，n 变成 %d。" % n, {"n": n, "digitSum": ds, "rev": rev})
+    t.step(6, "n /= 10：去掉个位，n 变成 %d。（d 还在：它在循环体的花括号结束时才消失，下一圈会重新生成一个。）" % n, {"n": n, "digitSum": ds, "rev": rev, "d": d})
 t.step(2, "n = 0，0 > 0 不成立，循环结束。", {"n": n, "digitSum": ds, "rev": rev})
 t.say("%d %d" % (ds, rev))
 t.step(8, "输出数位之和 %d 和反转数 %d。" % (ds, rev), {"n": n, "digitSum": ds, "rev": rev})
@@ -41,31 +41,32 @@ T.append(t)
 
 # ---- ex-06-03a/b 判断质数 ----
 for tag, N in (("a", 7), ("b", 15)):
-    src = ("int n = %d;\nbool isPrime = true;\nfor (int i = 2; i <= n / i; i++) {\n    if (n %% i == 0) {\n        isPrime = false;\n"
+    src = ("int n = %d;\nbool isPrime = true;\nif (n < 2) isPrime = false;\nfor (int i = 2; i <= n / i; i++) {\n    if (n %% i == 0) {\n        isPrime = false;\n"
            "        break;\n    }\n}\ncout << (isPrime ? \"prime\" : \"not prime\");\n") % N
     t = Trace("ex-06-03" + tag, "判断质数：只试到 √n（n = %d）" % N, src, H)
     prime = True
     t.step(1, "要判断 n = %d 是不是质数。" % N, {"n": N})
     t.step(2, "先假设它是质数。", {"n": N, "isPrime": "true"})
+    t.step(3, "n < 2 吗？%d < 2 不成立。（0、1 和负数都不是质数，所以必须单独处理；否则它们会因为“没找到因数”被当成质数。）" % N, {"n": N, "isPrime": "true"})
     i = 2
     while True:
         lim = cdiv(N, i)
         if i <= lim:
-            t.step(3, "i = %d，n / i = %d，%d <= %d 成立，进入循环体。（i <= n / i 就是 i×i <= n：只试到 √n）" % (i, lim, i, lim),
+            t.step(4, "i = %d，n / i = %d，%d <= %d 成立，进入循环体。（i <= n / i 就是 i×i <= n：只试到 √n）" % (i, lim, i, lim),
                    {"n": N, "isPrime": str(prime).lower(), "i": i})
             if N % i == 0:
-                t.step(4, "%d %% %d == 0 成立：%d 能被 %d 整除！" % (N, i, N, i), {"n": N, "isPrime": "true", "i": i})
+                t.step(5, "%d %% %d == 0 成立：%d 能被 %d 整除！" % (N, i, N, i), {"n": N, "isPrime": "true", "i": i})
                 prime = False
-                t.step(5, "isPrime = false：它不是质数。", {"n": N, "isPrime": "false", "i": i})
-                t.step(6, "break：已经找到因数，没必要再试了，直接跳出循环。", {"n": N, "isPrime": "false", "i": i})
+                t.step(6, "isPrime = false：它不是质数。", {"n": N, "isPrime": "false", "i": i})
+                t.step(7, "break：已经找到因数，没必要再试了，直接跳出循环。", {"n": N, "isPrime": "false", "i": i})
                 break
-            t.step(4, "%d %% %d = %d，不等于 0，不能整除，继续试下一个。" % (N, i, N % i), {"n": N, "isPrime": "true", "i": i})
+            t.step(5, "%d %% %d = %d，不等于 0，不能整除，继续试下一个。" % (N, i, N % i), {"n": N, "isPrime": "true", "i": i})
             i += 1
         else:
-            t.step(3, "i = %d，n / i = %d，%d <= %d 不成立，循环结束：√n 以内没有因数。" % (i, lim, i, lim), {"n": N, "isPrime": "true", "i": i})
+            t.step(4, "i = %d，n / i = %d，%d <= %d 不成立，循环结束：2 到 √n 之间没有找到因数，而且 n ≥ 2，所以 n 是质数。" % (i, lim, i, lim), {"n": N, "isPrime": "true", "i": i})
             break
     t.say("prime" if prime else "not prime")
-    t.step(9, "输出 %s。" % ("prime" if prime else "not prime"), {"n": N, "isPrime": str(prime).lower()})
+    t.step(10, "输出 %s。" % ("prime" if prime else "not prime"), {"n": N, "isPrime": str(prime).lower()})
     T.append(t)
 
 # ---- ex-06-04 嵌套循环：直角三角形 ----
@@ -117,7 +118,7 @@ q_step = predict_quiz("变一变：把步长改成 i += 2，会输出什么？",
 # 8 拆数位变式
 q_digit = predict_quiz("变一变：如果 n 是 405，这段代码会输出什么？",
     "int n = 405, digitSum = 0, rev = 0;\nwhile (n > 0) {\n    int d = n % 10;\n    digitSum += d;\n    rev = rev * 10 + d;\n    n /= 10;\n}\ncout << digitSum << \" \" << rev;",
-    ["9 54", "5 504", "9 405"], "5、0、4 依次取出：数位和 9；rev 依次是 5、50、504，所以反转数是 504（前导的 0 在末尾）。输出 {real}。")
+    ["9 54", "5 504", "9 405"], "5、0、4 依次取出：数位和 9；rev 依次是 5、50、504，所以反转数是 504（中间的 0 也要参与计算）。输出 {real}。")
 
 blocks = [
     ("h2", "1. for 循环：初始化 → 判断 → 循环体 → 更新"),

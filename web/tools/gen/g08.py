@@ -25,7 +25,8 @@ for tag, extra in (("a", False), ("b", True)):
     ln_get = 4
     t = Trace("ex-08-02" + tag, "cin >> n 之后读一行：%s" % ("先多读一次 getline（对）" if extra else "直接 getline（经典坑）"), src, H, input=inp)
     tp = lambda pos: {"text": inp, "pos": pos}
-    t.step(1, "n 和 line 都先声明。输入是两行：3 和 hello。", tape=tp(0))
+    t.step(1, "声明 n。它还没有值。输入是两行：3 和 hello，cin 从头开始读。", tape=tp(0))
+    t.step(2, "声明 line：string 一出生就是空字符串，所以 line 里现在是 \"\"。", vars={"line": '""'}, tape=tp(0))
     t.step(3, "cin >> n：读到 3。注意：3 后面的换行符还留在输入里没被读走！", vars={"n": 3}, tape=tp(1))
     if extra:
         t.step(4, "先来一句 getline：它从当前位置读到换行为止——读到的是“空”，同时把那个残留的换行吃掉了。", vars={"n": 3, "line": '""'}, tape=tp(2))
@@ -38,13 +39,13 @@ for tag, extra in (("a", False), ("b", True)):
 
 # ---- ex-08-03 字母计数：c - 'a' 当桶下标 ----
 H3 = INC + "int cnt[26];\nint main() {\n%SRC%\n    return 0;\n}\n"
-src = "string s = \"abca\";\nfor (char c : s) {\n    cnt[c - 'a']++;\n}\nfor (int i = 0; i < 3; i++) {\n    cout << (char)('a' + i) << \":\" << cnt[i] << \" \";\n}\n"
+src = "string s = \"abca\";\nfor (char c : s) {\n    if (c >= 'a' && c <= 'z') cnt[c - 'a']++;\n}\nfor (int i = 0; i < 3; i++) {\n    cout << (char)('a' + i) << \":\" << cnt[i] << \" \";\n}\n"
 t = Trace("ex-08-03", "统计字母：用 c - 'a' 当桶的下标（cnt 是全局的 26 个桶）", src, H3)
 cnt = [0] * 26; s = "abca"
 t.step(1, "要统计 abca 里每个字母出现几次。cnt[0] 记 a，cnt[1] 记 b……全局数组一开始全是 0。", arrays={"s": list(s), "cnt": cnt})
 for i, c in enumerate(s):
     cnt[ord(c) - 97] += 1
-    t.step(3, "c = '%s'：c - 'a' = %d（'a'→0，'b'→1……），所以 cnt[%d]++，变成 %d。字符连续编号，减去 'a' 就得到 0~25 的下标。" % (c, ord(c) - 97, ord(c) - 97, cnt[ord(c) - 97]),
+    t.step(3, "c = '%s'：先检查它是小写字母（不检查的话，大写字母或符号减去 'a' 会得到负数或太大的下标，数组就越界了）。c - 'a' = %d（'a'→0，'b'→1……），所以 cnt[%d]++，变成 %d。" % (c, ord(c) - 97, ord(c) - 97, cnt[ord(c) - 97]),
            vars={"c": c}, arrays={"s": list(s), "cnt": cnt}, hl={"s": i, "cnt": ord(c) - 97})
 o = ""
 for i in range(3):
@@ -85,7 +86,7 @@ blocks = [
     ("quiz", q_gl),
     ("h2", "4. 统计字母：c - 'a' 当桶的下标"),
     ("trace", "ex-08-03"),
-    ("task", ["把统计字母的例子敲一遍，输入你的英文名，看每个字母出现几次。",
+    ("task", ["把统计字母的例子敲一遍，输入一个全部由小写英文字母组成的单词（比如你名字的拼音），看每个字母出现几次。再试试输入带大写字母的，看看那个范围检查起什么作用。",
               "把“先 cin >> n 再 getline”的两种写法都敲一遍，输入 <code>3</code> 换行 <code>abc</code>，亲眼看看区别。"],
      "本页是精选演示，其余内容（string 常用函数、char 数组等）请读第 8 课 md。"),
 ]
